@@ -1,77 +1,73 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import { Button } from "@/components/ui/button";
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export default function hero() {
+export default function Hero() {
   const hero = {
-    labels: ["Transparan", "Efisien", "Terpercaya"],
-  };
+    labels: ["Transparan", "Efisien", "Terpercaya"]
+  }
+
   const categories = [
     { name: "Rempah-rempah", image: "/rempah.png" },
     { name: "Hasil Bumi", image: "/hasil_bumi.png" },
     { name: "Perkebunan", image: "/perkebunan.png" },
-    { name: "Hortikultura", image: "/Hortikultura.png" },
-  ];
+    { name: "Hortikultura", image: "/Hortikultura.png" }
+  ]
 
   return (
     <>
-      <section className="relative w-full h-[420px] overflow-hidden">
-        <div>
-          <img
-            src="/hero.png"
-            alt="Hero"
-            className="absolute  w-full h-full object-cover"
-          />
-        </div>
-        <div className="relative z-10 h-full flex flex-col justify-center px-20 max-w-4xl ml-22">
-          <h1
-            className={`${geistSans.className} text-6xl font-semibold text-white leading-tight`}
-          >
-            Platform Aggregator <br /> Komoditas Indonesia
-          </h1>
-          <p
-            className={`${geistSans.className} mt-4 text-lg font-bold text-white/80`}
-          >
-            {hero.labels.join(" • ")}
-          </p>
-          <Button
-            className={`${geistSans.className} rounded-2xl mt-6 w-70 h-15 bg-yellow-400 text-[#1A3A1B] font-semibold text-lg px-5 py-2.5 rounded-md`}
-          >
-            Jelajahi Produk
-          </Button>
+      {/* ================= HERO ================= */}
+      <section className="relative h-[300px] w-full overflow-hidden sm:h-[380px] lg:h-[500px]">
+        <Image
+          src="/hero.png"
+          alt="Hero"
+          fill
+          priority
+          className="object-cover"
+        />
+
+        <div className="absolute inset-0 bg-black/35" />
+
+        <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-6xl">
+              Platform Aggregator
+              <br />
+              Komoditas Indonesia
+            </h1>
+
+            <p className="mt-4 text-sm font-semibold text-white/90 sm:text-base lg:text-lg">
+              {hero.labels.join(" • ")}
+            </p>
+
+            <Button className="mt-6 h-11 w-full rounded-xl bg-yellow-400 text-base font-semibold text-[#1A3A1B] hover:bg-yellow-500 sm:w-56 lg:h-14 lg:w-72 lg:text-lg">
+              Jelajahi Produk
+            </Button>
+          </div>
         </div>
       </section>
 
-      <section>
-        <div className="max-w-full ml-22 px-20 mt-10">
-          <h2
-            className={`${geistSans.className} text-2xl font-bold text-[#1A3A1B]`}
-          >
+      {/* ================= CATEGORY ================= */}
+      <section className="py-12 lg:py-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-[#1A3A1B] lg:text-3xl">
             Kategori Komoditas
           </h2>
-          <div className="grid grid-cols-4 gap-4 mt-6">
-            {categories.map((category, index) => (
+
+          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {categories.map((category) => (
               <div
-                key={index}
-                className="bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-center gap-3 py-8 px-4 hover:shadow-md transition-shadow"
+                key={category.name}
+                className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <img
+                <Image
                   src={category.image}
                   alt={category.name}
-                  className="w-16 h-16 object-contain"
+                  width={70}
+                  height={70}
+                  className="h-16 w-16 object-contain lg:h-20 lg:w-20"
                 />
-                <span
-                  className={`${geistSans.className} text-sm font-medium text-black text-center`}
-                >
+
+                <span className="mt-4 text-center text-sm font-medium lg:text-base">
                   {category.name}
                 </span>
               </div>
@@ -80,5 +76,5 @@ export default function hero() {
         </div>
       </section>
     </>
-  );
+  )
 }

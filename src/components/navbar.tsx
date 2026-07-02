@@ -1,48 +1,205 @@
-import { Search } from "lucide-react";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client"
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
+import Image from "next/image"
+import Link from "next/link"
+import {
+  Search,
+  Smartphone,
+  ChevronDown,
+  ShoppingCart,
+  Menu
+} from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion";
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+
+import { useState } from "react"
 
 export default function Navbar() {
-    return (
-         <nav className="bg-white shadow-md w-full h-20">
-            <div className="h-full max-w-8xl px-6 flex items-center justify-between gap-6">
+    const [isOpen, setIsOpen] = useState(false)
 
-                <div className="flex items-center ml-30">
-                    <img src="/logo.png" alt="Logo Bumi_nusa" className="w-20 h-20" />
-                    <h1 className={`${geistSans.className} text-2xl font-bold text-[#1A3A1B] `}>
-                        BUMI_NUSA
-                    </h1>
-                </div>
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
 
-                <div className="hidden md:flex items-center ml-215 gap-10">
-                    <a href="/komoditas" className={`${geistSans.className} text-base text-gray-500`}>
-                        Komoditas
-                    </a>
-                    <a href="/supplier"  className={`${geistSans.className} text-base text-gray-500`}>
-                        Supplier
-                    </a>
-                </div>
+      {/* ================= TOP BAR ================= */}
+      <div className="hidden md:block h-9 bg-yellow-400 border-b border-gray-200">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
 
-                <div className="flex items-center w-full max-w-xs">
-                    <div className="relative w-full">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            className={`${geistSans.className} w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-black`}
-                        />
-                    </div>
-                </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Smartphone className="h-4 w-4 text-gray-600" />
+
+            <span className="font-semibold">
+              Gratis Ongkir + Banyak Promo
+            </span>
+
+            <span className="text-gray-600">
+              belanja di aplikasi
+            </span>
+
+            <ChevronDown className="h-4 w-4 -rotate-90" />
+          </div>
+
+          <div className="hidden items-center gap-8 text-sm text-gray-600 lg:flex">
+            <Link href="#">Tentang Bumi Nusa</Link>
+            <Link href="#">Mulai Berjualan</Link>
+            <Link href="#">Promo</Link>
+            <Link href="#">Bantuan</Link>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ================= MAIN NAVBAR ================= */}
+      <div className="h-14">
+       <div className="mx-auto flex h-full max-w-7xl items-center gap-3 px-4 md:px-6">
+
+          {/* Logo */}
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-3"
+          >
+            <Image
+            src="/logo.png"
+            alt="BUMI NUSA"
+            width={50}
+            height={50}
+            />
+
+            <span className="hidden sm:block text-2xl font-bold text-[#1A3A1B]">
+            BUMI NUSA
+            </span>
+          </Link>
+
+          {/* Kategori */}
+          <button className="hidden lg:block shrink-0 px-7 text-[15px] hover:text-green-700">
+            Komoditas
+            </button>
+
+          {/* Search */}
+          <div className="flex-1 min-w-0">
+            <div className="relative">
+
+              <Search
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+
+              <input
+                type="text"
+                placeholder="Cari komoditas..."
+                className={"h-10 w-full rounded-xl border border-gray-300 pl-10 pr-3 text-sm outline-none focus:border-green-600"}
+                />
+
             </div>
-        </nav>
-    );
+          </div>
+
+          {/* Cart */}
+          <button className="rounded-lg p-2 hover:bg-gray-100">
+            <ShoppingCart size={20} />
+            </button>
+
+          <div className="h-8 w-px bg-gray-300" />
+
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+                href="/login"
+                className="rounded-lg border border-green-600 px-6 py-2 font-semibold text-green-600 hover:bg-green-50"
+            >
+                Masuk
+            </Link>
+
+            <Link
+                href="/register"
+                className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700"
+            >
+                Daftar
+            </Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="rounded-lg p-2 hover:bg-gray-100 md:hidden"
+            >
+            <Menu size={22} />
+            </button>
+
+            {/* ================= MOBILE MENU ================= */}
+<AnimatePresence>
+  {isOpen && (
+    <motion.div
+      initial={{ opacity: 0, y: -15 }} // Posisi awal agak di atas dan transparan
+      animate={{ opacity: 1, y: 0 }}   // Animasi turun dan memadat
+      exit={{ opacity: 0, y: -15 }}    // Animasi naik kembali saat ditutup
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="absolute left-0 right-0 top-full border-b border-gray-100 bg-white shadow-lg md:hidden z-50"
+    >
+      <div className="flex flex-col space-y-2 px-4 py-4">
+        
+        {/* Menu Links */}
+        <Link
+          href="/komoditas"
+          onClick={() => setIsOpen(false)}
+          className="rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+        >
+          Komoditas
+        </Link>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-100 my-1" />
+
+        {/* Action Buttons */}
+        <div className="flex flex-col pt-1 space-y-2">
+          <Link
+            href="/login"
+            onClick={() => setIsOpen(false)}
+            className="rounded-xl border border-green-600 px-4 py-2.5 text-center text-sm font-semibold text-green-600 hover:bg-green-50 active:bg-green-100 transition-colors"
+          >
+            Masuk
+          </Link>
+
+          <Link
+            href="/register"
+            onClick={() => setIsOpen(false)}
+            className="rounded-xl bg-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm shadow-green-200 hover:bg-green-700 active:bg-green-800 transition-all"
+          >
+            Daftar
+          </Link>
+        </div>
+
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+        </div>
+      </div>
+
+      {/* ================= BOTTOM BAR ================= */}
+      {/* <div className="h-5">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-end px-6">
+
+          <button className="flex items-center gap-2 text-sm">
+
+            <MapPin
+              className="text-gray-600"
+              size={18}
+            />
+
+            <span className="text-gray-500">
+              Dikirim ke
+            </span>
+
+            <span className="font-semibold">
+              Jakarta Pusat
+            </span>
+
+            <ChevronDown size={16} />
+
+          </button>
+
+        </div>
+      </div> */}
+
+    </header>
+  )
 }

@@ -6,16 +6,6 @@ import {
   ChevronRight
 } from "lucide-react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -43,11 +33,11 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <img src="/logo.png" alt="Bumi_Nusa" className="w-10 h-10" />
-              <h2 className={`${geistSans.className} text-xl font-bold`}>
+              <h2 className="text-xl font-bold">
                 Bumi_Nusa
               </h2>
             </div>
-            <p className={`${geistSans.className} text-sm text-gray-300 leading-relaxed`}>
+            <p className="text-sm text-gray-300 leading-relaxed">
               Platform aggregator komoditas Indonesia yang transparan, efisien, dan terpercaya.
             </p>
             {/* <div className="flex gap-3 mt-4">
@@ -68,7 +58,7 @@ export default function Footer() {
 
           {/* Column 2 - Menu */}
           <div>
-            <h3 className={`${geistSans.className} text-lg font-semibold mb-4`}>
+            <h3 className="text-lg font-semibold mb-4">
               Menu
             </h3>
             <ul className="space-y-2">
@@ -76,7 +66,7 @@ export default function Footer() {
                 <li key={index}>
                   <a
                     href={item.href}
-                    className={`${geistSans.className} text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1`}
+                    className="text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1"
                   >
                     <ChevronRight className="w-3 h-3" />
                     {item.name}
@@ -88,7 +78,7 @@ export default function Footer() {
 
           {/* Column 3 - Kategori */}
           <div>
-            <h3 className={`${geistSans.className} text-lg font-semibold mb-4`}>
+            <h3 className="text-lg font-semibold mb-4">
               Kategori
             </h3>
             <ul className="space-y-2">
@@ -96,7 +86,7 @@ export default function Footer() {
                 <li key={index}>
                   <a
                     href={item.href}
-                    className={`${geistSans.className} text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1`}
+                    className="text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-1"
                   >
                     <ChevronRight className="w-3 h-3" />
                     {item.name}
@@ -108,25 +98,25 @@ export default function Footer() {
 
           {/* Column 4 - Kontak */}
           <div>
-            <h3 className={`${geistSans.className} text-lg font-semibold mb-4`}>
+            <h3 className="text-lg font-semibold mb-4">
               Kontak
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                <span className={`${geistSans.className} text-sm text-gray-300`}>
+                <span className="text-sm text-gray-300">
                   Jl. Komoditas No. 123, <br /> Jakarta, Indonesia
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-gray-400" />
-                <a href="tel:+62123456789" className={`${geistSans.className} text-sm text-gray-300 hover:text-white transition-colors`}>
+                <a href="tel:+62123456789" className="text-sm text-gray-300 hover:text-white transition-colors">
                   +62 123 456 789
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gray-400" />
-                <a href="mailto:info@buminusa.com" className={`${geistSans.className} text-sm text-gray-300 hover:text-white transition-colors`}>
+                <a href="mailto:info@buminusa.com" className="text-sm text-gray-300 hover:text-white transition-colors">
                   info@buminusa.com
                 </a>
               </li>
@@ -138,17 +128,17 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-20 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-            <p className={`${geistSans.className} text-sm text-gray-400`}>
-              &copy; {currentYear} Bumi_Nusa. All rights reserved.
+            <p className="text-sm text-gray-400">
+              &copy; {currentYear} Bumi Nusa. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <a href="#" className={`${geistSans.className} text-sm text-gray-400 hover:text-white transition-colors`}>
+              <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Privasi
               </a>
-              <a href="#" className={`${geistSans.className} text-sm text-gray-400 hover:text-white transition-colors`}>
+              <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Syarat & Ketentuan
               </a>
-              <a href="#" className={`${geistSans.className} text-sm text-gray-400 hover:text-white transition-colors`}>
+              <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Bantuan
               </a>
             </div>

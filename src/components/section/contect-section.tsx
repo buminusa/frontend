@@ -1,5 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   ShieldCheck,
   TrendingUp,
@@ -7,19 +6,9 @@ import {
   Clock,
   Award,
   Globe,
-} from "lucide-react";
+} from "lucide-react"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export default function ContectSection() {
+export default function ContentSection() {
   const benefits = [
     {
       icon: ShieldCheck,
@@ -42,7 +31,8 @@ export default function ContectSection() {
     {
       icon: Clock,
       title: "Real-time",
-      description: "Informasi harga dan stok selalu diperbarui secara langsung",
+      description:
+        "Informasi harga dan stok selalu diperbarui secara langsung",
     },
     {
       icon: Award,
@@ -56,44 +46,41 @@ export default function ContectSection() {
       description:
         "Terhubung dengan petani dan pembeli dari berbagai daerah di Indonesia",
     },
-  ];
+  ]
 
   return (
-    <>
-      <section className="bg-gradient-to-b from-white to-green-50">
-        <div className="ml-42 mt-45">
-          <h1
-            className={`${geistSans.className} text-2xl font-bold text-[#1A3A1B] `}
-          >
-            Kenapa Bumi_Nusa?
-          </h1>
-          <p
-            className={`${geistSans.className} mt-3 text-gray-600 text-lg max-w-2xl `}
-          >
+    <section className="bg-gradient-to-b from-white to-green-50 py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Heading */}
+        <div className="max-w-2xl">
+          <h2 className="text-2xl font-bold text-[#1A3A1B] lg:text-3xl">
+            Kenapa Bumi Nusa?
+          </h2>
+
+          <p className="mt-4 text-base leading-relaxed text-gray-600 lg:text-lg">
             Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit
             amet consectetur adipiscing elit quisque faucibus.
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-8 mt-10 ml-42 mr-42">
-          {benefits.map((benefit, index) => (
+        {/* Cards */}
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {benefits.map((benefit) => (
             <div
-              key={index}
-              className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300 group"
+              key={benefit.title}
+              className="group rounded-2xl border border-gray-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-[#1A3A1B]/10 rounded-xl flex items-center justify-center group-hover:bg-[#1A3A1B] transition-colors duration-300">
-                  <benefit.icon className="w-6 h-6 text-[#1A3A1B] group-hover:text-white transition-colors duration-300" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A3A1B]/10 transition-colors duration-300 group-hover:bg-[#1A3A1B]">
+                  <benefit.icon className="h-6 w-6 text-[#1A3A1B] transition-colors duration-300 group-hover:text-white" />
                 </div>
-                <div className="flex-1">
-                  <h3
-                    className={`${geistSans.className} text-lg font-semibold text-[#1A3A1B] mb-2`}
-                  >
+
+                <div>
+                  <h3 className="text-lg font-semibold text-[#1A3A1B]">
                     {benefit.title}
                   </h3>
-                  <p
-                    className={`${geistSans.className} text-sm text-gray-600 leading-relaxed`}
-                  >
+
+                  <p className="mt-2 text-sm leading-relaxed text-gray-600">
                     {benefit.description}
                   </p>
                 </div>
@@ -101,14 +88,14 @@ export default function ContectSection() {
             </div>
           ))}
         </div>
-        <div className="text-center mt-15 mb-15">
-          <Button
-            className={`${geistSans.className} rounded-2xl bg-yellow-400 text-[#1A3A1B] font-semibold text-base px-8 py-6 hover:scale-105 transition-transform hover:bg-yellow-500`}
-          >
+
+        {/* Button */}
+        <div className="mt-12 flex justify-center">
+          <Button className="h-12 rounded-xl bg-yellow-400 px-8 text-base font-semibold text-[#1A3A1B] transition hover:scale-105 hover:bg-yellow-500">
             Mulai Bergabung
           </Button>
         </div>
-      </section>
-    </>
-  );
+      </div>
+    </section>
+  )
 }

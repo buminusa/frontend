@@ -7,15 +7,32 @@ import {
   Smartphone,
   ChevronDown,
   ShoppingCart,
-  Menu
+  Menu,
+  FlagIcon,
+  Flag
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 
 
 import { useState } from "react"
 
+const categories = [
+  "Rempah-rempah",
+  "Hasil Bumi",
+  "Perkebunan",
+  "Hortikultura",
+  "Perikanan",
+  "Peternakan",
+  "Kopi",
+  "Kakao",
+  "Jagung",
+  "Padi"
+]
+
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
+    const [showCategory, setShowCategory] = useState(false)
+    const [activeCategory, setActiveCategory] = useState(categories[0])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
@@ -25,14 +42,10 @@ export default function Navbar() {
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
 
           <div className="flex items-center gap-2 text-sm">
-            <Smartphone className="h-4 w-4 text-gray-600" />
+            <Flag className="h-4 w-4 text-gray-600" />
 
             <span className="font-semibold">
-              Gratis Ongkir + Banyak Promo
-            </span>
-
-            <span className="text-gray-600">
-              belanja di aplikasi
+              ID
             </span>
 
             <ChevronDown className="h-4 w-4 -rotate-90" />
@@ -41,7 +54,6 @@ export default function Navbar() {
           <div className="hidden items-center gap-8 text-sm text-gray-600 lg:flex">
             <Link href="#">Tentang Bumi Nusa</Link>
             <Link href="#">Mulai Berjualan</Link>
-            <Link href="#">Promo</Link>
             <Link href="#">Bantuan</Link>
           </div>
 
@@ -70,9 +82,25 @@ export default function Navbar() {
           </Link>
 
           {/* Kategori */}
-          <button className="hidden lg:block shrink-0 px-7 text-[15px] hover:text-green-700">
-            Komoditas
-            </button>
+         <div
+  className="relative hidden lg:block"
+  onMouseEnter={() => setShowCategory(true)}
+  onMouseLeave={() => setShowCategory(false)}
+  onClick={() => setShowCategory(!showCategory)}
+>
+  <button
+    className="
+      rounded-lg
+      px-4
+      py-2
+      text-[15px]
+      transition
+      hover:bg-gray-100
+    "
+  >
+    Komoditas
+  </button>
+</div>
 
           {/* Search */}
           <div className="flex-1 min-w-0">
@@ -173,6 +201,77 @@ export default function Navbar() {
 
         </div>
       </div>
+
+      <AnimatePresence>
+  {showCategory && (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.15 }}
+      onMouseEnter={() => setShowCategory(true)}
+      onMouseLeave={() => setShowCategory(false)}
+      className="
+        absolute
+        left-0
+        right-0
+        top-full
+        z-50
+        border-t
+        border-gray-200
+        bg-white
+        shadow-xl
+      "
+    >
+      <div className="mx-auto flex max-w-7xl">
+
+        {/* Sidebar */}
+        <div className="w-72 border-r border-gray-200 py-5">
+
+          {categories.map((category) => (
+  <button
+    key={category}
+    onMouseEnter={() => setActiveCategory(category)}
+    className={`
+      block
+      w-full
+      px-6
+      py-3
+      text-left
+      text-sm
+      transition
+
+      ${
+        activeCategory === category
+          ? "bg-gray-100 font-semibold"
+          : "hover:bg-gray-50"
+      }
+    `}
+  >
+    {category}
+  </button>
+))}
+
+        </div>
+
+        {/* Content */}
+
+        <div className="flex-1 p-8">
+
+          <h2 className="text-3xl font-bold">
+            {activeCategory}
+          </h2>
+
+          <p className="mt-3 text-gray-500">
+            Berbagai komoditas rempah berkualitas dari seluruh Indonesia.
+          </p>
+
+        </div>
+
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
       {/* ================= BOTTOM BAR ================= */}
       {/* <div className="h-5">

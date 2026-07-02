@@ -39,7 +39,7 @@ export default function Hero() {
               {hero.labels.join(" • ")}
             </p>
 
-            <Button className="mt-6 h-11 w-full rounded-xl bg-yellow-400 text-base font-semibold text-[#1A3A1B] hover:bg-yellow-500 sm:w-56 lg:h-14 lg:w-72 lg:text-lg">
+            <Button className="mt-6 h-11 w-full rounded-xl bg-yellow-400 text-base font-semibold text-[#1A3A1B] lg:h-14 lg:w-72 lg:text-lg cursor-pointer">
               Jelajahi Produk
             </Button>
           </div>

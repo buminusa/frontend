@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BUMI_NUSA",
+  title: "BUMI NUSA",
   description: "Bumi_nusa adalah platfrom penjualan rempah rempah",
 };
 

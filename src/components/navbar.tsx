@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 import { useState } from "react"
+import { Button } from "./ui/button";
 
 const categories = [
   "Rempah-rempah",
@@ -66,7 +67,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link
-            href="/"
+            href="/home"
             className="flex shrink-0 items-center gap-3"
           >
             <Image
@@ -88,15 +89,7 @@ export default function Navbar() {
   onMouseLeave={() => setShowCategory(false)}
   onClick={() => setShowCategory(!showCategory)}
 >
-  <button
-    className="
-      rounded-lg
-      px-4
-      py-2
-      text-[15px]
-      transition
-      hover:bg-gray-100
-    "
+  <button className="rounded-lg px-4 py-2 text-[15px] transition hover:bg-gray-100"
   >
     Komoditas
   </button>
@@ -120,10 +113,16 @@ export default function Navbar() {
             </div>
           </div>
 
+          
+
           {/* Cart */}
           <button className="rounded-lg p-2 hover:bg-gray-100">
             <ShoppingCart size={20} />
             </button>
+
+            <button className="hidden md:block rounded-lg px-4 py-2 text-[15px] font-semibold transition hover:bg-gray-100">
+            Pilih Daerahmu <ChevronDown className="ml-1 inline-block" size={16} />
+          </button>
 
           <div className="h-8 w-px bg-gray-300" />
 
@@ -172,6 +171,13 @@ export default function Navbar() {
           Komoditas
         </Link>
 
+        <button
+          onClick={() => setIsOpen(false)}
+          className="rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+        >
+          Pilih Daerahmu <ChevronDown className="ml-1 inline-block" size={16} />
+        </button>
+
         {/* Divider */}
         <div className="h-px bg-gray-100 my-1" />
 
@@ -201,6 +207,7 @@ export default function Navbar() {
 
         </div>
       </div>
+
 
       <AnimatePresence>
   {showCategory && (
@@ -272,33 +279,6 @@ export default function Navbar() {
     </motion.div>
   )}
 </AnimatePresence>
-
-      {/* ================= BOTTOM BAR ================= */}
-      {/* <div className="h-5">
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-end px-6">
-
-          <button className="flex items-center gap-2 text-sm">
-
-            <MapPin
-              className="text-gray-600"
-              size={18}
-            />
-
-            <span className="text-gray-500">
-              Dikirim ke
-            </span>
-
-            <span className="font-semibold">
-              Jakarta Pusat
-            </span>
-
-            <ChevronDown size={16} />
-
-          </button>
-
-        </div>
-      </div> */}
-
     </header>
   )
 }

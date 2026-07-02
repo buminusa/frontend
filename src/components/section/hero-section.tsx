@@ -3,14 +3,18 @@ import { Button } from "@/components/ui/button"
 
 export default function Hero() {
   const hero = {
-    labels: ["Transparan", "Efisien", "Terpercaya"]
+    labels: ["Efisien", "Terpercaya"]
   }
 
   const categories = [
     { name: "Rempah-rempah", image: "/rempah.png" },
     { name: "Hasil Bumi", image: "/hasil_bumi.png" },
     { name: "Perkebunan", image: "/perkebunan.png" },
-    { name: "Hortikultura", image: "/Hortikultura.png" }
+    { name: "Hortikultura", image: "/Hortikultura.png" },
+    { name: "Perikanan", image: "/Hortikultura.png" },
+    { name: "Peternakan", image: "/Hortikultura.png" },
+    { name: "Kopi", image: "/Hortikultura.png" },
+    { name: "Kakao", image: "/Hortikultura.png" }
   ]
 
   return (
@@ -36,7 +40,7 @@ export default function Hero() {
             </h1>
 
             <p className="mt-4 text-sm font-semibold text-white/90 sm:text-base lg:text-lg">
-              {hero.labels.join(" • ")}
+              {hero.labels.join(" , ")}
             </p>
 
             <Button className="mt-6 h-11 w-full rounded-xl bg-yellow-400 text-base font-semibold text-[#1A3A1B] lg:h-14 lg:w-72 lg:text-lg cursor-pointer">
@@ -50,7 +54,7 @@ export default function Hero() {
       <section className="py-12 lg:py-20">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-[#1A3A1B] lg:text-3xl">
-            Kategori Komoditas
+            Sedia Komoditas
           </h2>
 
           <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">

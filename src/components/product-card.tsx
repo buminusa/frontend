@@ -1,7 +1,9 @@
 import Image from "next/image"
+import Link from "next/link"
 import { MapPin } from "lucide-react"
 
 interface Props {
+  slug: string
   name: string
   image: string
   price: number
@@ -9,15 +11,17 @@ interface Props {
 }
 
 export default function ProductCard({
+  slug,
   name,
   image,
   price,
   location,
 }: Props) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white transition duration-200 hover:-translate-y-1 hover:shadow-md">
-
-      {/* Image */}
+    <Link
+      href={`/komoditas/${slug}`}
+      className="block overflow-hidden rounded-lg border border-gray-200 bg-white transition duration-200 hover:-translate-y-1 hover:shadow-md"
+    >
       <div className="relative aspect-[4/3]">
         <Image
           src={image}
@@ -44,6 +48,6 @@ export default function ProductCard({
         </div>
 
       </div>
-    </div>
+    </Link>
   )
 }

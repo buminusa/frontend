@@ -49,6 +49,11 @@ export const products = [
   {
     id: 1,
     name: "Beras Premium",
+    slug: "beras-premium",
+    description: "Beras premium berkualitas tinggi, cocok untuk kebutuhan sehari-hari.",
+    specifications: "Beras premium dengan kualitas terbaik, bebas dari kotoran dan memiliki tekstur yang pulen.",
+    min_order: 10,
+    unit: "kg",
     category: "Padi",
     price: 15000,
     location: "Bandung",
@@ -57,6 +62,11 @@ export const products = [
   {
     id: 2,
     name: "Cabai Merah",
+    slug: "cabai-merah",
+    description: "Cabai merah segar dan pedas, ideal untuk masakan pedas.",
+    specifications: "Cabai merah segar dengan tingkat kepedasan tinggi, cocok untuk berbagai masakan.",
+    min_order: 5,
+    unit: "kg",
     category: "Hortikultura",
     price: 42000,
     location: "Garut",
@@ -65,6 +75,11 @@ export const products = [
   {
     id: 3,
     name: "Kopi Gayo",
+    slug: "kopi-gayo",
+    description: "Kopi Gayo berkualitas tinggi dengan aroma khas Aceh.",
+    specifications: "Kopi Gayo dengan cita rasa yang kaya dan aroma yang khas, diproses secara tradisional.",
+    min_order: 5,
+    unit: "kg",
     category: "Kopi",
     price: 85000,
     location: "Aceh",
@@ -73,10 +88,16 @@ export const products = [
   {
     id: 4,
     name: "Jahe Merah",
+    slug: "jahe-merah",
+    description: "Jahe merah segar, cocok untuk minuman herbal dan masakan.",
+    specifications: "Jahe merah dengan kualitas terbaik, memiliki aroma dan rasa yang kuat.",
+    min_order: 10,
+    unit: "kg",
+    hs_code: "0901.21",
     category: "Rempah",
     price: 28000,
     location: "Bogor",
-    image: "/products/jahe.jpg",
+    image: "/products/jahe.jpeg",
   },
 ]
 
@@ -118,3 +139,7 @@ export const commodityPrices = [
     image: "/products/jagung.jpg",
   },
 ]
+
+export function getProductBySlug(slug: string) {
+  return products.find((product) => product.slug === slug)
+}

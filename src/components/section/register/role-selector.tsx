@@ -15,7 +15,7 @@ export default function RoleSelector({
         onClick={() => onChange("buyer")}
         className={`rounded-lg border px-4 py-3 text-sm font-semibold transition ${
           role === "buyer"
-            ? "border-black bg-black text-white"
+            ? "border-green-600 bg-green-600 text-white"
             : "border-gray-300 text-gray-500 hover:border-gray-400"
         }`}
       >
@@ -27,7 +27,7 @@ export default function RoleSelector({
         onClick={() => onChange("supplier")}
         className={`rounded-lg border px-4 py-3 text-sm font-semibold transition ${
           role === "supplier"
-            ? "border-black bg-black text-white"
+            ? "border-green-600 bg-green-600 text-white"
             : "border-gray-300 text-gray-500 hover:border-gray-400"
         }`}
       >

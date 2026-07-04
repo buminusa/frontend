@@ -29,7 +29,7 @@ export default function CommodityDetailSection({
       <div className="mx-auto max-w-6xl px-4">
         <Link
           href="/komoditas"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-black"
+          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-green-600"
         >
           <ArrowLeft size={16} />
           Kembali ke Komoditas
@@ -69,7 +69,7 @@ export default function CommodityDetailSection({
               </div>
             </div>
 
-            <div className="mb-6 text-3xl font-bold text-[#1A3A1B]">
+            <div className="mb-6 text-3xl font-bold text-green-600">
               Rp {product.price.toLocaleString("id-ID")}
               <span className="text-base font-semibold text-gray-500">
                 /{product.unit}

@@ -39,7 +39,7 @@ export default function CommodityPriceCard({
             {name}
           </h3>
 
-          <div className="mt-1 text-md font-semibold text-[#1A3A1B]">
+          <div className="mt-1 text-md font-semibold text-green-600">
             Rp {price.toLocaleString("id-ID")}
             <span className="text-sm font-semibold text-gray-500">
                /{unit}

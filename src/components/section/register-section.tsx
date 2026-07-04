@@ -67,7 +67,7 @@ export default function RegisterSection() {
 
         <p className="mb-8 text-sm text-gray-500">
           Sudah punya akun?{" "}
-          <Link href="/login" className="font-semibold text-black underline">
+          <Link href="/login" className="font-semibold text-green-600 underline">
             Masuk di sini
           </Link>
         </p>
@@ -121,7 +121,7 @@ export default function RegisterSection() {
 
           <button
             type="submit"
-            className="w-full rounded-full bg-black py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
           >
             Daftar
           </button>

@@ -38,7 +38,7 @@ export default function ProductCard({
           {name}
         </h3>
 
-        <p className="text-base font-bold text-[#1A3A1B]">
+        <p className="text-base font-bold text-green-600">
           Rp {price.toLocaleString("id-ID")}
         </p>
 

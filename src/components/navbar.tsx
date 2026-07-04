@@ -9,7 +9,9 @@ import {
   ShoppingCart,
   Menu,
   FlagIcon,
-  Flag
+  Flag,
+  PinIcon,
+  Pin
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -77,7 +79,7 @@ export default function Navbar() {
             height={50}
             />
 
-            <span className="hidden sm:block text-2xl font-bold text-[#1A3A1B]">
+            <span className="hidden sm:block text-2xl font-bold text-green-600">
             BUMI NUSA
             </span>
           </Link>
@@ -121,6 +123,7 @@ export default function Navbar() {
             </button>
 
             <button className="hidden md:block rounded-lg px-4 py-2 text-[15px] font-semibold transition hover:bg-gray-100">
+              <Pin className="mr-2 inline-block" size={16} />
             Pilih Daerahmu <ChevronDown className="ml-1 inline-block" size={16} />
           </button>
 

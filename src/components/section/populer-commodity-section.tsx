@@ -68,7 +68,7 @@ export default function PopulerCommoditySection() {
 
         <Link
     href={"/komoditas"}
-    className="hidden md:flex items-center gap-2 font-semibold text-[#1A3A1B] hover:gap-3 transition-all">
+    className="hidden md:flex items-center gap-2 font-medium text-gray-400 hover:gap-3 hover:text-green-600 transition-all">
     Lihat Semua
     <ArrowRight size={18} />
   </Link>

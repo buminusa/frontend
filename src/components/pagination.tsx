@@ -91,7 +91,7 @@ export default function Pagination({
 
               ${
                 currentPage === page
-                  ? "border-[#1A3A1B] bg-[#1A3A1B] text-white"
+                  ? "border-green-600 bg-green-600 text-white"
                   : "border-gray-300 hover:bg-gray-100"
               }
             `}

@@ -17,7 +17,6 @@ export default function CommodityPriceSection() {
         <p className="mt-2 text-gray-500">
           Data diperbarui secara berkala dari berbagai daerah.
         </p>
-
       </div>
 
       <span className="hidden text-sm text-gray-500 md:block">

@@ -6,9 +6,12 @@ import Link from "next/link"
 import RoleSelector from "./register/role-selector"
 import BuyerFields from "./register/buyer-fields"
 import CompanyFields from "./register/company-fields"
+import { registerBuyerUser, registerCompanyUser } from "@/lib/auth"
 
 export default function RegisterSection() {
   const [role, setRole] = useState<"buyer" | "supplier">("buyer")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
 
   const [account, setAccount] = useState({
     email: "",
@@ -25,7 +28,8 @@ export default function RegisterSection() {
 
   const [companyData, setCompanyData] = useState({
     company_name: "",
-    npwp: "",
+    npwp_file: null as File | null,
+    logo: null as File | null,
     address: "",
     province: "",
     country: "",
@@ -45,16 +49,34 @@ export default function RegisterSection() {
     setCompanyData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCompanyFileChange = (field: string, file: File | null) => {
+    setCompanyData((prev) => ({ ...prev, [field]: file }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setMessage(null)
 
-    const payload =
-      role === "buyer"
-        ? { role, ...account, ...buyerData }
-        : { role, ...account, ...companyData }
-
-    console.log(payload)
-    // TODO: kirim payload ke API register
+    try {
+      if (role === "buyer") {
+        const response = await registerBuyerUser({
+          ...account,
+          ...buyerData,
+        })
+        setMessage(response.message)
+      } else {
+        const response = await registerCompanyUser({
+          ...account,
+          ...companyData,
+        })
+        setMessage(response.message)
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Registration failed")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -115,15 +137,21 @@ export default function RegisterSection() {
               <CompanyFields
                 formData={companyData}
                 onChange={handleCompanyChange}
+                onFileChange={handleCompanyFileChange}
               />
             )}
           </div>
 
+          {message ? (
+            <p className="text-sm text-gray-600">{message}</p>
+          ) : null}
+
           <button
             type="submit"
-            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+            disabled={isSubmitting}
+            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400"
           >
-            Daftar
+            {isSubmitting ? "Memproses..." : "Daftar"}
           </button>
 
         </form>

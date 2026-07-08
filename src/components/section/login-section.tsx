@@ -2,22 +2,37 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { loginUser } from "@/lib/auth"
 
 export default function LoginSection() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setMessage(null)
 
-    console.log(formData)
-    // TODO: kirim payload ke API login
+    try {
+      const response = await loginUser(formData)
+      setMessage(response.message)
+
+      if (response.token) {
+        localStorage.setItem("auth_token", response.token)
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Login failed")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -64,11 +79,16 @@ export default function LoginSection() {
           </div>
 
 
+          {message ? (
+            <p className="text-sm text-gray-600">{message}</p>
+          ) : null}
+
           <button
             type="submit"
-            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+            disabled={isSubmitting}
+            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400"
           >
-            Masuk
+            {isSubmitting ? "Memproses..." : "Masuk"}
           </button>
 
         </form>

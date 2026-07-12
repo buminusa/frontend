@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { Upload, X } from "lucide-react"
 
 interface CompanyFieldsProps {
@@ -33,17 +33,17 @@ function FileUploadField({
   placeholder: string
   accept?: string
 }) {
-  const [preview, setPreview] = useState<string | null>(null)
+  const preview = useMemo(() => {
+    if (!file) return null
+
+    return URL.createObjectURL(file)
+  }, [file])
 
   useEffect(() => {
-    if (!file) {
-      setPreview(null)
-      return
-    }
-    const url = URL.createObjectURL(file)
-    setPreview(url)
-    return () => URL.revokeObjectURL(url)
-  }, [file])
+    if (!preview) return
+
+    return () => URL.revokeObjectURL(preview)
+  }, [preview])
 
   return (
     <div>

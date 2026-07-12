@@ -1,13 +1,19 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
+export const AUTH_TOKEN_KEY = "auth_token";
+export const AUTH_EVENT_NAME = "auth:changed";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
+  const headers = new Headers(options.headers);
+  const isFormData = options.body instanceof FormData;
+
+  if (!headers.has("Content-Type") && !isFormData) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers ?? {}),
-    },
     ...options,
+    headers,
   });
 
   const data = await response.json().catch(() => ({}));
@@ -17,6 +23,26 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   return data as T;
+}
+
+export function getAuthToken() {
+  if (typeof window === "undefined") return null;
+
+  return window.localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+export function saveAuthToken(token: string) {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+  window.dispatchEvent(new Event(AUTH_EVENT_NAME));
+}
+
+export function clearAuthToken() {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  window.dispatchEvent(new Event(AUTH_EVENT_NAME));
 }
 
 export async function loginUser(payload: { email: string; password: string }) {
@@ -75,5 +101,20 @@ export async function registerCompanyUser(payload: {
   return request<{ success: boolean; message: string; data?: unknown }>('/api/v1/auth/register-company', {
     method: 'POST',
     body: formData,
+  });
+}
+
+export async function logoutUser(token?: string) {
+  const authToken = token ?? getAuthToken();
+
+  if (!authToken) {
+    return { success: true, message: "Logout successful" };
+  }
+
+  return request<{ success: boolean; message: string }>('/api/v1/auth/logout', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
   });
 }

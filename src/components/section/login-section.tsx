@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { loginUser } from "@/lib/auth"
+import { useRouter } from "next/navigation"
+import { loginUser, saveAuthToken } from "@/lib/auth"
 
 export default function LoginSection() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -26,7 +28,8 @@ export default function LoginSection() {
       setMessage(response.message)
 
       if (response.token) {
-        localStorage.setItem("auth_token", response.token)
+        saveAuthToken(response.token)
+        router.push("/home")
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed")

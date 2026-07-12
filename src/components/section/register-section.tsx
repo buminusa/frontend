@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import RoleSelector from "./register/role-selector"
 import BuyerFields from "./register/buyer-fields"
@@ -9,6 +10,7 @@ import CompanyFields from "./register/company-fields"
 import { registerBuyerUser, registerCompanyUser } from "@/lib/auth"
 
 export default function RegisterSection() {
+  const router = useRouter()
   const [role, setRole] = useState<"buyer" | "supplier">("buyer")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -65,12 +67,14 @@ export default function RegisterSection() {
           ...buyerData,
         })
         setMessage(response.message)
+        router.push("/login")
       } else {
         const response = await registerCompanyUser({
           ...account,
           ...companyData,
         })
         setMessage(response.message)
+        router.push("/login")
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Registration failed")

@@ -187,11 +187,6 @@ useEffect(() => {
             <ShoppingCart size={20} />
           </button>
 
-          <button className="hidden rounded-lg px-4 py-2 text-[15px] font-semibold transition hover:bg-gray-100 md:block">
-            <Pin className="mr-2 inline-block" size={16} />
-            Pilih Daerahmu <ChevronDown className="ml-1 inline-block" size={16} />
-          </button>
-
           <div className="h-8 w-px bg-gray-300" />
 
           <div className="hidden items-center md:flex">
@@ -302,13 +297,6 @@ useEffect(() => {
               >
                 Komoditas
               </Link>
-
-              <button
-                onClick={() => setIsOpen(false)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-green-600"
-              >
-                Pilih Daerahmu <ChevronDown className="ml-1 inline-block" size={16} />
-              </button>
 
               <div className="my-1 h-px bg-gray-100" />
 

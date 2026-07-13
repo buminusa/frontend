@@ -7,6 +7,7 @@ import {
   Award,
   Globe,
 } from "lucide-react"
+import Link from "next/link"
 
 export default function ContentSection() {
   const benefits = [
@@ -90,11 +91,14 @@ export default function ContentSection() {
         </div>
 
         {/* Button */}
+        <Link href={"/register"}>
         <div className="mt-12 flex justify-center">
           <Button className="h-12 rounded-xl bg-yellow-400 px-8 text-base font-semibold text-[#1A3A1B] transition hover:scale-105 hover:bg-yellow-500">
             Mulai Bergabung
           </Button>
         </div>
+        </Link>
+        
       </div>
     </section>
   )

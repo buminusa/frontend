@@ -27,6 +27,7 @@ export default function ProductCard({
           src={image}
           alt={name}
           fill
+          unoptimized={image.startsWith("http")}
           className="object-cover"
         />
       </div>

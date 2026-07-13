@@ -1,7 +1,3 @@
-import { useState, type ComponentType } from "react";
-import { categories } from "@/data/dummy";
-import { Icon } from "lucide-react";
-
 interface Props {
   name: string
   icon: React.ElementType

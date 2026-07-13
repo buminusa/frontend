@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { loginUser, saveAuthToken } from "@/lib/auth"
+import { getUserRoleFromToken, loginUser, saveAuthToken } from "@/lib/auth"
 
 export default function LoginSection() {
   const router = useRouter()
@@ -29,7 +29,9 @@ export default function LoginSection() {
 
       if (response.token) {
         saveAuthToken(response.token)
-        router.push("/home")
+        const role = getUserRoleFromToken(response.token)
+
+        router.push(role === "Supplier" ? "/suplier" : "/home")
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed")

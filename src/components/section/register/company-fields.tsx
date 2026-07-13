@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Upload, X } from "lucide-react"
 
 interface CompanyFieldsProps {
@@ -25,6 +25,7 @@ function FileUploadField({
   onRemove,
   placeholder,
   accept = "image/*",
+  maxSizeBytes = 1024 * 1024,
 }: {
   label: string
   file: File | null
@@ -32,7 +33,9 @@ function FileUploadField({
   onRemove: () => void
   placeholder: string
   accept?: string
+  maxSizeBytes?: number
 }) {
+  const [fileError, setFileError] = useState<string | null>(null)
   const preview = useMemo(() => {
     if (!file) return null
 
@@ -45,11 +48,24 @@ function FileUploadField({
     return () => URL.revokeObjectURL(preview)
   }, [preview])
 
+  const handleFileSelect = (file: File | null) => {
+    if (file && file.size > maxSizeBytes) {
+      setFileError("Ukuran file maksimal 1 MB.")
+      onSelect(null)
+      return
+    }
+
+    setFileError(null)
+    onSelect(file)
+  }
+
   return (
     <div>
       <label className="mb-1.5 block text-sm font-medium">{label}</label>
 
-      {preview ? (
+      {fileError ? <p className="mb-2 text-sm text-red-600">{fileError}</p> : null}
+
+      {preview && file?.type.startsWith("image/") ? (
         <div className="relative w-fit">
           <img
             src={preview}
@@ -64,6 +80,17 @@ function FileUploadField({
             <X size={14} />
           </button>
         </div>
+      ) : file ? (
+        <div className="flex w-fit items-center gap-3 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700">
+          <span>{file.name}</span>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white hover:bg-green-700"
+          >
+            <X size={14} />
+          </button>
+        </div>
       ) : (
         <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-3 py-6 text-center text-sm text-gray-500 hover:border-green-600 hover:text-green-600">
           <Upload size={18} />
@@ -71,7 +98,7 @@ function FileUploadField({
           <input
             type="file"
             accept={accept}
-            onChange={(e) => onSelect(e.target.files?.[0] ?? null)}
+            onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
             className="hidden"
           />
         </label>
@@ -107,6 +134,7 @@ export default function CompanyFields({
         onSelect={(file) => onFileChange("logo", file)}
         onRemove={() => onFileChange("logo", null)}
         placeholder="Upload logo perusahaan (PNG/JPG)"
+        accept="image/png,image/jpeg"
       />
 
       <FileUploadField
@@ -114,7 +142,8 @@ export default function CompanyFields({
         file={formData.npwp_file}
         onSelect={(file) => onFileChange("npwp_file", file)}
         onRemove={() => onFileChange("npwp_file", null)}
-        placeholder="Upload foto NPWP"
+        placeholder="Upload foto NPWP (maks. 1 MB)"
+        accept="image/png,image/jpeg,application/pdf"
       />
 
       <div>

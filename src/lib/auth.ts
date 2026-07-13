@@ -31,6 +31,29 @@ export function getAuthToken() {
   return window.localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
+type JwtPayload = {
+  role?: { name_role?: string } | string;
+};
+
+export function getUserRoleFromToken(token: string) {
+  try {
+    const encodedPayload = token.split(".")[1];
+
+    if (!encodedPayload || typeof window === "undefined") return null;
+
+    const normalizedPayload = encodedPayload.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
+      "="
+    );
+    const payload = JSON.parse(window.atob(paddedPayload)) as JwtPayload;
+
+    return typeof payload.role === "string" ? payload.role : payload.role?.name_role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function saveAuthToken(token: string) {
   if (typeof window === "undefined") return;
 

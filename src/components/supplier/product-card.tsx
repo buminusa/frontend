@@ -1,15 +1,25 @@
+"use client"
+
+import { useState } from "react"
 import Image from "next/image"
 import { Pencil, Trash2 } from "lucide-react"
+import { getAuthToken } from "@/lib/auth"
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "")
 
 export interface Product {
   id: string
   name: string
   category: string
+  categoryId?: number | null
   price: number
+  priceMax?: number
   unit: string
   stock: number
   image: string
   status: "aktif" | "nonaktif"
+  description?: string | null
+  hsCode?: string | null
 }
 
 interface ProductCardProps {
@@ -23,6 +33,41 @@ export default function ProductCard({
   onEdit,
   onDelete,
 }: ProductCardProps) {
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Hapus produk ${product.name}?`)) return
+
+    const token = getAuthToken()
+
+    if (!token) {
+      setDeleteError("Silakan masuk kembali untuk menghapus produk.")
+      return
+    }
+
+    setIsDeleting(true)
+    setDeleteError("")
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/products/${product.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const result = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal menghapus produk.")
+      }
+
+      onDelete(product.id)
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "Gagal menghapus produk.")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200">
       <div className="relative h-36 w-full bg-gray-100">
@@ -31,6 +76,7 @@ export default function ProductCard({
             src={product.image}
             alt={product.name}
             fill
+            unoptimized={product.image.startsWith("http")}
             className="object-cover"
           />
         ) : (
@@ -64,25 +110,29 @@ export default function ProductCard({
               /{product.unit}
             </span>
           </p>
-          <p className="text-xs text-gray-500">Stok: {product.stock}</p>
+          <p className="text-xs text-gray-500">Min. order: {product.stock}</p>
         </div>
 
         <div className="mt-3 flex gap-2">
           <button
+            disabled={isDeleting}
             onClick={() => onEdit(product)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 py-1.5 text-xs font-medium hover:border-black"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 py-1.5 text-xs font-medium hover:border-black disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Pencil size={13} />
             Edit
           </button>
           <button
-            onClick={() => onDelete(product.id)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-200 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            disabled={isDeleting}
+            onClick={handleDelete}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-200 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Trash2 size={13} />
-            Hapus
+            {isDeleting ? "Menghapus..." : "Hapus"}
           </button>
         </div>
+
+        {deleteError && <p className="mt-2 text-xs text-red-600">{deleteError}</p>}
       </div>
     </div>
   )

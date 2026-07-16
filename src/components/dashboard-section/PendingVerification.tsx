@@ -16,7 +16,6 @@ import {
   Calendar,
   MoreVertical,
   Filter,
-  Search,
 } from "lucide-react";
 
 interface PendingVerificationProps {
@@ -51,6 +50,12 @@ export function PendingVerification({
       setTimeout(() => setConfirmAction(null), 3000);
     }
   };
+
+  const filteredItems = [...items].sort((a, b) => {
+    if (filterStatus === "new") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    if (filterStatus === "old") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    return 0;
+  });
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:border-gray-300">
@@ -144,7 +149,7 @@ export function PendingVerification({
 
       {/* Verification List */}
       <div className="space-y-3">
-        {items.map((v) => {
+        {filteredItems.map((v) => {
           const isExpanded = expandedItem === v.id;
           const isLoading = actionLoadingId === v.id;
           const isConfirmingReject =
@@ -246,14 +251,14 @@ export function PendingVerification({
                         Tanggal Pendaftaran
                       </div>
                       <div className="text-sm font-medium text-gray-900">
-                        {new Date(v.createdAt).toLocaleDateString("id-ID", {
+                        {v.createdAt ? new Date(v.createdAt).toLocaleDateString("id-ID", {
                           weekday: "long",
                           year: "numeric",
                           month: "long",
                           day: "numeric",
                           hour: "2-digit",
                           minute: "2-digit",
-                        })}
+                        }) : "-"}
                       </div>
                     </div>
 

@@ -7,8 +7,6 @@ import {
   ExternalLink,
   TrendingUp,
   Star,
-  Search,
-  Filter,
   ArrowUpDown,
 } from "lucide-react";
 import type { Product } from "@/lib/types/dashboard";
@@ -48,13 +46,9 @@ export function PopularProducts({
         shadow: "shadow-orange-500/20",
       },
     ];
-    return (
-      index < 3 || {
-        bg: "bg-gray-100",
-        text: "text-gray-600",
-        shadow: "",
-      }
-    );
+    return index < 3
+      ? badges[index]
+      : { bg: "bg-gray-100", text: "text-gray-600", shadow: "" };
   };
 
   return (

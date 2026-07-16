@@ -20,20 +20,7 @@ import {
   Warehouse,
   Package,
   Tags,
-  RefreshCw,
   Calendar,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Users,
-  ShoppingCart,
-  BarChart3,
-  Clock,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
-  Download,
-  Filter,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -55,20 +42,12 @@ export default function AdminDashboardPage() {
     handleVerify,
   } = useDashboardData();
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedPeriod, setSelectedPeriod] = useState("Bulan Ini");
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await loadDashboard();
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
@@ -79,24 +58,11 @@ export default function AdminDashboardPage() {
   };
 
 
-  const getActivityColor = (type: string) => {
-    switch (type) {
-      case "success":
-        return "bg-emerald-500";
-      case "warning":
-        return "bg-yellow-500";
-      case "error":
-        return "bg-red-500";
-      default:
-        return "bg-blue-500";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Sidebar />
 
-      <div className="ml-[260px]">
+      <div className="ml-[264px]">
         <Topbar />
 
         <main className="p-6">
@@ -139,8 +105,6 @@ export default function AdminDashboardPage() {
               label="Total Supplier"
               value={totalSupplier}
               loading={loading}
-              trend={12}
-              trendLabel="vs bulan lalu"
               color="blue"
             />
             <StatCard
@@ -148,8 +112,6 @@ export default function AdminDashboardPage() {
               label="Produk Aktif"
               value={totalProdukAktif}
               loading={loading}
-              trend={8}
-              trendLabel="vs bulan lalu"
               color="emerald"
             />
             <StatCard
@@ -157,8 +119,6 @@ export default function AdminDashboardPage() {
               label="Total Kategori"
               value={totalKategori}
               loading={loading}
-              trend={5}
-              trendLabel="vs bulan lalu"
               color="violet"
             />
           </div>

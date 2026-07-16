@@ -6,11 +6,9 @@ import {
   AlertTriangle,
   RefreshCw,
   X,
-  CheckCircle,
   Info,
   Shield,
   Clock,
-  Wifi,
   WifiOff,
 } from "lucide-react";
 
@@ -130,15 +128,7 @@ export function ErrorBanner({
               {!isConnectionError && (
                 <div className="mt-3 p-3 bg-red-100/50 rounded-lg border border-red-200">
                   <p className="text-xs text-red-700">
-                    <strong>Endpoint:</strong>{" "}
-                    <code className="px-1.5 py-0.5 bg-red-200 rounded text-xs font-mono">
-                      /api/v1/company-profiles
-                    </code>
-                  </p>
-                  <p className="text-xs text-red-600 mt-1">
-                    Endpoint ini hanya dapat diakses oleh role{" "}
-                    <strong>Admin</strong>. Pastikan akun memiliki role yang
-                    sesuai.
+                    Pastikan akun memiliki role yang sesuai untuk mengakses resource ini.
                   </p>
                 </div>
               )}

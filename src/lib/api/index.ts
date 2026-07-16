@@ -1,6 +1,5 @@
 // Re-export all API functions
-export { apiGet, apiPatch, UnauthorizedError, getToken } from "./api";
-export { dashboardApi } from "./dashboard";
+export { apiGet, apiPost, apiPut, apiPatch, apiDelete, UnauthorizedError, getToken } from "./api";
 
 // Re-export auth functions
 export {

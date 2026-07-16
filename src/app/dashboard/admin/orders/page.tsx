@@ -1,0 +1,389 @@
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { Sidebar } from "@/components/dashboard-section/sidebar";
+import { Topbar } from "@/components/dashboard-section/top-bar";
+import { DataTable } from "@/components/dashboard-section/DataTable";
+import { orderService } from "@/lib/api/services/orders";
+import { UnauthorizedError } from "@/lib/api/api";
+import type { Order, OrderStatus } from "@/lib/types/api";
+import { formatIdNumber } from "@/lib/format";
+import {
+  Search,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Truck,
+  Package,
+  Eye,
+  Trash2,
+  X,
+} from "lucide-react";
+
+const STATUS_CONFIG: Record<OrderStatus, { color: string; icon: React.ReactNode; label: string }> = {
+  Pending: { color: "bg-yellow-100 text-yellow-700", icon: <Clock size={12} />, label: "Pending" },
+  Confirmed: { color: "bg-blue-100 text-blue-700", icon: <CheckCircle size={12} />, label: "Dikonfirmasi" },
+  Processing: { color: "bg-indigo-100 text-indigo-700", icon: <Package size={12} />, label: "Diproses" },
+  Shipped: { color: "bg-purple-100 text-purple-700", icon: <Truck size={12} />, label: "Dikirim" },
+  Completed: { color: "bg-emerald-100 text-emerald-700", icon: <CheckCircle size={12} />, label: "Selesai" },
+  Cancelled: { color: "bg-red-100 text-red-700", icon: <XCircle size={12} />, label: "Dibatalkan" },
+};
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await orderService.getAll();
+      setOrders(res.data || []);
+    } catch (err: unknown) {
+      if (err instanceof UnauthorizedError) {
+        window.location.href = "/login";
+        return;
+      }
+      setError(err instanceof Error ? err.message : "Gagal memuat pesanan");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const handleStatusUpdate = async (id: number, status: OrderStatus) => {
+    setActionLoadingId(id);
+    try {
+      await orderService.updateStatus(id, status);
+      setOrders((prev) =>
+        prev.map((o) => (o.id === id ? { ...o, status } : o))
+      );
+    } catch (err: unknown) {
+      if (err instanceof UnauthorizedError) {
+        window.location.href = "/login";
+        return;
+      }
+      alert(err instanceof Error ? err.message : "Gagal mengubah status");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Yakin ingin menghapus pesanan ini?")) return;
+    setActionLoadingId(id);
+    try {
+      await orderService.delete(id);
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+    } catch (err: unknown) {
+      if (err instanceof UnauthorizedError) {
+        window.location.href = "/login";
+        return;
+      }
+      alert(err instanceof Error ? err.message : "Gagal menghapus pesanan");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const filteredOrders = orders.filter((o) => {
+    const matchesSearch =
+      o.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.buyer?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.supplier?.company_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const columns = [
+    {
+      key: "order_number",
+      label: "No. Pesanan",
+      render: (item: Order) => (
+        <span className="font-mono font-medium text-gray-900">{item.order_number}</span>
+      ),
+    },
+    {
+      key: "buyer",
+      label: "Buyer",
+      render: (item: Order) => (
+        <span className="text-gray-700">{item.buyer?.full_name || "-"}</span>
+      ),
+    },
+    {
+      key: "supplier",
+      label: "Supplier",
+      render: (item: Order) => (
+        <span className="text-gray-700">{item.supplier?.company_name || "-"}</span>
+      ),
+    },
+    {
+      key: "total_amount",
+      label: "Total",
+      render: (item: Order) => (
+        <span className="font-medium text-gray-900">
+          Rp {formatIdNumber(item.total_amount)}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (item: Order) => {
+        const config = STATUS_CONFIG[item.status];
+        return (
+          <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold ${config.color}`}>
+            {config.icon}
+            {config.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "createdAt",
+      label: "Tanggal",
+      render: (item: Order) => (
+        <span className="text-gray-500 text-sm">
+          {item.createdAt ? new Date(item.createdAt).toLocaleDateString("id-ID") : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "",
+      className: "w-24",
+      render: (item: Order) => (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            title="Detail"
+          >
+            <Eye size={14} />
+          </button>
+          <button
+            onClick={() => handleDelete(item.id)}
+            disabled={actionLoadingId === item.id}
+            className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+            title="Hapus"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <Sidebar />
+      <div className="ml-[264px]">
+        <Topbar />
+        <main className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Pesanan</h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Kelola semua pesanan
+              </p>
+            </div>
+            <button
+              onClick={loadOrders}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              <RefreshCw size={14} />
+              Refresh
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-6 gap-3 mb-6">
+            {(Object.keys(STATUS_CONFIG) as OrderStatus[]).map((status) => {
+              const count = orders.filter((o) => o.status === status).length;
+              return (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(statusFilter === status ? "all" : status)}
+                  className={`p-3 rounded-xl border transition-all ${
+                    statusFilter === status
+                      ? "border-blue-300 bg-blue-50"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-xs text-gray-500 mb-1">{STATUS_CONFIG[status].label}</div>
+                  <div className="text-xl font-bold text-gray-900">{count}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search */}
+          <div className="mb-4">
+            <div className="relative max-w-md">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Cari nomor pesanan, buyer, atau supplier..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              />
+            </div>
+          </div>
+
+          {/* Table */}
+          <DataTable
+            columns={columns}
+            data={filteredOrders}
+            loading={loading}
+            error={error}
+            onRetry={loadOrders}
+            emptyMessage="Belum ada pesanan"
+            keyExtractor={(item) => item.id}
+          />
+
+          {/* Detail Modal */}
+          {expandedId && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4">
+                {(() => {
+                  const order = orders.find((o) => o.id === expandedId);
+                  if (!order) return null;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Detail Pesanan {order.order_number}
+                        </h3>
+                        <button
+                          onClick={() => setExpandedId(null)}
+                          className="p-2 rounded-lg hover:bg-gray-100"
+                        >
+                          <X size={16} className="text-gray-500" />
+                        </button>
+                      </div>
+                      <div className="p-6 space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs text-gray-500">Buyer</label>
+                            <p className="font-medium text-gray-900">{order.buyer?.full_name || "-"}</p>
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500">Supplier</label>
+                            <p className="font-medium text-gray-900">{order.supplier?.company_name || "-"}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500">Alamat Pengiriman</label>
+                          <p className="text-sm text-gray-700">{order.shipping_address}</p>
+                        </div>
+                        {order.notes && (
+                          <div>
+                            <label className="text-xs text-gray-500">Catatan</label>
+                            <p className="text-sm text-gray-700">{order.notes}</p>
+                          </div>
+                        )}
+                        <div>
+                          <label className="text-xs text-gray-500">Item Pesanan</label>
+                          <div className="mt-2 space-y-2">
+                            {order.orderItems?.map((item) => (
+                              <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm text-gray-700">
+                                  {item.product?.nama || "Produk"}
+                                </span>
+                                <span className="text-sm font-medium text-gray-900">
+                                  x{item.quantity}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <span className="text-sm text-gray-500">Total</span>
+                          <span className="text-lg font-bold text-gray-900">
+                            Rp {formatIdNumber(order.total_amount)}
+                          </span>
+                        </div>
+
+                        {/* Status Update */}
+                        {order.status !== "Completed" && order.status !== "Cancelled" && (
+                          <div className="flex gap-2 pt-4">
+                            {order.status === "Pending" && (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    handleStatusUpdate(order.id, "Cancelled");
+                                    setExpandedId(null);
+                                  }}
+                                  className="flex-1 px-4 py-2.5 text-sm font-medium text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors"
+                                >
+                                  Batalkan
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleStatusUpdate(order.id, "Confirmed");
+                                    setExpandedId(null);
+                                  }}
+                                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
+                                >
+                                  Konfirmasi
+                                </button>
+                              </>
+                            )}
+                            {order.status === "Confirmed" && (
+                              <button
+                                onClick={() => {
+                                  handleStatusUpdate(order.id, "Processing");
+                                  setExpandedId(null);
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors"
+                              >
+                                Proses
+                              </button>
+                            )}
+                            {order.status === "Processing" && (
+                              <button
+                                onClick={() => {
+                                  handleStatusUpdate(order.id, "Shipped");
+                                  setExpandedId(null);
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors"
+                              >
+                                Kirim
+                              </button>
+                            )}
+                            {order.status === "Shipped" && (
+                              <button
+                                onClick={() => {
+                                  handleStatusUpdate(order.id, "Completed");
+                                  setExpandedId(null);
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors"
+                              >
+                                Selesai
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}

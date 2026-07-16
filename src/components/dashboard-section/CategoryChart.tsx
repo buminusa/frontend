@@ -130,7 +130,7 @@ export function CategoryChart({ data }: { data: CategoryCount[] }) {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="p-3 bg-gray-50 rounded-xl">
           <div className="text-xs text-gray-500">Total Kategori</div>
-          <div className="text-lg font-bold text-gray-900 mt-0.5">8</div>
+          <div className="text-lg font-bold text-gray-900 mt-0.5">{data.length}</div>
         </div>
         <div className="p-3 bg-gray-50 rounded-xl">
           <div className="text-xs text-gray-500">Total Produk</div>
@@ -141,7 +141,7 @@ export function CategoryChart({ data }: { data: CategoryCount[] }) {
         <div className="p-3 bg-gray-50 rounded-xl">
           <div className="text-xs text-gray-500">Rata-rata</div>
           <div className="text-lg font-bold text-gray-900 mt-0.5">
-            {Math.round(data.reduce((sum, item) => sum + item.jumlah, 0) / data.length)}
+            {data.length > 0 ? Math.round(data.reduce((sum, item) => sum + item.jumlah, 0) / data.length) : 0}
           </div>
         </div>
       </div>
@@ -153,7 +153,7 @@ export function CategoryChart({ data }: { data: CategoryCount[] }) {
             barCategoryGap="25%"
             onMouseMove={(state) => {
               if (state?.activeTooltipIndex !== undefined) {
-                setHoveredBar(state.activeTooltipIndex);
+                setHoveredBar(Number(state.activeTooltipIndex));
               }
             }}
             onMouseLeave={() => setHoveredBar(null)}

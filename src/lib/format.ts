@@ -9,5 +9,7 @@ export function relativeTime(iso: string): string {
 }
 
 export function formatIdNumber(value: number | null | undefined): string {
-  return (value ?? 0).toLocaleString("id-ID");
+  const num = Number(value ?? 0);
+  if (Number.isNaN(num)) return "0";
+  return num.toLocaleString("id-ID");
 }

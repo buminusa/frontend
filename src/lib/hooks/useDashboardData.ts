@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { dashboardApi } from "@/lib/api/dashboard";
+import { dashboardService } from "@/lib/api/services/dashboard";
+import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
 import type { CompanyProfile, Product, CategoryCount } from "@/lib/types/dashboard";
 
@@ -49,9 +50,9 @@ export function useDashboardData(): DashboardData {
     try {
       // Fetch all data in parallel
       const [stats, pendingVerifications, popularProducts] = await Promise.allSettled([
-        dashboardApi.getStats(),
-        dashboardApi.getPendingVerifications(),
-        dashboardApi.getPopularProducts(5),
+        dashboardService.getStats(),
+        dashboardService.getPendingVerifications(),
+        dashboardService.getPopularProducts(5),
       ]);
 
       // Process stats
@@ -116,7 +117,7 @@ export function useDashboardData(): DashboardData {
     async (id: number, status: "Verified" | "Rejected") => {
       setActionLoadingId(id);
       try {
-        await dashboardApi.verifySupplier(id, status);
+        await companyProfileService.verify(id, status);
         // Remove from pending list
         setVerifikasiPending((prev) => prev.filter((item) => item.id !== id));
       } catch (err: any) {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
 import {
   Search,
   Bell,
@@ -19,69 +20,13 @@ import {
 } from "lucide-react";
 
 export function Topbar() {
+  const { user, logout } = useAuth();
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [notificationCount] = useState(5);
-
-  const notifications = [
-    {
-      id: 1,
-      title: "Supplier baru mendaftar",
-      desc: "PT Agro Nusantara menunggu verifikasi",
-      time: "5 menit lalu",
-      read: false,
-      type: "info",
-    },
-    {
-      id: 2,
-      title: "Produk berhasil diverifikasi",
-      desc: "Beras Organik Premium telah disetujui",
-      time: "1 jam lalu",
-      read: false,
-      type: "success",
-    },
-    {
-      id: 3,
-      title: "Laporan mingguan tersedia",
-      desc: "Laporan periode 7-13 Juli 2026",
-      time: "2 jam lalu",
-      read: true,
-      type: "info",
-    },
-    {
-      id: 4,
-      title: "Stok produk rendah",
-      desc: "Cabai Merah Segar tersisa 10 unit",
-      time: "3 jam lalu",
-      read: true,
-      type: "warning",
-    },
-    {
-      id: 5,
-      title: "Pembayaran diterima",
-      desc: "Invoice #INV-2026-001 telah dibayar",
-      time: "5 jam lalu",
-      read: true,
-      type: "success",
-    },
-  ];
-
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case "success":
-        return "bg-emerald-500";
-      case "warning":
-        return "bg-yellow-500";
-      case "error":
-        return "bg-red-500";
-      default:
-        return "bg-blue-500";
-    }
-  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -192,62 +137,21 @@ export function Topbar() {
               className="p-2.5 rounded-lg hover:bg-gray-100 transition-all text-gray-500 hover:text-gray-700 relative"
             >
               <Bell size={18} />
-              {notificationCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-red-500 rounded-full text-[10px] text-white font-bold flex items-center justify-center">
-                  {notificationCount}
-                </span>
-              )}
             </button>
 
-            {/* Notification Dropdown */}
             {showNotifications && (
               <div className="absolute right-0 top-14 w-[400px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900">Notifikasi</h3>
-                    <div className="flex items-center gap-2">
-                      <button className="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 hover:bg-blue-50 rounded-lg transition-colors">
-                        Tandai Dibaca
-                      </button>
-                      <button className="p-1 rounded-lg hover:bg-gray-100">
-                        <Settings size={14} className="text-gray-400" />
-                      </button>
-                    </div>
+                    <button className="p-1 rounded-lg hover:bg-gray-100">
+                      <Settings size={14} className="text-gray-400" />
+                    </button>
                   </div>
                 </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 ${
-                        !notif.read ? "bg-blue-50/50" : ""
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${getNotificationColor(
-                            notif.type
-                          )}`}
-                        />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {notif.title}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {notif.desc}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {notif.time}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="p-3 border-t border-gray-100 bg-gray-50/50">
-                  <button className="w-full py-2.5 text-sm text-blue-600 hover:text-blue-700 font-medium hover:bg-blue-50 rounded-xl transition-colors">
-                    Lihat Semua Notifikasi
-                  </button>
+                <div className="py-12 text-center">
+                  <Bell size={32} className="mx-auto text-gray-300 mb-3" />
+                  <p className="text-sm text-gray-500">Belum ada notifikasi</p>
                 </div>
               </div>
             )}
@@ -265,13 +169,13 @@ export function Topbar() {
               className="flex items-center gap-3 pl-2 pr-3 py-2 rounded-xl hover:bg-gray-100 cursor-pointer transition-all"
             >
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] flex items-center justify-center text-white font-semibold text-xs shadow-md">
-                AD
+                {user?.initials || "U"}
               </div>
               <div className="hidden sm:block">
                 <div className="text-sm font-semibold text-gray-900">
-                  Admin Utama
+                  {user?.email || "Memuat..."}
                 </div>
-                <div className="text-xs text-gray-500">Super Admin</div>
+                <div className="text-xs text-gray-500">{user?.role || "User"}</div>
               </div>
               <ChevronDown
                 size={16}
@@ -281,19 +185,16 @@ export function Topbar() {
               />
             </div>
 
-            {/* User Dropdown */}
             {showUserMenu && (
               <div className="absolute right-0 top-14 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] flex items-center justify-center text-white font-bold">
-                      AD
+                      {user?.initials || "U"}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Admin Utama</p>
-                      <p className="text-xs text-gray-500">
-                        admin@buminusa.com
-                      </p>
+                      <p className="font-semibold text-gray-900">{user?.email || "User"}</p>
+                      <p className="text-xs text-gray-500">{user?.role || "User"}</p>
                     </div>
                   </div>
                 </div>
@@ -319,7 +220,10 @@ export function Topbar() {
                   ))}
                 </div>
                 <div className="p-2 border-t border-gray-100">
-                  <button className="w-full flex items-center gap-3 px-3 py-3 text-left hover:bg-red-50 rounded-xl transition-colors group">
+                  <button
+                    onClick={logout}
+                    className="w-full flex items-center gap-3 px-3 py-3 text-left hover:bg-red-50 rounded-xl transition-colors group"
+                  >
                     <div className="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition-colors">
                       <LogOut size={16} className="text-red-600" />
                     </div>

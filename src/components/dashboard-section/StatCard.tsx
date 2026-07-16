@@ -15,7 +15,7 @@ interface StatCardProps {
   label: string;
   value: number | null;
   loading: boolean;
-  trend?: number;
+  trend?: number | null;
   trendLabel?: string;
   color?: "blue" | "emerald" | "violet" | "orange" | "rose";
   period?: string;
@@ -74,14 +74,13 @@ export function StatCard({
   label,
   value,
   loading,
-  trend = 12,
-  trendLabel = "vs bulan lalu",
+  trend = null,
   color = "blue",
   period = "Bulan Ini",
 }: StatCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const config = colorConfig[color];
-  const isPositiveTrend = trend >= 0;
+  const isPositiveTrend = (trend ?? 0) >= 0;
 
   return (
     <div
@@ -107,21 +106,23 @@ export function StatCard({
             }`}
           />
         </div>
-        <div
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-            isPositiveTrend ? config.trend.up : config.trend.down
-          }`}
-        >
-          {isPositiveTrend ? (
-            <TrendingUp size={12} />
-          ) : (
-            <TrendingDown size={12} />
-          )}
-          <span>
-            {isPositiveTrend ? "+" : ""}
-            {trend}%
-          </span>
-        </div>
+        {trend !== null && trend !== undefined && (
+          <div
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+              isPositiveTrend ? config.trend.up : config.trend.down
+            }`}
+          >
+            {isPositiveTrend ? (
+              <TrendingUp size={12} />
+            ) : (
+              <TrendingDown size={12} />
+            )}
+            <span>
+              {isPositiveTrend ? "+" : ""}
+              {trend}%
+            </span>
+          </div>
+        )}
       </div>
 
       <div>

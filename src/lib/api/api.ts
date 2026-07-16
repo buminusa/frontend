@@ -46,3 +46,48 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<{ data: 
   if (!res.ok) throw new Error(json.message || `Request gagal (${res.status})`);
   return json;
 }
+
+export async function apiPost<T>(path: string, body: unknown): Promise<{ data: T; message?: string }> {
+  const isFormData = body instanceof FormData;
+  const headers = isFormData ? {} : authHeaders();
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: isFormData ? body : JSON.stringify(body),
+  });
+  const json = await res.json();
+  if (res.status === 401) {
+    throw new UnauthorizedError(json.message || "Sesi login sudah habis.");
+  }
+  if (!res.ok) throw new Error(json.message || `Request gagal (${res.status})`);
+  return json;
+}
+
+export async function apiPut<T>(path: string, body: unknown): Promise<{ data: T; message?: string }> {
+  const isFormData = body instanceof FormData;
+  const headers = isFormData ? {} : authHeaders();
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "PUT",
+    headers,
+    body: isFormData ? body : JSON.stringify(body),
+  });
+  const json = await res.json();
+  if (res.status === 401) {
+    throw new UnauthorizedError(json.message || "Sesi login sudah habis.");
+  }
+  if (!res.ok) throw new Error(json.message || `Request gagal (${res.status})`);
+  return json;
+}
+
+export async function apiDelete<T = void>(path: string): Promise<{ data?: T; message?: string }> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    throw new UnauthorizedError(json.message || "Sesi login sudah habis.");
+  }
+  if (!res.ok) throw new Error(json.message || `Request gagal (${res.status})`);
+  return json;
+}

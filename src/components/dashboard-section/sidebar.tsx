@@ -33,6 +33,7 @@ const SUPER_ADMIN_MENU_ITEMS = [
   { icon: Crown, label: "Manajemen Role", href: "/dashboard/super-admin/roles" },
   { icon: Warehouse, label: "Supplier", href: "/dashboard/super-admin/suppliers" },
   { icon: Package, label: "Produk", href: "/dashboard/super-admin/products" },
+  { icon: ShoppingCart, label: "Pesanan", href: "/dashboard/super-admin/orders" },
   { icon: Tags, label: "Kategori", href: "/dashboard/super-admin/categories" },
   { icon: ShieldCheck, label: "Verifikasi", href: "/dashboard/super-admin/verification" },
 ];

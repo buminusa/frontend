@@ -15,7 +15,7 @@ export const companyProfileService = {
     return res.data || [];
   },
 
-  async verify(id: number, status: "Verified" | "Rejected"): Promise<void> {
+  async verify(id: number, status: "Pending" | "Verified" | "Rejected"): Promise<void> {
     await apiPatch(`/api/v1/company-profiles/${id}/verification-status`, {
       verificationStatus: status,
     });

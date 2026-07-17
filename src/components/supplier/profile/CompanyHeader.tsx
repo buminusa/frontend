@@ -69,8 +69,10 @@ export function CompanyHeader({
             </div>
           </div>
         </div>
-
-        <Button onClick={onToggleEdit}>
+        <Button
+          variant={isEditing ? "secondary" : "default"}
+          onClick={onToggleEdit}
+        >
           {isEditing ? "Cancel" : "Edit Company Profile"}
         </Button>
       </div>

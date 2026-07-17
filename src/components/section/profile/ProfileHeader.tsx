@@ -17,7 +17,8 @@ export function ProfileHeader({ fullName, isEditing, onToggleEdit }: ProfileHead
           </h1>
           <p className="text-gray-500 mt-1">Manage your profile information</p>
         </div>
-        <Button 
+        <Button
+          variant={isEditing ? "secondary" : "default"}
           onClick={onToggleEdit}
         >
           {isEditing ? "Cancel" : "Edit Profile"}

@@ -23,6 +23,11 @@ function authHeaders(): HeadersInit {
   };
 }
 
+function authHeadersOnly(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function apiGet<T>(path: string): Promise<{ data: T; meta?: { total: number } }> {
   const res = await fetch(`${API_URL}${path}`, { headers: authHeaders() });
   const json = await res.json();
@@ -49,7 +54,7 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<{ data: 
 
 export async function apiPost<T>(path: string, body: unknown): Promise<{ data: T; message?: string }> {
   const isFormData = body instanceof FormData;
-  const headers = isFormData ? {} : authHeaders();
+  const headers = isFormData ? authHeadersOnly() : authHeaders();
   const res = await fetch(`${API_URL}${path}`, {
     method: "POST",
     headers,
@@ -65,7 +70,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<{ data: T
 
 export async function apiPut<T>(path: string, body: unknown): Promise<{ data: T; message?: string }> {
   const isFormData = body instanceof FormData;
-  const headers = isFormData ? {} : authHeaders();
+  const headers = isFormData ? authHeadersOnly() : authHeaders();
   const res = await fetch(`${API_URL}${path}`, {
     method: "PUT",
     headers,

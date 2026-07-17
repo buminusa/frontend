@@ -16,9 +16,10 @@ import {
   LogOut,
   HelpCircle,
   Zap,
+  Crown,
 } from "lucide-react";
 
-const MENU_ITEMS = [
+const BASE_MENU_ITEMS = [
   { icon: LayoutGrid, label: "Dashboard", href: "/dashboard/admin" },
   { icon: Warehouse, label: "Supplier", href: "/dashboard/admin/suppliers" },
   { icon: Package, label: "Produk", href: "/dashboard/admin/products" },
@@ -27,11 +28,30 @@ const MENU_ITEMS = [
   { icon: ShieldCheck, label: "Verifikasi", href: "/dashboard/admin/verification" },
 ];
 
-export function Sidebar() {
+const SUPER_ADMIN_MENU_ITEMS = [
+  { icon: LayoutGrid, label: "Dashboard", href: "/dashboard/super-admin" },
+  { icon: Crown, label: "Manajemen Role", href: "/dashboard/super-admin/roles" },
+  { icon: Warehouse, label: "Supplier", href: "/dashboard/super-admin/suppliers" },
+  { icon: Package, label: "Produk", href: "/dashboard/super-admin/products" },
+  { icon: Tags, label: "Kategori", href: "/dashboard/super-admin/categories" },
+  { icon: ShieldCheck, label: "Verifikasi", href: "/dashboard/super-admin/verification" },
+];
+
+export function Sidebar({
+  basePath = "/dashboard/admin",
+  roleLabel = "Admin",
+}: {
+  basePath?: string;
+  roleLabel?: string;
+}) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  const isSuperAdminRoute = pathname?.startsWith("/dashboard/super-admin") || basePath.startsWith("/dashboard/super-admin");
+  const MENU_ITEMS = isSuperAdminRoute ? SUPER_ADMIN_MENU_ITEMS : BASE_MENU_ITEMS;
+  const displayRoleLabel = isSuperAdminRoute ? "Super Admin" : roleLabel;
 
   return (
     <aside
@@ -53,7 +73,7 @@ export function Sidebar() {
                 BUMI NUSA
               </div>
               <div className="text-[10px] text-blue-400/80 font-medium leading-tight mt-0.5">
-                Enterprise Platform
+                {displayRoleLabel}
               </div>
             </div>
           )}
@@ -170,7 +190,7 @@ export function Sidebar() {
                 {user?.email || "Memuat..."}
               </div>
               <div className="text-[11px] text-gray-500 leading-tight mt-0.5">
-                {user?.role || "User"}
+                {user?.role || displayRoleLabel}
               </div>
             </div>
             <button

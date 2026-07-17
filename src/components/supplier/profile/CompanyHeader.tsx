@@ -61,7 +61,7 @@ export function CompanyHeader({
           </div>
         </div>
         <Button 
-          variant={isEditing ? "secondary" : "primary"}
+          variant={isEditing ? "secondary" : "default"}
           onClick={onToggleEdit}
         >
           {isEditing ? "Cancel" : "Edit Company Profile"}

@@ -1,61 +1,185 @@
-// components/sections/profile/ProfileSection.tsx
-"use client";
+"use client"
 
-import { useState } from "react";
-import { ProfileHeader } from "./ProfileHeader";
-import { ProfileInfo } from "./ProfileInfo";
-import { ProfileForm } from "./ProfileForm";
-import { OrderHistory } from "./OrderHistory";
+import { useEffect, useState } from "react"
+import { ProfileHeader } from "./ProfileHeader"
+import { ProfileInfo } from "./ProfileInfo"
+import { ProfileForm } from "./ProfileForm"
+import { OrderHistory } from "./OrderHistory"
+import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { AUTH_EVENT_NAME, getAuthToken, getUserFromToken } from "@/lib/auth"
 
-// Mock data sementara
-const MOCK_PROFILE = {
-  id: 1,
-  full_name: "John Doe",
-  address: "Jl. Sudirman No. 123, RT 05 RW 03",
-  province: "DKI Jakarta",
-  country: "Indonesia",
-  phone: "081234567890",
-  orders: [
-    {
-      id: 1001,
-      created_at: new Date("2026-01-15"),
-      total_amount: 250000,
-      status: "completed"
-    },
-    {
-      id: 1002,
-      created_at: new Date("2026-01-20"),
-      total_amount: 175000,
-      status: "pending"
-    },
-    {
-      id: 1003,
-      created_at: new Date("2026-01-25"),
-      total_amount: 320000,
-      status: "shipped"
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
+).replace(/\/$/, "")
+
+type ApiBuyerProfile = {
+  id: number
+  full_name: string
+  address: string
+  province: string
+  country: string
+  phone: string
+
+  user: {
+    id: number
+    email: string
+    role: {
+      id: number
+      name_role: string
     }
-  ]
-};
+  }
+}
+
+type BuyerProfile = {
+  id: number
+  full_name: string
+  address: string
+  province: string
+  country: string
+  phone: string
+  email: string
+
+  orders: {
+    id: number
+    created_at: Date
+    total_amount: number
+    status: string
+  }[]
+}
 
 export function ProfileSection() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState(MOCK_PROFILE);
+  const router = useRouter()
 
-  const handleUpdateProfile = (data: any) => {
-    setProfile(prev => ({ ...prev, ...data }));
-    setIsEditing(false);
-  };
+  const [isEditing, setIsEditing] = useState(false)
+  const [profile, setProfile] = useState<BuyerProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadProfile() {
+      const token = getAuthToken()
+      const user = getUserFromToken()
+
+      if (!token || !user?.userId) {
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+      setError("")
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/buyers/${user.userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            signal: controller.signal,
+          }
+        )
+
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result.message || "Gagal memuat profil.")
+        }
+
+        const data: ApiBuyerProfile = result.data
+
+        setProfile({
+          id: data.id,
+          full_name: data.full_name,
+          address: data.address,
+          province: data.province,
+          country: data.country,
+          phone: data.phone,
+          email: data.user.email,
+
+          // sementara kosong karena endpoint profile belum mengembalikan orders
+          orders: [],
+        })
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Gagal memuat profil."
+          )
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadProfile()
+
+    window.addEventListener(AUTH_EVENT_NAME, loadProfile)
+
+    return () => {
+      controller.abort()
+      window.removeEventListener(AUTH_EVENT_NAME, loadProfile)
+    }
+  }, [])
+
+  const handleUpdateProfile = (data: Partial<BuyerProfile>) => {
+    setProfile((prev) => (prev ? { ...prev, ...data } : prev))
+    setIsEditing(false)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="py-10">
+        <p className="text-sm text-gray-500">
+          Memuat profil...
+        </p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="py-10">
+        <p className="text-sm text-red-600">
+          {error}
+        </p>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="py-10">
+        <p className="text-sm text-gray-500">
+          Profil tidak ditemukan.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
-      <ProfileHeader 
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Kembali
+      </button>
+
+      <ProfileHeader
         fullName={profile.full_name}
         isEditing={isEditing}
         onToggleEdit={() => setIsEditing(!isEditing)}
       />
-      
+
       {isEditing ? (
-        <ProfileForm 
+        <ProfileForm
           profile={profile}
           onSubmit={handleUpdateProfile}
           onCancel={() => setIsEditing(false)}
@@ -67,5 +191,5 @@ export function ProfileSection() {
         </>
       )}
     </div>
-  );
+  )
 }

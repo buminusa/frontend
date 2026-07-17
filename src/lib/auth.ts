@@ -54,6 +54,47 @@ export function getUserRoleFromToken(token: string) {
   }
 }
 
+type AuthUser = {
+  userId: number
+  email: string
+  roleId: number
+  role?: {
+    id: number
+    name_role: string
+  }
+  name: string
+}
+
+export function getUserFromToken(): AuthUser | null {
+  try {
+    const token = getAuthToken()
+
+    if (!token || typeof window === "undefined") {
+      return null
+    }
+
+    const encodedPayload = token.split(".")[1]
+
+    if (!encodedPayload) {
+      return null
+    }
+
+    const normalizedPayload = encodedPayload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length +
+        ((4 - (normalizedPayload.length % 4)) % 4),
+      "="
+    )
+
+    return JSON.parse(window.atob(paddedPayload))
+  } catch {
+    return null
+  }
+}
+
 export function saveAuthToken(token: string) {
   if (typeof window === "undefined") return;
 

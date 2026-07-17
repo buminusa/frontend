@@ -1,72 +1,79 @@
-// components/sections/supplier/profile/CompanyHeader.tsx
-import { Building2, CheckCircle, Clock, XCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Building2, CheckCircle, Clock, XCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface CompanyHeaderProps {
-  companyName: string;
-  isEditing: boolean;
-  onToggleEdit: () => void;
-  verificationStatus: string;
+  companyName: string
+  isEditing: boolean
+  onToggleEdit: () => void
+  verificationStatus?: string
 }
 
-export function CompanyHeader({ 
-  companyName, 
-  isEditing, 
+export function CompanyHeader({
+  companyName,
+  isEditing,
   onToggleEdit,
-  verificationStatus 
+  verificationStatus,
 }: CompanyHeaderProps) {
   const getStatusIcon = () => {
     switch (verificationStatus) {
       case "Verified":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />
+
       case "Pending":
-        return <Clock className="w-5 h-5 text-yellow-500" />;
+        return <Clock className="h-5 w-5 text-yellow-500" />
+
       case "Rejected":
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return <XCircle className="h-5 w-5 text-red-500" />
+
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   const getStatusColor = () => {
     switch (verificationStatus) {
       case "Verified":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800"
+
       case "Pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800"
+
       case "Rejected":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800"
+
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800"
     }
-  };
+  }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-blue-50 rounded-xl">
-            <Building2 className="w-8 h-8 text-blue-600" />
+          <div className="rounded-xl bg-blue-50 p-3">
+            <Building2 className="h-8 w-8 text-blue-600" />
           </div>
+
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {companyName}
             </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor()}`}>
+
+            <div className="mt-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor()}`}
+              >
                 {getStatusIcon()}
-                {verificationStatus}
+                {verificationStatus ?? "Not Verified"}
               </span>
             </div>
           </div>
         </div>
-        <Button 
-          variant={isEditing ? "secondary" : "primary"}
-          onClick={onToggleEdit}
-        >
+
+        <Button onClick={onToggleEdit}>
           {isEditing ? "Cancel" : "Edit Company Profile"}
         </Button>
       </div>
     </div>
-  );
+  )
 }

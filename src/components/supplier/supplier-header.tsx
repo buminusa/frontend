@@ -1,12 +1,15 @@
-import { Plus } from "lucide-react"
+import { Plus, LayoutDashboard } from "lucide-react"
+import Link from "next/link"
 
 interface SupplierHeaderProps {
   onAddClick: () => void
+  onDashboardClick?: () => void
   total: number
 }
 
 export default function SupplierHeader({
   onAddClick,
+  onDashboardClick,
   total,
 }: SupplierHeaderProps) {
   return (
@@ -18,13 +21,22 @@ export default function SupplierHeader({
         </p>
       </div>
 
-      <button
-        onClick={onAddClick}
-        className="flex items-center gap-1.5 rounded-full bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
-      >
-        <Plus size={16} />
-        Tambah Produk
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={onAddClick}
+          className="flex items-center gap-1.5 rounded-full bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+        >
+          <Plus size={16} />
+          Tambah Produk
+        </button>
+        <Link
+          href="/suplier/dashboard"
+          className="flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          <LayoutDashboard size={16} />
+          Dashboard
+        </Link>
+      </div>
     </div>
   )
 }

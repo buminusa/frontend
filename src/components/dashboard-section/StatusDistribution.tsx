@@ -1,67 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
-import { STATUS_LIST, STATUS_COLOR } from "@/lib/dashboard-constants";
+import React from "react";
 import { formatIdNumber } from "@/lib/format";
-import {
-  PieChart,
-  ChevronRight,
-  MoreVertical,
-  Download,
-  Info,
-} from "lucide-react";
+import { PieChart, ChevronRight, MoreVertical, Download, Info } from "lucide-react";
 
 interface StatusDistributionProps {
-  statusCounts: Record<string, number>;
   totalProdukSemua: number;
 }
 
 export function StatusDistribution({
-  statusCounts,
   totalProdukSemua,
 }: StatusDistributionProps) {
-  const [hoveredStatus, setHoveredStatus] = useState<string | null>(null);
-  const [showMenu, setShowMenu] = useState(false);
-
-  const statusInfo: Record<
-    string,
-    { desc: string; icon: string; action: string }
-  > = {
-    Active: {
-      desc: "Produk aktif dan dapat dilihat oleh pembeli",
-      icon: "✓",
-      action: "Kelola Produk",
-    },
-    Pending: {
-      desc: "Produk menunggu persetujuan admin",
-      icon: "⏳",
-      action: "Review Produk",
-    },
-    Rejected: {
-      desc: "Produk ditolak oleh admin",
-      icon: "✕",
-      action: "Lihat Alasan",
-    },
-    Draft: {
-      desc: "Produk masih dalam tahap draft",
-      icon: "✎",
-      action: "Edit Produk",
-    },
-  };
+  const [showMenu, setShowMenu] = React.useState(false);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:border-gray-300">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-base font-semibold text-gray-900">
-            Distribusi Status Produk
-          </h3>
+          <h3 className="text-base font-semibold text-gray-900">Distribusi Produk</h3>
           <p className="text-xs text-gray-500 mt-1">
-            Total{" "}
-            <span className="font-semibold text-gray-700">
-              {formatIdNumber(totalProdukSemua)}
-            </span>{" "}
-            produk terdaftar
+            Total <span className="font-semibold text-gray-700">{formatIdNumber(totalProdukSemua)}</span> produk terdaftar
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -91,120 +49,14 @@ export function StatusDistribution({
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        {STATUS_LIST.map((status) => {
-          const count = statusCounts[status] ?? 0;
-          const pct = totalProdukSemua
-            ? ((count / totalProdukSemua) * 100).toFixed(1)
-            : "0";
-          const isHovered = hoveredStatus === status;
-
-          return (
-            <div
-              key={status}
-              onMouseEnter={() => setHoveredStatus(status)}
-              onMouseLeave={() => setHoveredStatus(null)}
-              className={`p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
-                isHovered
-                  ? "border-gray-300 shadow-sm bg-gray-50"
-                  : "border-gray-100 hover:border-gray-200"
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: STATUS_COLOR[status] }}
-                />
-                <span className="text-xs font-medium text-gray-600">
-                  {status}
-                </span>
-              </div>
-              <div className="text-xl font-bold text-gray-900">{count}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{pct}%</div>
-            </div>
-          );
-        })}
+      <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          <span className="text-xs font-medium text-gray-600">Total Produk</span>
+        </div>
+        <div className="text-2xl font-bold text-gray-900">{formatIdNumber(totalProdukSemua)}</div>
       </div>
 
-      {/* Progress Bars */}
-      <div className="space-y-4">
-        {STATUS_LIST.map((status) => {
-          const count = statusCounts[status] ?? 0;
-          const pct = totalProdukSemua
-            ? (count / totalProdukSemua) * 100
-            : 0;
-          const isHovered = hoveredStatus === status;
-
-          return (
-            <div
-              key={status}
-              onMouseEnter={() => setHoveredStatus(status)}
-              onMouseLeave={() => setHoveredStatus(null)}
-              className={`p-3 rounded-xl transition-all duration-200 cursor-pointer ${
-                isHovered ? "bg-gray-50" : ""
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200 ${
-                      isHovered ? "scale-110" : ""
-                    }`}
-                    style={{
-                      backgroundColor: `${STATUS_COLOR[status]}20`,
-                      color: STATUS_COLOR[status],
-                    }}
-                  >
-                    {statusInfo[status]?.icon}
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      {status}
-                    </div>
-                    {isHovered && (
-                      <div className="text-xs text-gray-500 mt-0.5 animate-fadeIn">
-                        {statusInfo[status]?.desc}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-gray-900 tabular-nums">
-                      {count}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {pct.toFixed(1)}%
-                    </div>
-                  </div>
-                  {isHovered && (
-                    <button className="px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors animate-fadeIn">
-                      {statusInfo[status]?.action}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-700 ease-out"
-                  style={{
-                    width: `${pct}%`,
-                    backgroundColor: STATUS_COLOR[status],
-                    minWidth: pct > 0 ? "8px" : "0px",
-                    boxShadow: isHovered
-                      ? `0 2px 8px ${STATUS_COLOR[status]}40`
-                      : "none",
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Footer */}
       <div className="mt-6 pt-4 border-t border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-gray-500">

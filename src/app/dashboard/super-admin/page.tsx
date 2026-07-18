@@ -16,7 +16,7 @@ import {
 } from "@/components/dashboard-section/DashboardBanners";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 
-import { Warehouse, Package, Tags, ShieldCheck, Calendar } from "lucide-react";
+import { Package, Tags, ShieldCheck, Calendar } from "lucide-react";
 
 export default function SuperAdminDashboardPage() {
   const {
@@ -25,9 +25,7 @@ export default function SuperAdminDashboardPage() {
     sessionExpired,
     partialWarnings,
     totalSupplier,
-    totalProdukAktif,
     totalKategori,
-    statusCounts,
     produkTerpopuler,
     verifikasiPending,
     kategoriChart,
@@ -90,7 +88,7 @@ export default function SuperAdminDashboardPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-5 mb-6">
+          <div className="grid grid-cols-3 gap-5 mb-6">
             <StatCard
               icon={ShieldCheck}
               label="Total Supplier"
@@ -100,8 +98,8 @@ export default function SuperAdminDashboardPage() {
             />
             <StatCard
               icon={Package}
-              label="Produk Aktif"
-              value={totalProdukAktif}
+              label="Total Produk"
+              value={totalProdukSemua}
               loading={loading}
               color="emerald"
             />
@@ -111,13 +109,6 @@ export default function SuperAdminDashboardPage() {
               value={totalKategori}
               loading={loading}
               color="violet"
-            />
-            <StatCard
-              icon={Warehouse}
-              label="Produk Terdaftar"
-              value={totalProdukSemua}
-              loading={loading}
-              color="orange"
             />
           </div>
 
@@ -129,7 +120,6 @@ export default function SuperAdminDashboardPage() {
           <div className="grid grid-cols-3 gap-5">
             <div className="col-span-2">
               <StatusDistribution
-                statusCounts={statusCounts}
                 totalProdukSemua={totalProdukSemua}
               />
             </div>

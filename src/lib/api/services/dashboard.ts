@@ -30,10 +30,6 @@ export const dashboardService = {
       },
       products: {
         total: products.length,
-        active: products.filter((p) => p.status === "Active").length,
-        pending: products.filter((p) => p.status === "Pending").length,
-        rejected: products.filter((p) => p.status === "Rejected").length,
-        draft: products.filter((p) => p.status === "Draft").length,
       },
       categories: {
         total: categories.length,

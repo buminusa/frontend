@@ -12,9 +12,7 @@ interface DashboardData {
   sessionExpired: boolean;
   partialWarnings: string[];
   totalSupplier: number | null;
-  totalProdukAktif: number | null;
   totalKategori: number | null;
-  statusCounts: Record<string, number>;
   produkTerpopuler: Product[];
   verifikasiPending: CompanyProfile[];
   kategoriChart: CategoryCount[];
@@ -30,9 +28,7 @@ export function useDashboardData(): DashboardData {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [partialWarnings, setPartialWarnings] = useState<string[]>([]);
   const [totalSupplier, setTotalSupplier] = useState<number | null>(null);
-  const [totalProdukAktif, setTotalProdukAktif] = useState<number | null>(null);
   const [totalKategori, setTotalKategori] = useState<number | null>(null);
-  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
   const [produkTerpopuler, setProdukTerpopuler] = useState<Product[]>([]);
   const [verifikasiPending, setVerifikasiPending] = useState<CompanyProfile[]>([]);
   const [kategoriChart, setKategoriChart] = useState<CategoryCount[]>([]);
@@ -59,17 +55,8 @@ export function useDashboardData(): DashboardData {
       if (stats.status === "fulfilled") {
         const data = stats.value;
         setTotalSupplier(data.suppliers.total);
-        setTotalProdukAktif(data.products.active);
         setTotalKategori(data.categories.total);
         setTotalProdukSemua(data.products.total);
-        
-        setStatusCounts({
-          Active: data.products.active,
-          Pending: data.products.pending,
-          Rejected: data.products.rejected,
-          Draft: data.products.draft,
-        });
-
         setKategoriChart(data.categories.categories);
       } else {
         if (stats.reason instanceof UnauthorizedError) {
@@ -143,9 +130,7 @@ export function useDashboardData(): DashboardData {
     sessionExpired,
     partialWarnings,
     totalSupplier,
-    totalProdukAktif,
     totalKategori,
-    statusCounts,
     produkTerpopuler,
     verifikasiPending,
     kategoriChart,

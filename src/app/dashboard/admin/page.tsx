@@ -30,9 +30,7 @@ export default function AdminDashboardPage() {
     sessionExpired,
     partialWarnings,
     totalSupplier,
-    totalProdukAktif,
     totalKategori,
-    statusCounts,
     produkTerpopuler,
     verifikasiPending,
     kategoriChart,
@@ -109,8 +107,8 @@ export default function AdminDashboardPage() {
             />
             <StatCard
               icon={Package}
-              label="Produk Aktif"
-              value={totalProdukAktif}
+              label="Total Produk"
+              value={totalProdukSemua}
               loading={loading}
               color="emerald"
             />
@@ -133,7 +131,6 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-3 gap-5">
             <div className="col-span-2">
               <StatusDistribution
-                statusCounts={statusCounts}
                 totalProdukSemua={totalProdukSemua}
               />
             </div>

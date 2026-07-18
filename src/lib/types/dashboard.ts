@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
-export type { CompanyProfile, Product, Category, ProductStatus, DashboardStats } from "./api";
+export type { CompanyProfile, Product, Category, DashboardStats } from "./api";
 
 export interface MenuItemType {
   icon: LucideIcon;

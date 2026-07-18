@@ -52,8 +52,6 @@ export interface Category {
   updatedAt: string;
 }
 
-export type ProductStatus = "Draft" | "Pending" | "Active" | "Rejected";
-
 export interface ProductImage {
   id: number;
   productId: number | null;
@@ -76,7 +74,6 @@ export interface Product {
   hs_code: string | null;
   views: number;
   slug: string | null;
-  status: ProductStatus;
   createdAt: string;
   updatedAt: string;
   supplier?: CompanyProfile | null;
@@ -128,10 +125,6 @@ export interface DashboardStats {
   };
   products: {
     total: number;
-    active: number;
-    pending: number;
-    rejected: number;
-    draft: number;
   };
   categories: {
     total: number;

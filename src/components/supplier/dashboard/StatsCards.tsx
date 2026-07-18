@@ -1,11 +1,11 @@
-import { Package, ShoppingBag, DollarSign, TrendingUp } from "lucide-react"
+import { Package, ShoppingBag, DollarSign, TrendingUp } from "lucide-react";
 
 interface StatCardProps {
-  title: string
-  value: string | number
-  icon: React.ReactNode
-  trend?: string
-  trendUp?: boolean
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend?: string;
+  trendUp?: boolean;
 }
 
 function StatCard({ title, value, icon, trend, trendUp }: StatCardProps) {
@@ -16,50 +16,66 @@ function StatCard({ title, value, icon, trend, trendUp }: StatCardProps) {
           <p className="text-sm font-medium text-gray-500">{title}</p>
           <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
           {trend && (
-            <p className={`text-xs mt-2 ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
-              {trendUp ? '↑' : '↓'} {trend}
+            <p
+              className={`text-xs mt-2 ${trendUp ? "text-green-600" : "text-red-600"}`}
+            >
+              {trendUp ? "↑" : "↓"} {trend}
             </p>
           )}
         </div>
-        <div className="p-3 bg-blue-50 rounded-full">
-          {icon}
-        </div>
+        <div className="p-3 bg-blue-50 rounded-full">{icon}</div>
       </div>
     </div>
-  )
+  );
 }
 
-export function StatsCards() {
+interface StatsCardsProps {
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number;
+  totalViews: number;
+}
+
+export function StatsCards({
+  totalProducts,
+  totalOrders,
+  totalRevenue,
+  totalViews,
+}: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         title="Total Produk"
-        value="24"
+        value={totalProducts}
         icon={<Package className="w-6 h-6 text-blue-600" />}
-        trend="+3 bulan ini"
-        trendUp={true}
+        trend="Terbaru"
+        trendUp
       />
       <StatCard
         title="Total Pesanan"
-        value="18"
+        value={totalOrders}
         icon={<ShoppingBag className="w-6 h-6 text-green-600" />}
-        trend="+12%"
-        trendUp={true}
+        trend="Aktif"
+        trendUp
       />
       <StatCard
         title="Pendapatan"
-        value="Rp 45.2 Jt"
+        value={new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          maximumFractionDigits: 0,
+        }).format(totalRevenue)}
         icon={<DollarSign className="w-6 h-6 text-yellow-600" />}
-        trend="+23.5%"
-        trendUp={true}
+        trend="Dari pesanan"
+        trendUp
       />
       <StatCard
         title="View Produk"
-        value="1.2K"
+        value={totalViews}
         icon={<TrendingUp className="w-6 h-6 text-purple-600" />}
-        trend="+5.2%"
-        trendUp={true}
+        trend="Keseluruhan"
+        trendUp
       />
     </div>
-  )
+  );
 }

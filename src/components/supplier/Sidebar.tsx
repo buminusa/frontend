@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -11,22 +11,16 @@ import {
   Settings,
   LogOut,
   Store,
-  BarChart3
-} from "lucide-react"
+  BarChart3,
+} from "lucide-react";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/supplier/dashboard" },
-  { icon: Package, label: "Produk Saya", href: "/supplier/products" },
-  { icon: ShoppingBag, label: "Pesanan", href: "/supplier/orders" },
-  { icon: FileText, label: "Invoice", href: "/supplier/invoices" },
-  { icon: BarChart3, label: "Analitik", href: "/supplier/analytics" },
-  { icon: Store, label: "Toko Saya", href: "/supplier/store" },
-  { icon: Users, label: "Profil", href: "/supplier/profile" },
-  { icon: Settings, label: "Pengaturan", href: "/supplier/settings" },
-]
+  { icon: LayoutDashboard, label: "Dashboard", href: "/suplier/dashboard" },
+  { icon: Package, label: "Produk Saya", href: "/suplier/products" },
+];
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
@@ -38,23 +32,26 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
               className={`
                 flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
-                ${isActive 
-                  ? "bg-blue-50 text-blue-700" 
-                  : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                ${
+                  isActive
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
                 }
               `}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-400"}`} />
+              <item.icon
+                className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-400"}`}
+              />
               {item.label}
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -66,5 +63,5 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
-  )
+  );
 }

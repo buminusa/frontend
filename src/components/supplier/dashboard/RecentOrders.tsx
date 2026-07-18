@@ -1,49 +1,29 @@
-import { Clock, CheckCircle, XCircle, Package } from "lucide-react"
-
-const orders = [
-  {
-    id: "ORD-2024-001",
-    customer: "PT Maju Jaya",
-    product: "Bahan Baku A",
-    amount: "Rp 2.500.000",
-    status: "Processing",
-    date: "2024-01-15"
-  },
-  {
-    id: "ORD-2024-002",
-    customer: "CV Sentosa Abadi",
-    product: "Bahan Baku B",
-    amount: "Rp 1.800.000",
-    status: "Shipped",
-    date: "2024-01-14"
-  },
-  {
-    id: "ORD-2024-003",
-    customer: "UD Berkah Mulia",
-    product: "Bahan Baku C",
-    amount: "Rp 3.200.000",
-    status: "Pending",
-    date: "2024-01-13"
-  }
-]
+import { Clock, CheckCircle, XCircle, Package } from "lucide-react";
+import type { SupplierDashboardOrder } from "@/hooks/useSupplierDashboard";
 
 const statusColors = {
   Pending: "bg-yellow-100 text-yellow-800",
   Processing: "bg-blue-100 text-blue-800",
   Shipped: "bg-purple-100 text-purple-800",
   Completed: "bg-green-100 text-green-800",
-  Cancelled: "bg-red-100 text-red-800"
-}
+  Cancelled: "bg-red-100 text-red-800",
+  Paid: "bg-green-100 text-green-800",
+};
 
 const statusIcons = {
   Pending: Clock,
   Processing: Package,
   Shipped: CheckCircle,
   Completed: CheckCircle,
-  Cancelled: XCircle
+  Cancelled: XCircle,
+  Paid: CheckCircle,
+};
+
+interface RecentOrdersProps {
+  orders: SupplierDashboardOrder[];
 }
 
-export function RecentOrders() {
+export function RecentOrders({ orders }: RecentOrdersProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100">
@@ -74,37 +54,55 @@ export function RecentOrders() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {orders.map((order) => {
-              const StatusIcon = statusIcons[order.status as keyof typeof statusIcons]
-              return (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {order.id}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {order.customer}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {order.product}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {order.amount}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status as keyof typeof statusColors]}`}>
-                      <StatusIcon className="w-3 h-3" />
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(order.date).toLocaleDateString('id-ID')}
-                  </td>
-                </tr>
-              )
-            })}
+            {orders.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-6 py-8 text-sm text-gray-500 text-center"
+                >
+                  Belum ada pesanan.
+                </td>
+              </tr>
+            ) : (
+              orders.map((order) => {
+                const StatusIcon =
+                  statusIcons[order.status as keyof typeof statusIcons] ??
+                  Clock;
+                return (
+                  <tr
+                    key={order.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      {order.id}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {order.customer}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {order.product}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      {order.amountLabel}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status as keyof typeof statusColors] ?? "bg-gray-100 text-gray-800"}`}
+                      >
+                        <StatusIcon className="w-3 h-3" />
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {new Date(order.date).toLocaleDateString("id-ID")}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }

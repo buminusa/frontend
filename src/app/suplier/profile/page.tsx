@@ -1,11 +1,14 @@
 import { CompanyProfileSection } from "@/components/supplier/profile/CompanyProfileSection";
+import { SupplierLayout } from "@/components/supplier/Layout";
 
 export default function CompanyProfilePage() {
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <CompanyProfileSection />
-      </div>
-    </main>
+    <SupplierLayout>
+      <main className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto max-w-4xl px-4">
+          <CompanyProfileSection />
+        </div>
+      </main>
+    </SupplierLayout>
   );
 }

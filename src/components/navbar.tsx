@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 import {
   Search,
   ChevronDown,
@@ -11,14 +11,20 @@ import {
   Pin,
   LogOut,
   User,
-} from "lucide-react"
-import { AnimatePresence, motion } from "framer-motion"
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-import { useEffect, useState, useRef } from "react"
-import { useRouter } from "next/navigation"
-import { AUTH_EVENT_NAME, clearAuthToken, getAuthToken, logoutUser } from "@/lib/auth"
-import avatar from "./avatar"
-import Avatar from "./avatar"
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import {
+  AUTH_EVENT_NAME,
+  clearAuthToken,
+  getAuthToken,
+  getUserRoleFromToken,
+  logoutUser,
+} from "@/lib/auth";
+import avatar from "./avatar";
+import Avatar from "./avatar";
 
 const categories = [
   "Rempah-rempah",
@@ -31,106 +37,117 @@ const categories = [
   "Kakao",
   "Jagung",
   "Padi",
-]
+];
 
 type AuthUser = {
-  name: string
-  email: string
-  avatar: string
-}
+  name: string;
+  email: string;
+  avatar: string;
+  isSupplier?: boolean;
+};
 
-const DEFAULT_AVATAR = "/avatar.png"
+const DEFAULT_AVATAR = "/avatar.png";
 
 function decodeJwtPayload(token: string) {
   try {
-    const payload = token.split(".")[1]
+    const payload = token.split(".")[1];
 
     if (!payload) {
-      return null
+      return null;
     }
 
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/")
-    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=")
-    const decoded = window.atob(padded)
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+    const decoded = window.atob(padded);
 
     return JSON.parse(decoded) as {
-      email?: string
-      name?: string
-    }
+      email?: string;
+      name?: string;
+      role?: { name_role?: string } | string;
+    };
   } catch {
-    return null
+    return null;
   }
 }
 
 export default function Navbar() {
-  const router = useRouter()
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [showProfileMenu, setShowProfileMenu] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
-  const [showCategory, setShowCategory] = useState(false)
-  const [activeCategory, setActiveCategory] = useState(categories[0])
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [showCategory, setShowCategory] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const syncUser = () => {
-      const token = getAuthToken()
+      const token = getAuthToken();
 
       if (!token) {
-        setUser(null)
-        return
+        setUser(null);
+        return;
       }
 
-      const payload = decodeJwtPayload(token)
-      const email = payload?.email ?? ""
-      const name = payload?.name ?? email.split("@")[0] ?? "Pengguna"
+      const payload = decodeJwtPayload(token);
+      const email = payload?.email ?? "";
+      const name = payload?.name ?? email.split("@")[0] ?? "Pengguna";
+      const roleName =
+        getUserRoleFromToken(token) ??
+        (typeof payload?.role === "string"
+          ? payload.role
+          : payload?.role?.name_role);
+      const isSupplier = roleName?.toLowerCase() === "supplier";
 
       setUser({
         name,
         email,
         avatar: DEFAULT_AVATAR,
-      })
-    }
+        isSupplier,
+      });
+    };
 
-    syncUser()
+    syncUser();
 
-    window.addEventListener("storage", syncUser)
-    window.addEventListener(AUTH_EVENT_NAME, syncUser)
+    window.addEventListener("storage", syncUser);
+    window.addEventListener(AUTH_EVENT_NAME, syncUser);
 
     return () => {
-      window.removeEventListener("storage", syncUser)
-      window.removeEventListener(AUTH_EVENT_NAME, syncUser)
-    }
-  }, [])
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener(AUTH_EVENT_NAME, syncUser);
+    };
+  }, []);
 
   const handleLogout = async () => {
-    setIsLoggingOut(true)
+    setIsLoggingOut(true);
 
     try {
-      await logoutUser()
+      await logoutUser();
     } catch (error) {
-      console.error("Logout failed", error)
+      console.error("Logout failed", error);
     } finally {
-      clearAuthToken()
-      setUser(null)
-      setShowProfileMenu(false)
-      setIsOpen(false)
-      setIsLoggingOut(false)
-      router.push("/login")
-    }
-  }
-
-
-const menuRef = useRef<HTMLDivElement>(null);
-
-useEffect(() => {
-  function handleClickOutside(e: MouseEvent) {
-    if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      clearAuthToken();
+      setUser(null);
       setShowProfileMenu(false);
+      setIsOpen(false);
+      setIsLoggingOut(false);
+      router.push("/login");
     }
-  }
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+  };
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
@@ -154,7 +171,9 @@ useEffect(() => {
         <div className="mx-auto flex h-full max-w-7xl items-center gap-3 px-4 md:px-6">
           <Link href="/home" className="flex shrink-0 items-center gap-3">
             <Image src="/logo.png" alt="BUMI NUSA" width={50} height={50} />
-            <span className="hidden text-2xl font-bold text-green-600 sm:block">BUMI NUSA</span>
+            <span className="hidden text-2xl font-bold text-green-600 sm:block">
+              BUMI NUSA
+            </span>
           </Link>
 
           <div
@@ -190,86 +209,88 @@ useEffect(() => {
           <div className="h-8 w-px bg-gray-300" />
 
           <div className="hidden items-center md:flex">
-  {!user ? (
-    <div className="flex items-center gap-3">
-      <Link
-        href="/login"
-        className="rounded-lg border border-green-600 px-6 py-2 font-semibold text-green-600 transition-colors hover:bg-green-50"
-      >
-        Masuk
-      </Link>
+            {!user ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="rounded-lg border border-green-600 px-6 py-2 font-semibold text-green-600 transition-colors hover:bg-green-50"
+                >
+                  Masuk
+                </Link>
 
-      <Link
-        href="/register"
-        className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-green-700"
-      >
-        Daftar
-      </Link>
-    </div>
-  ) : (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setShowProfileMenu((prev) => !prev)}
-        className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-gray-100"
-      >
-        <Avatar name={user.name} size={40} />
-        <span className="font-medium">{user.name}</span>
-        <ChevronDown
-          size={18}
-          className={`transition-transform duration-200 ${
-            showProfileMenu ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-
-      <AnimatePresence>
-        {showProfileMenu && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl"
-          >
-            <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4">
-              <Avatar name={user.name} size={44} />
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-gray-900">
-                  {user.name}
-                </p>
-                {user.email && (
-                  <p className="truncate text-sm text-gray-500">
-                    {user.email}
-                  </p>
-                )}
+                <Link
+                  href="/register"
+                  className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-green-700"
+                >
+                  Daftar
+                </Link>
               </div>
-            </div>
+            ) : (
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setShowProfileMenu((prev) => !prev)}
+                  className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-gray-100"
+                >
+                  <Avatar name={user.name} size={40} />
+                  <span className="font-medium">{user.name}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`transition-transform duration-200 ${
+                      showProfileMenu ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-            <div className="py-1">
-              <Link
-                href="/profile"
-                onClick={() => setShowProfileMenu(false)}
-                className="flex items-center gap-3 px-5 py-3 text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                <User size={18} />
-                Profil Saya
-              </Link>
+                <AnimatePresence>
+                  {showProfileMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl"
+                    >
+                      <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4">
+                        <Avatar name={user.name} size={44} />
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-gray-900">
+                            {user.name}
+                          </p>
+                          {user.email && (
+                            <p className="truncate text-sm text-gray-500">
+                              {user.email}
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
-              <button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="flex w-full items-center gap-3 px-5 py-3 text-left text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
-              >
-                <LogOut size={18} />
-                {isLoggingOut ? "Keluar..." : "Logout"}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )}
-</div>
+                      <div className="py-1">
+                        <Link
+                          href={
+                            user?.isSupplier ? "/suplier/profile" : "/profile"
+                          }
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-3 px-5 py-3 text-gray-700 transition-colors hover:bg-gray-50"
+                        >
+                          <User size={18} />
+                          Profil Saya
+                        </Link>
+
+                        <button
+                          onClick={handleLogout}
+                          disabled={isLoggingOut}
+                          className="flex w-full items-center gap-3 px-5 py-3 text-left text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                        >
+                          <LogOut size={18} />
+                          {isLoggingOut ? "Keluar..." : "Logout"}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => setIsOpen((prev) => !prev)}
@@ -326,7 +347,7 @@ useEffect(() => {
                   </div>
 
                   <Link
-                    href="/profile"
+                    href={user?.isSupplier ? "/suplier/profile" : "/profile"}
                     onClick={() => setIsOpen(false)}
                     className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-green-600"
                   >
@@ -367,7 +388,9 @@ useEffect(() => {
                     key={category}
                     onMouseEnter={() => setActiveCategory(category)}
                     className={`block w-full px-6 py-3 text-left text-sm transition ${
-                      activeCategory === category ? "bg-gray-100 font-semibold" : "hover:bg-gray-50"
+                      activeCategory === category
+                        ? "bg-gray-100 font-semibold"
+                        : "hover:bg-gray-50"
                     }`}
                   >
                     {category}
@@ -386,5 +409,5 @@ useEffect(() => {
         )}
       </AnimatePresence>
     </header>
-  )
+  );
 }

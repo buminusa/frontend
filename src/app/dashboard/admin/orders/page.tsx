@@ -30,6 +30,15 @@ const STATUS_CONFIG: Record<OrderStatus, { color: string; icon: React.ReactNode;
   Cancelled: { color: "bg-red-100 text-red-700", icon: <XCircle size={12} />, label: "Dibatalkan" },
 };
 
+const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
+  Pending: ["Confirmed", "Cancelled"],
+  Confirmed: ["Processing", "Cancelled"],
+  Processing: ["Shipped"],
+  Shipped: ["Completed"],
+  Completed: [],
+  Cancelled: [],
+};
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +47,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [showStatusModal, setShowStatusModal] = useState<number | null>(null);
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -140,11 +150,46 @@ export default function OrdersPage() {
       label: "Status",
       render: (item: Order) => {
         const config = STATUS_CONFIG[item.status];
+        const nextStatuses = STATUS_FLOW[item.status] || [];
+        const isOpen = showStatusModal === item.id;
         return (
-          <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold ${config.color}`}>
-            {config.icon}
-            {config.label}
-          </span>
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (nextStatuses.length > 0 && item.status !== "Completed" && item.status !== "Cancelled") {
+                  setShowStatusModal(isOpen ? null : item.id);
+                }
+              }}
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                nextStatuses.length > 0 && item.status !== "Completed" && item.status !== "Cancelled"
+                  ? "cursor-pointer hover:shadow-sm"
+                  : ""
+              } ${config.color}`}
+            >
+              {config.icon}
+              {config.label}
+            </button>
+            {isOpen && (
+              <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[160px]">
+                {nextStatuses.map((nextStatus) => (
+                  <button
+                    key={nextStatus}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusUpdate(item.id, nextStatus);
+                      setShowStatusModal(null);
+                    }}
+                    disabled={actionLoadingId === item.id}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {STATUS_CONFIG[nextStatus].icon}
+                    {STATUS_CONFIG[nextStatus].label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -188,7 +233,7 @@ export default function OrdersPage() {
       <Sidebar />
       <div className="ml-[264px]">
         <Topbar />
-        <main className="p-6">
+        <main className="p-6" onClick={() => setShowStatusModal(null)}>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>

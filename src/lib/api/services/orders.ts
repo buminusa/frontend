@@ -1,7 +1,15 @@
-import { apiGet, apiPatch, apiDelete } from "@/lib/api/api";
+import { apiGet, apiPatch, apiDelete, apiPost } from "@/lib/api/api";
 import type { ApiResponse, Order } from "@/lib/types/api";
 
 export const orderService = {
+  async create(payload: {
+    items: Array<{ productId: number; quantity: number }>;
+    shipping_address: string;
+    notes?: string;
+  }) {
+    return apiPost<Order>("/api/v1/orders", payload);
+  },
+
   async getAll(): Promise<ApiResponse<Order[]>> {
     return apiGet<Order[]>("/api/v1/orders");
   },

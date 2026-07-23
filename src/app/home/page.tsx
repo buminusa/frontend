@@ -10,7 +10,7 @@ export default function Home() {
     <Navbar />
     <HeroHome />
     <CommoditySection />
-    <CommodityPriceSection />
+    {/* <CommodityPriceSection /> */}
     <Footer />
     </>
   )

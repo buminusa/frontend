@@ -65,7 +65,7 @@ export function Sidebar({
       {/* Brand */}
       <div className="flex items-center justify-between px-4 h-[68px] border-b border-white/[0.06]">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center text-white shadow-lg shadow-blue-500/20 flex-shrink-0">
+          <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-[#33A853] to-[#1E7B3E] flex items-center justify-center text-white shadow-lg shadow-green-500/20 flex-shrink-0">
             <Zap size={18} strokeWidth={2.5} />
           </div>
           {!collapsed && (
@@ -73,7 +73,7 @@ export function Sidebar({
               <div className="font-semibold text-white text-[13px] tracking-wide leading-tight">
                 BUMI NUSA
               </div>
-              <div className="text-[10px] text-blue-400/80 font-medium leading-tight mt-0.5">
+              <div className="text-[10px] text-green-400/80 font-medium leading-tight mt-0.5">
                 {displayRoleLabel}
               </div>
             </div>
@@ -109,7 +109,7 @@ export function Sidebar({
                     collapsed ? "px-0 py-2.5 justify-center" : "px-3 py-2.5"
                   } ${
                     isActive
-                      ? "bg-[#3B82F6]/10 text-white"
+                      ? "bg-[#33A853]/10 text-white"
                       : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
                   }`}
                   aria-current={isActive ? "page" : undefined}
@@ -117,7 +117,7 @@ export function Sidebar({
                 >
                   {/* Active indicator - left bar */}
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#3B82F6] rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#33A853] rounded-r-full" />
                   )}
 
                   <item.icon
@@ -125,7 +125,7 @@ export function Sidebar({
                     strokeWidth={isActive ? 2.2 : 1.8}
                     className={`flex-shrink-0 transition-colors duration-200 ${
                       isActive
-                        ? "text-[#3B82F6]"
+                        ? "text-[#33A853]"
                         : "text-gray-500 group-hover:text-gray-300"
                     }`}
                   />
@@ -150,10 +150,10 @@ export function Sidebar({
       <div className="px-3 pb-3 border-t border-white/[0.06] pt-3">
         {/* Help Card */}
         {!collapsed ? (
-          <div className="bg-gradient-to-br from-[#3B82F6]/10 to-[#2563EB]/10 rounded-xl p-3.5 mb-3 border border-blue-500/10">
+          <div className="bg-gradient-to-br from-[#33A853]/10 to-[#1E7B3E]/10 rounded-xl p-3.5 mb-3 border border-green-500/10">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/15 flex items-center justify-center flex-shrink-0">
-                <HelpCircle size={16} className="text-[#3B82F6]" />
+              <div className="w-8 h-8 rounded-lg bg-[#33A853]/15 flex items-center justify-center flex-shrink-0">
+                <HelpCircle size={16} className="text-[#33A853]" />
               </div>
               <div className="min-w-0">
                 <div className="text-[12px] font-semibold text-white leading-tight">
@@ -164,14 +164,14 @@ export function Sidebar({
                 </div>
               </div>
             </div>
-            <button className="w-full py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-[12px] font-medium rounded-lg transition-all duration-200 active:scale-[0.98]">
+            <button className="w-full py-2 bg-[#33A853] hover:bg-[#1E7B3E] text-white text-[12px] font-medium rounded-lg transition-all duration-200 active:scale-[0.98]">
               Hubungi Support
             </button>
           </div>
         ) : (
           <div className="flex justify-center mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#3B82F6]/15 flex items-center justify-center hover:bg-[#3B82F6]/25 cursor-pointer transition-all duration-200 group relative">
-              <HelpCircle size={16} className="text-[#3B82F6] group-hover:text-[#60A5FA] transition-colors" />
+            <div className="w-9 h-9 rounded-xl bg-[#33A853]/15 flex items-center justify-center hover:bg-[#33A853]/25 cursor-pointer transition-all duration-200 group relative">
+              <HelpCircle size={16} className="text-[#33A853] group-hover:text-[#4CAF50] transition-colors" />
               <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 Bantuan
                 <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-gray-900" />

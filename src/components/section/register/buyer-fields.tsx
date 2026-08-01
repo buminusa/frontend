@@ -1,3 +1,8 @@
+"use client"
+
+import { User, MapPin, Phone, Globe } from "lucide-react"
+import AuthField from "../auth-field"
+
 interface BuyerFieldsProps {
   formData: {
     full_name: string
@@ -9,82 +14,52 @@ interface BuyerFieldsProps {
   onChange: (field: string, value: string) => void
 }
 
-export default function BuyerFields({
-  formData,
-  onChange,
-}: BuyerFieldsProps) {
+export default function BuyerFields({ formData, onChange }: BuyerFieldsProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <AuthField
+        label="Nama Lengkap"
+        value={formData.full_name}
+        onChange={(v) => onChange("full_name", v)}
+        placeholder="Nama lengkap sesuai identitas"
+        icon={User}
+      />
 
-      <div>
-        <label className="mb-1.5 block text-sm font-medium">
-          Nama Lengkap
-        </label>
-        <input
-          type="text"
-          value={formData.full_name}
-          onChange={(e) => onChange("full_name", e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-          placeholder="Nama lengkap sesuai identitas"
-        />
-      </div>
-
-      <div>
-        <label className="mb-1.5 block text-sm font-medium">
-          Alamat
-        </label>
-        <textarea
-          value={formData.address}
-          onChange={(e) => onChange("address", e.target.value)}
-          rows={3}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-          placeholder="Alamat lengkap"
-        />
-      </div>
+      <AuthField
+        label="Alamat"
+        value={formData.address}
+        onChange={(v) => onChange("address", v)}
+        placeholder="Alamat lengkap"
+        icon={MapPin}
+        textarea
+      />
 
       <div className="grid grid-cols-2 gap-4">
+        <AuthField
+          label="Provinsi"
+          value={formData.province}
+          onChange={(v) => onChange("province", v)}
+          placeholder="Jawa Barat"
+          icon={MapPin}
+        />
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium">
-            Provinsi
-          </label>
-          <input
-            type="text"
-            value={formData.province}
-            onChange={(e) => onChange("province", e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-            placeholder="Jawa Barat"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium">
-            Negara
-          </label>
-          <input
-            type="text"
-            value={formData.country}
-            onChange={(e) => onChange("country", e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-            placeholder="Indonesia"
-          />
-        </div>
-
-      </div>
-
-      <div>
-        <label className="mb-1.5 block text-sm font-medium">
-          Nomor Telepon
-        </label>
-        <input
-          type="tel"
-          value={formData.phone}
-          onChange={(e) => onChange("phone", e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-          placeholder="08xxxxxxxxxx"
+        <AuthField
+          label="Negara"
+          value={formData.country}
+          onChange={(v) => onChange("country", v)}
+          placeholder="Indonesia"
+          icon={Globe}
         />
       </div>
 
+      <AuthField
+        label="Nomor Telepon"
+        value={formData.phone}
+        onChange={(v) => onChange("phone", v)}
+        placeholder="08xxxxxxxxxx"
+        type="tel"
+        icon={Phone}
+      />
     </div>
   )
 }

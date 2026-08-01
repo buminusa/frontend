@@ -3,7 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { getUserRoleFromToken, loginUser, saveAuthToken } from "@/lib/auth"
+import { Mail, Lock } from "lucide-react"
+import { motion } from "framer-motion"
+import { loginUser, saveAuthToken, getUserRoleFromToken } from "@/lib/auth"
+import AuthShell from "./auth-shell"
+import AuthField from "./auth-field"
 
 export default function LoginSection() {
   const router = useRouter()
@@ -34,71 +38,73 @@ export default function LoginSection() {
         router.push(role === "Supplier" ? "/suplier" : "/home")
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Login failed")
+      setMessage(error instanceof Error ? error.message : "Login gagal")
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-md px-4">
-
-        <h1 className="mb-2 text-3xl font-bold">
-          Masuk
-        </h1>
-
-        <p className="mb-8 text-sm text-gray-500">
+    <AuthShell
+      eyebrow="Masuk ke akun Anda"
+      title="Masuk"
+      subtitle="Kelola bisnis komoditas Anda dengan efisien dan terpercaya"
+      quote="Jembatan perdagangan komoditas Indonesia yang menghubungkan petani dengan pasar secara langsung."
+      footerLink={
+        <>
           Belum punya akun?{" "}
-          <Link href="/register" className="font-semibold text-green-600 underline">
+          <Link href="/register" className="font-semibold text-green-600 underline hover:text-green-700">
             Daftar di sini
           </Link>
-        </p>
+        </>
+      }
+    >
+      <motion.form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        <AuthField
+          label="Email"
+          value={formData.email}
+          onChange={(v) => handleChange("email", v)}
+          placeholder="nama@email.com"
+          type="email"
+          icon={Mail}
+          error={message && !formData.email ? "Email wajib diisi" : null}
+        />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <AuthField
+          label="Password"
+          value={formData.password}
+          onChange={(v) => handleChange("password", v)}
+          placeholder="Masukkan password"
+          type="password"
+          icon={Lock}
+          error={message && !formData.password ? "Password wajib diisi" : null}
+        />
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">
-              Email
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-              placeholder="nama@email.com"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">
-              Password
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleChange("password", e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-              placeholder="Masukkan password"
-            />
-          </div>
-
-
-          {message ? (
-            <p className="text-sm text-gray-600">{message}</p>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400"
+        {message ? (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2"
           >
-            {isSubmitting ? "Memproses..." : "Masuk"}
-          </button>
+            {message}
+          </motion.p>
+        ) : null}
 
-        </form>
-
-      </div>
-    </section>
+        <motion.button
+          type="submit"
+          disabled={isSubmitting}
+          whileTap={{ scale: 0.98 }}
+          className="w-full h-11 rounded-full bg-green-600 font-semibold text-white transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30 disabled:cursor-not-allowed disabled:bg-green-400 disabled:shadow-none disabled:transform-none"
+        >
+          {isSubmitting ? "Memproses..." : "Masuk"}
+        </motion.button>
+      </motion.form>
+    </AuthShell>
   )
 }

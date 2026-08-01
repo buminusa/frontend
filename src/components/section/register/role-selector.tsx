@@ -1,39 +1,68 @@
+"use client"
+
+import { ShoppingBag, Store } from "lucide-react"
+
 interface RoleSelectorProps {
   role: "buyer" | "supplier"
   onChange: (role: "buyer" | "supplier") => void
 }
 
-export default function RoleSelector({
-  role,
-  onChange,
-}: RoleSelectorProps) {
+const options = [
+  {
+    id: "buyer" as const,
+    label: "Saya Pembeli",
+    sub: "Beli komoditas langsung dari petani",
+    Icon: ShoppingBag,
+  },
+  {
+    id: "supplier" as const,
+    label: "Saya Supplier",
+    sub: "Pasarkan produk Anda lebih luas",
+    Icon: Store,
+  },
+]
+
+export default function RoleSelector({ role, onChange }: RoleSelectorProps) {
   return (
     <div className="mb-8 grid grid-cols-2 gap-3">
+      {options.map(({ id, label, sub, Icon }) => {
+        const active = role === id
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onChange(id)}
+            className={
+              "group flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition " +
+              (active
+                ? "border-green-600 bg-[rgba(22,163,74,0.06)] ring-1 ring-green-600/40"
+                : "border-gray-200 bg-white hover:border-gray-300")
+            }
+          >
+            <span
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-lg transition " +
+                (active
+                  ? "bg-green-600 text-white"
+                  : "bg-[#1A3A1B]/5 text-[#1A3A1B] group-hover:bg-[#1A3A1B]/10")
+              }
+            >
+              <Icon size={16} />
+            </span>
 
-      <button
-        type="button"
-        onClick={() => onChange("buyer")}
-        className={`rounded-lg border px-4 py-3 text-sm font-semibold transition ${
-          role === "buyer"
-            ? "border-green-600 bg-green-600 text-white"
-            : "border-gray-300 text-gray-500 hover:border-gray-400"
-        }`}
-      >
-        Saya Pembeli
-      </button>
+            <span
+              className={
+                "text-sm font-semibold " +
+                (active ? "text-[#1A3A1B]" : "text-gray-700")
+              }
+            >
+              {label}
+            </span>
 
-      <button
-        type="button"
-        onClick={() => onChange("supplier")}
-        className={`rounded-lg border px-4 py-3 text-sm font-semibold transition ${
-          role === "supplier"
-            ? "border-green-600 bg-green-600 text-white"
-            : "border-gray-300 text-gray-500 hover:border-gray-400"
-        }`}
-      >
-        Saya Supplier
-      </button>
-
+            <span className="text-[11px] leading-snug text-gray-500">{sub}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }

@@ -3,11 +3,14 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-
+import { Mail, Lock } from "lucide-react"
+import { motion } from "framer-motion"
+import { registerBuyerUser, registerCompanyUser } from "@/lib/auth"
 import RoleSelector from "./register/role-selector"
 import BuyerFields from "./register/buyer-fields"
 import CompanyFields from "./register/company-fields"
-import { registerBuyerUser, registerCompanyUser } from "@/lib/auth"
+import AuthShell from "./auth-shell"
+import AuthField from "./auth-field"
 
 export default function RegisterSection() {
   const router = useRouter()
@@ -77,90 +80,100 @@ export default function RegisterSection() {
         router.push("/login")
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Registration failed")
+      setMessage(error instanceof Error ? error.message : "Registrasi gagal")
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <section className="py-14">
-      <div className="mx-auto max-w-xl px-4">
-
-        <h1 className="mb-2 text-3xl font-bold">
-          Daftar Akun
-        </h1>
-
-        <p className="mb-8 text-sm text-gray-500">
+    <AuthShell
+      eyebrow="Bergabung dengan Bumi Nusa"
+      title="Daftar Akun"
+      subtitle="Pilih peran Anda dan lengkapi data untuk memulai bertransaksi"
+      quote="Platform agregator komoditas pertama yang menghubungkan petani Indonesia ke pasar global tanpa perantara."
+      footerLink={
+        <>
           Sudah punya akun?{" "}
-          <Link href="/login" className="font-semibold text-green-600 underline">
+          <Link href="/login" className="font-semibold text-green-600 underline hover:text-green-700">
             Masuk di sini
           </Link>
-        </p>
+        </>
+      }
+    >
+      <motion.form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+        >
+          <RoleSelector role={role} onChange={setRole} />
+        </motion.div>
 
-        <RoleSelector role={role} onChange={setRole} />
+        <div className="space-y-5">
+          <AuthField
+            label="Email"
+            value={account.email}
+            onChange={(v) => handleAccountChange("email", v)}
+            placeholder="nama@email.com"
+            type="email"
+            icon={Mail}
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+          <AuthField
+            label="Password"
+            value={account.password}
+            onChange={(v) => handleAccountChange("password", v)}
+            placeholder="Minimal 8 karakter"
+            type="password"
+            icon={Lock}
+          />
+        </div>
 
-          <div className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Detail {role === "buyer" ? "Pembeli" : "Supplier"}
+          </p>
+          {role === "buyer" ? (
+            <BuyerFields formData={buyerData} onChange={handleBuyerChange} />
+          ) : (
+            <CompanyFields
+              formData={companyData}
+              onChange={handleCompanyChange}
+              onFileChange={handleCompanyFileChange}
+            />
+          )}
+        </motion.div>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                Email
-              </label>
-              <input
-                type="email"
-                value={account.email}
-                onChange={(e) => handleAccountChange("email", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-                placeholder="nama@email.com"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                Password
-              </label>
-              <input
-                type="password"
-                value={account.password}
-                onChange={(e) =>
-                  handleAccountChange("password", e.target.value)
-                }
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black"
-                placeholder="Minimal 8 karakter"
-              />
-            </div>
-
-          </div>
-
-          <div className="border-t border-gray-200 pt-6">
-            {role === "buyer" ? (
-              <BuyerFields formData={buyerData} onChange={handleBuyerChange} />
-            ) : (
-              <CompanyFields
-                formData={companyData}
-                onChange={handleCompanyChange}
-                onFileChange={handleCompanyFileChange}
-              />
-            )}
-          </div>
-
-          {message ? (
-            <p className="text-sm text-gray-600">{message}</p>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-green-400"
+        {message ? (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2"
           >
-            {isSubmitting ? "Memproses..." : "Daftar"}
-          </button>
+            {message}
+          </motion.p>
+        ) : null}
 
-        </form>
-
-      </div>
-    </section>
+        <motion.button
+          type="submit"
+          disabled={isSubmitting}
+          whileTap={{ scale: 0.98 }}
+          className="w-full h-11 rounded-full bg-green-600 font-semibold text-white transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30 disabled:cursor-not-allowed disabled:bg-green-400 disabled:shadow-none disabled:transform-none"
+        >
+          {isSubmitting ? "Memproses..." : "Daftar"}
+        </motion.button>
+      </motion.form>
+    </AuthShell>
   )
 }

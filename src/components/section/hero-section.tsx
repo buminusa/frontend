@@ -8,13 +8,13 @@ export default function Hero() {
 
   const categories = [
     { name: "Rempah-rempah", image: "/rempah.png" },
-    { name: "Hasil Bumi", image: "/hasil_bumi.png" },
     { name: "Perkebunan", image: "/perkebunan.png" },
     { name: "Hortikultura", image: "/Hortikultura.png" },
     { name: "Perikanan", image: "/Hortikultura.png" },
     { name: "Peternakan", image: "/Hortikultura.png" },
-    { name: "Kopi", image: "/Hortikultura.png" },
-    { name: "Kakao", image: "/Hortikultura.png" }
+    {name: "Pertanian Pangan", image: "/Hortikultura.png"},
+    {name: "Kehutanan", image: "/Hortikultura.png"},
+    {name: "Lainya", image: "/Hortikultura.png"}
   ]
 
   return (

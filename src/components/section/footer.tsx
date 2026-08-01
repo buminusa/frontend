@@ -32,7 +32,7 @@ export default function Footer() {
           {/* Column 1 - Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="Bumi_Nusa" className="w-10 h-10" />
+              <img src="/logo.png" alt="Bumi_Nusa" className="w-10 h-10 rounded-full" />
               <h2 className="text-xl font-bold">
                 Bumi_Nusa
               </h2>

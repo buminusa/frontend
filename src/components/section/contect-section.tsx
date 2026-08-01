@@ -1,51 +1,32 @@
 import { Button } from "@/components/ui/button"
-import {
-  ShieldCheck,
-  TrendingUp,
-  Users,
-  Clock,
-  Award,
-  Globe,
-} from "lucide-react"
+import { ShieldCheck, Cog, Users, Leaf } from "lucide-react"
 import Link from "next/link"
 
 export default function ContentSection() {
   const benefits = [
     {
       icon: ShieldCheck,
-      title: "Transparan",
+      title: "Terpercaya",
       description:
-        "Semua data harga dan kualitas produk tersedia secara terbuka dan akurat",
+        "Transparansi dan integritas adalah fondasi setiap transaksi kami.",
     },
     {
-      icon: TrendingUp,
+      icon: Cog,
       title: "Efisien",
       description:
-        "Proses transaksi cepat dan mudah tanpa perantara yang berbelit",
+        "Teknologi dan sistem yang terintegrasi untuk proses cepat dan tepat.",
     },
     {
       icon: Users,
-      title: "Terpercaya",
+      title: "Kolaboratif",
       description:
-        "Telah dipercaya oleh ribuan petani dan pembeli di seluruh Indonesia",
+        "Bertumbuh bersama melalui kemitraan yang saling menguntungkan.",
     },
     {
-      icon: Clock,
-      title: "Real-time",
+      icon: Leaf,
+      title: "Berkelanjutan",
       description:
-        "Informasi harga dan stok selalu diperbarui secara langsung",
-    },
-    {
-      icon: Award,
-      title: "Kualitas Terjamin",
-      description:
-        "Produk komoditas terbaik dengan standar kualitas yang ketat",
-    },
-    {
-      icon: Globe,
-      title: "Jangkauan Luas",
-      description:
-        "Terhubung dengan petani dan pembeli dari berbagai daerah di Indonesia",
+        "Berkomitmen pada praktik bisnis yang ramah lingkungan dan berkelanjutan.",
     },
   ]
 
@@ -59,32 +40,29 @@ export default function ContentSection() {
           </h2>
 
           <p className="mt-4 text-base leading-relaxed text-gray-600 lg:text-lg">
-            Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit
-            amet consectetur adipiscing elit quisque faucibus.
+            Kami memanfaatkan teknologi dan jaringan luas untuk memastikan kualitas terbaik, harga yang kompetitif, serta proses transaksi yang aman dan terpercaya.
           </p>
         </div>
 
         {/* Cards */}
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-gray-200">
           {benefits.map((benefit) => (
             <div
               key={benefit.title}
-              className="group rounded-2xl border border-gray-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="group flex flex-col items-start gap-4 lg:px-6 lg:first:pl-0"
             >
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A3A1B]/10 transition-colors duration-300 group-hover:bg-[#1A3A1B]">
-                  <benefit.icon className="h-6 w-6 text-[#1A3A1B] transition-colors duration-300 group-hover:text-white" />
-                </div>
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A3A1B]/10 transition-colors duration-300 group-hover:bg-[#1A3A1B]">
+                <benefit.icon className="h-6 w-6 text-[#1A3A1B] transition-colors duration-300 group-hover:text-white" />
+              </div>
 
-                <div>
-                  <h3 className="text-lg font-semibold text-[#1A3A1B]">
-                    {benefit.title}
-                  </h3>
+              <div>
+                <h3 className="text-lg font-semibold text-[#1A3A1B]">
+                  {benefit.title}
+                </h3>
 
-                  <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    {benefit.description}
-                  </p>
-                </div>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                  {benefit.description}
+                </p>
               </div>
             </div>
           ))}
@@ -92,13 +70,12 @@ export default function ContentSection() {
 
         {/* Button */}
         <Link href={"/register"}>
-        <div className="mt-12 flex justify-center">
-          <Button className="h-12 rounded-xl bg-yellow-400 px-8 text-base font-semibold text-[#1A3A1B] transition hover:scale-105 hover:bg-yellow-500">
-            Mulai Bergabung
-          </Button>
-        </div>
+          <div className="mt-12 flex justify-center">
+            <Button className="h-12 rounded-xl bg-yellow-400 px-8 text-base font-semibold text-[#1A3A1B] transition hover:scale-105 hover:bg-yellow-500">
+              Mulai Bergabung
+            </Button>
+          </div>
         </Link>
-        
       </div>
     </section>
   )

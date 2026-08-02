@@ -17,6 +17,7 @@ export default function RegisterSection() {
   const [role, setRole] = useState<"buyer" | "supplier">("buyer")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [agreeTerms, setAgreeTerms] = useState(false)
 
   const [account, setAccount] = useState({
     email: "",
@@ -60,6 +61,12 @@ export default function RegisterSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!agreeTerms) {
+    setMessage("Anda harus menyetujui Syarat & Ketentuan terlebih dahulu.")
+    return
+  }
+
     setIsSubmitting(true)
     setMessage(null)
 
@@ -155,6 +162,45 @@ export default function RegisterSection() {
           )}
         </motion.div>
 
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+  <label className="flex items-start gap-3 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={agreeTerms}
+      onChange={(e) => setAgreeTerms(e.target.checked)}
+      className="
+        mt-1
+        h-4
+        w-4
+        rounded
+        border-gray-300
+        text-green-600
+        focus:ring-green-600
+      "
+    />
+
+    <span className="text-sm leading-6 text-gray-600">
+      Saya telah membaca dan menyetujui{" "}
+      <Link
+        href="/terms"
+        target="_blank"
+        className="font-semibold text-green-600 hover:underline"
+      >
+        Syarat & Ketentuan
+      </Link>{" "}
+      serta{" "}
+      <Link
+        href="/privacy"
+        target="_blank"
+        className="font-semibold text-green-600 hover:underline"
+      >
+        Kebijakan Privasi
+      </Link>{" "}
+      Bumi Nusa.
+    </span>
+  </label>
+</div>
+
         {message ? (
           <motion.p
             initial={{ opacity: 0, y: -4 }}
@@ -166,13 +212,30 @@ export default function RegisterSection() {
         ) : null}
 
         <motion.button
-          type="submit"
-          disabled={isSubmitting}
-          whileTap={{ scale: 0.98 }}
-          className="w-full h-11 rounded-full bg-green-600 font-semibold text-white transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30 disabled:cursor-not-allowed disabled:bg-green-400 disabled:shadow-none disabled:transform-none"
-        >
-          {isSubmitting ? "Memproses..." : "Daftar"}
-        </motion.button>
+  type="submit"
+  disabled={isSubmitting || !agreeTerms}
+  whileTap={{ scale: 0.98 }}
+  className="
+    w-full
+    h-11
+    rounded-full
+    bg-green-600
+    font-semibold
+    text-white
+    transition
+    shadow-md
+    shadow-green-600/20
+    hover:-translate-y-px
+    hover:shadow-lg
+    hover:shadow-green-600/30
+    disabled:cursor-not-allowed
+    disabled:bg-gray-300
+    disabled:text-gray-500
+    disabled:shadow-none
+  "
+>
+  {isSubmitting ? "Memproses..." : "Daftar"}
+</motion.button>
       </motion.form>
     </AuthShell>
   )

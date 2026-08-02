@@ -19,6 +19,7 @@ interface CompanyFieldsProps {
   onFileChange: (field: string, file: File | null) => void
 }
 
+
 function FileUploadField({
   label,
   file,
@@ -130,7 +131,7 @@ export default function CompanyFields({
       />
 
       <FileUploadField
-        label="Logo Perusahaan"
+        label="Logo Perusahaan (Optional)"
         file={formData.logo}
         onSelect={(file) => onFileChange("logo", file)}
         onRemove={() => onFileChange("logo", null)}
@@ -140,7 +141,7 @@ export default function CompanyFields({
       />
 
       <FileUploadField
-        label="Foto NPWP"
+        label="Foto NPWP (Optional)"
         file={formData.npwp_file}
         onSelect={(file) => onFileChange("npwp_file", file)}
         onRemove={() => onFileChange("npwp_file", null)}

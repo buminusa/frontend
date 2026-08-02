@@ -307,15 +307,8 @@ export default function ProductDetailSection() {
                 </div>
 
                 <div>
-                  <p className="text-gray-500">HS Code</p>
+                  <p className="text-gray-500">Kode Produk</p>
                   <p className="font-medium">{product.hsCode}</p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500">Supplier</p>
-                  <p className="font-medium">
-                    {product.supplier?.companyName ?? "-"}
-                  </p>
                 </div>
               </div>
             </div>
@@ -379,7 +372,7 @@ export default function ProductDetailSection() {
                   disabled={isBuying || product.status !== "Active"}
                   className="w-full rounded-lg bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                 >
-                  {isBuying ? "Memproses pesanan..." : "Beli Sekarang"}
+                  {isBuying ? "Memproses pesanan..." : "Order"}
                 </button>
 
                 <p className="text-xs text-gray-500">

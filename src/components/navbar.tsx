@@ -151,7 +151,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
-      <div className="hidden h-9 border-b border-gray-200 bg-yellow-400 md:block">
+      {/* <div className="hidden h-9 border-b border-gray-200 bg-yellow-400 md:block">
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-2 text-sm">
             <Flag className="h-4 w-4 text-gray-600" />
@@ -165,7 +165,7 @@ export default function Navbar() {
             <Link href="#">Bantuan</Link>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="h-14">
         <div className="mx-auto flex h-full max-w-7xl items-center gap-3 px-4 md:px-6">
@@ -176,7 +176,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div
+          {/* <div
             className="relative hidden lg:block"
             onMouseEnter={() => setShowCategory(true)}
             onMouseLeave={() => setShowCategory(false)}
@@ -185,7 +185,7 @@ export default function Navbar() {
             <button className="rounded-lg px-4 py-2 text-[15px] transition hover:bg-gray-100">
               Komoditas
             </button>
-          </div>
+          </div> */}
 
           <div className="min-w-0 flex-1">
             <div className="relative">

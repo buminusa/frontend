@@ -22,13 +22,13 @@ type ApiProduct = {
 };
 
 type Product = {
-  id: number;
-  slug: string;
-  name: string;
-  image: string;
-  price: number;
-  location: string;
-};
+  id: number
+  slug: string
+  name: string
+  image: string
+  location: string
+  category: string
+}
 
 type Category = {
   id: number;
@@ -83,15 +83,15 @@ export default function AllCommoditySection() {
         const apiProducts = result.data as ApiProduct[];
 
         setProducts(
-          apiProducts.map((product) => ({
-            id: product.id,
-            slug: product.slug ?? String(product.id),
-            name: product.nama,
-            image: product.images[0]?.image_url ?? "/hasil_bumi.png",
-            price: Number(product.price_min),
-            location: product.supplier?.address ?? product.supplier?.company_name ?? "Indonesia",
-          })),
-        );
+  (result.data as ApiProduct[]).map((product) => ({
+    id: product.id,
+    slug: product.slug ?? String(product.id),
+    name: product.nama,
+    image: product.images[0]?.image_url ?? "/hasil_bumi.png",
+    location: product.supplier?.address ?? "Indonesia",
+    category: product.category?.name_categories ?? "Lainnya",
+  }))
+)
         setTotalPages(result.meta?.totalPages ?? 1);
         setCategories((currentCategories) => {
           const nextCategories = new Map(currentCategories.map((category) => [category.id, category]));

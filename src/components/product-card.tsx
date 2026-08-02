@@ -6,7 +6,7 @@ interface Props {
   slug: string
   name: string
   image: string
-  price: number
+  category: string
   location: string
 }
 
@@ -14,7 +14,7 @@ export default function ProductCard({
   slug,
   name,
   image,
-  price,
+  category,
   location,
 }: Props) {
   return (
@@ -33,22 +33,22 @@ export default function ProductCard({
       </div>
 
       {/* Content */}
-      <div className="space-y-1.5 p-3">
+      <div className="space-y-2 p-3">
 
-        <h3 className="line-clamp-2 text-sm font-medium leading-5">
-          {name}
-        </h3>
+  <span className="inline-flex rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-medium text-green-700">
+    {category}
+  </span>
 
-        <p className="text-base font-bold text-green-600">
-          Rp {price.toLocaleString("id-ID")}
-        </p>
+  <h3 className="line-clamp-2 text-sm font-semibold leading-5">
+    {name}
+  </h3>
 
-        <div className="flex items-center gap-1 text-xs text-gray-500">
-          <MapPin size={13} />
-          <span className="truncate">{location}</span>
-        </div>
+  <div className="flex items-center gap-1 text-xs text-gray-500">
+    <MapPin size={13} />
+    <span className="truncate">{location}</span>
+  </div>
 
-      </div>
+</div>
     </Link>
   )
 }

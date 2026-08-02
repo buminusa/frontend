@@ -26,14 +26,11 @@ type Product = {
   slug: string
   name: string
   image: string
-  price: number
   location: string
-  categoryId: number | null
-  categoryName: string | null
+  category: string
 }
 
 export default function PopulerCommoditySection() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -65,17 +62,15 @@ export default function PopulerCommoditySection() {
         }
 
         setProducts(
-          (result.data as ApiProduct[]).map((product) => ({
-            id: product.id,
-            slug: product.slug ?? String(product.id),
-            name: product.nama,
-            image: product.images[0]?.image_url ?? "/hasil_bumi.png",
-            price: Number(product.price_min),
-            location: product.supplier?.address ?? product.supplier?.company_name ?? "Indonesia",
-            categoryId: product.category?.id ?? null,
-            categoryName: product.category?.name_categories ?? null,
-          }))
-        )
+  (result.data as ApiProduct[]).map((product) => ({
+    id: product.id,
+    slug: product.slug ?? String(product.id),
+    name: product.nama,
+    image: product.images[0]?.image_url ?? "/hasil_bumi.png",
+    location: product.supplier?.address ?? "Indonesia",
+    category: product.category?.name_categories ?? "Lainnya",
+  }))
+)
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
           setError(error instanceof Error ? error.message : "Gagal memuat komoditas populer.")
@@ -94,26 +89,6 @@ export default function PopulerCommoditySection() {
     }
   }, [])
 
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Map(
-          products
-            .filter((product): product is Product & { categoryId: number; categoryName: string } =>
-              product.categoryId !== null && product.categoryName !== null
-            )
-            .map((product) => [product.categoryId, product.categoryName])
-        )
-      ).map(([id, name]) => ({ id, name })),
-    [products]
-  )
-
-  const filteredProducts = useMemo(() => {
-    if (selectedCategoryId === null) return products
-
-    return products.filter((product) => product.categoryId === selectedCategoryId)
-  }, [products, selectedCategoryId])
-
   return (
     <section className="py-14">
 
@@ -125,26 +100,39 @@ export default function PopulerCommoditySection() {
 
         {/* Category */}
 
-        <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
+        <div className="mb-10 flex items-center gap-3">
 
-          <CategoryChip
-            name="Semua"
-            icon={LayoutGrid}
-            active={selectedCategoryId === null}
-            onClick={() => setSelectedCategoryId(null)}
-          />
+  <CategoryChip
+    name="Semua"
+    icon={LayoutGrid}
+    active
+    onClick={() => {}}
+  />
 
-          {categories.map((category) => (
-            <CategoryChip
-              key={category.id}
-              name={category.name}
-              icon={Tag}
-              active={category.id === selectedCategoryId}
-              onClick={() => setSelectedCategoryId(category.id)}
-            />
-          ))}
+  <Link
+    href="/komoditas"
+    className="
+      flex
+      items-center
+      gap-2
+      rounded-full
+      border
+      border-gray-200
+      bg-white
+      px-5
+      py-3
+      text-sm
+      font-medium
+      transition
+      hover:border-green-600
+      hover:text-green-600
+    "
+  >
+    Kategori Lainnya
+    <ArrowRight size={18} />
+  </Link>
 
-        </div>
+</div>
 
         {/* Products */}
 
@@ -154,11 +142,11 @@ export default function PopulerCommoditySection() {
 
           {!isLoading && error && <p className="col-span-full text-sm text-red-600">{error}</p>}
 
-          {!isLoading && !error && filteredProducts.length === 0 && (
+          {!isLoading && !error && products.length === 0 && (
             <p className="col-span-full text-sm text-gray-500">Belum ada komoditas populer.</p>
           )}
 
-          {filteredProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               {...product}

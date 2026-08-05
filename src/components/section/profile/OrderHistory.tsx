@@ -1,4 +1,5 @@
 // components/sections/profile/OrderHistory.tsx
+import Link from "next/link";
 import { Package, Calendar, DollarSign, ChevronRight } from "lucide-react";
 
 interface Order {
@@ -17,20 +18,27 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
     const colors = {
       completed: "bg-green-100 text-green-800",
       pending: "bg-yellow-100 text-yellow-800",
+      confirmed: "bg-blue-100 text-blue-800",
+      processing: "bg-blue-100 text-blue-800",
       shipped: "bg-blue-100 text-blue-800",
       cancelled: "bg-red-100 text-red-800",
     };
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
+    return (
+      colors[status.toLowerCase() as keyof typeof colors] ||
+      "bg-gray-100 text-gray-800"
+    );
   };
 
   const getStatusLabel = (status: string) => {
     const labels = {
       completed: "Completed",
       pending: "Pending",
+      confirmed: "Confirmed",
+      processing: "Processing",
       shipped: "Shipped",
       cancelled: "Cancelled",
     };
-    return labels[status as keyof typeof labels] || status;
+    return labels[status.toLowerCase() as keyof typeof labels] || status;
   };
 
   if (orders.length === 0) {
@@ -53,14 +61,18 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
         <h2 className="text-lg font-semibold text-gray-900">
           Order History
         </h2>
-        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+        <Link
+          href="/keranjang"
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
           View All
-        </button>
+        </Link>
       </div>
-      
+
       <div className="space-y-3">
         {orders.slice(0, 3).map((order) => (
-          <div
+          <Link
+            href={`/keranjang?orderId=${order.id}`}
             key={order.id}
             className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
           >
@@ -82,20 +94,20 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 mt-3 sm:mt-0 w-full sm:w-auto">
               <div className="flex items-center gap-1 text-gray-900 font-medium">
                 <DollarSign className="w-4 h-4" />
                 <span>Rp {order.total_amount.toLocaleString('id-ID')}</span>
               </div>
-              
+
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                 {getStatusLabel(order.status)}
               </span>
-              
+
               <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

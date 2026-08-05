@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { ProfileHeader } from "./ProfileHeader"
 import { ProfileInfo } from "./ProfileInfo"
 import { ProfileForm } from "./ProfileForm"
-import { OrderHistory } from "./OrderHistory"
+import { OrderHistoryContainer } from "./OrderHistoryContainer"
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AUTH_EVENT_NAME, getAuthToken, getUserFromToken } from "@/lib/auth"
@@ -39,13 +39,6 @@ type BuyerProfile = {
   country: string
   phone: string
   email: string
-
-  orders: {
-    id: number
-    created_at: Date
-    total_amount: number
-    status: string
-  }[]
 }
 
 export function ProfileSection() {
@@ -98,9 +91,6 @@ export function ProfileSection() {
           country: data.country,
           phone: data.phone,
           email: data.user.email,
-
-          // sementara kosong karena endpoint profile belum mengembalikan orders
-          orders: [],
         })
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
@@ -187,7 +177,7 @@ export function ProfileSection() {
       ) : (
         <>
           <ProfileInfo profile={profile} />
-          <OrderHistory orders={profile.orders} />
+          <OrderHistoryContainer />
         </>
       )}
     </div>

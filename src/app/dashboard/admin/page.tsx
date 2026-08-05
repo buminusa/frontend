@@ -22,8 +22,10 @@ import {
   Tags,
   Calendar,
 } from "lucide-react";
+import { useAuthGuard } from "@/hooks/use-auth-guard"
 
 export default function AdminDashboardPage() {
+  useAuthGuard({ allowedRoles: ["Admin", "Super_Admin"] });
   const {
     loading,
     errorMsg,

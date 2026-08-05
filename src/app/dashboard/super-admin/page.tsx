@@ -15,10 +15,11 @@ import {
   PartialWarningsBanner,
 } from "@/components/dashboard-section/DashboardBanners";
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
-
+import { useAuthGuard } from "@/hooks/use-auth-guard"
 import { Package, Tags, ShieldCheck, Calendar } from "lucide-react";
 
 export default function SuperAdminDashboardPage() {
+  useAuthGuard({ allowedRoles: ["Super_Admin"] });
   const {
     loading,
     errorMsg,

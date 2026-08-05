@@ -8,8 +8,11 @@ import { motion } from "framer-motion"
 import { loginUser, saveAuthToken, getUserRoleFromToken } from "@/lib/auth"
 import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
+import { redirectByRole } from "@/lib/redirect"
+import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
 
 export default function LoginSection() {
+  useRedirectIfAuthenticated()
   const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
@@ -35,7 +38,7 @@ export default function LoginSection() {
         saveAuthToken(response.token)
         const role = getUserRoleFromToken(response.token)
 
-        router.push(role === "Supplier" ? "/suplier" : "/home")
+        redirectByRole(role, router)
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login gagal")

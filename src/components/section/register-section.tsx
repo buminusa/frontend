@@ -11,8 +11,10 @@ import BuyerFields from "./register/buyer-fields"
 import CompanyFields from "./register/company-fields"
 import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
+import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
 
 export default function RegisterSection() {
+  useRedirectIfAuthenticated()
   const router = useRouter()
   const [role, setRole] = useState<"buyer" | "supplier">("buyer")
   const [isSubmitting, setIsSubmitting] = useState(false)

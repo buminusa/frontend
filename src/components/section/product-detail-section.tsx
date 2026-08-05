@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getAuthToken, getUserFromToken } from "@/lib/auth";
+import { getAuthToken, getUserRoleFromToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
@@ -20,7 +20,6 @@ type ApiProduct = {
   price_max: string | number;
   min_order: number;
   unit: string | null;
-  status: string;
   hs_code: string | null;
 
   category: {
@@ -54,7 +53,6 @@ type ProductDetail = {
   minOrder: number;
   unit: string;
 
-  status: string;
   hsCode: string;
 
   image: string;
@@ -88,8 +86,7 @@ export default function ProductDetailSection() {
     const controller = new AbortController();
 
     const token = getAuthToken();
-    const user = getUserFromToken();
-    setIsBuyer(token ? user?.role?.name_role === "Buyer" : false);
+    setIsBuyer(getUserRoleFromToken(token ?? "") === "Buyer");
 
     async function loadProduct() {
       const token = getAuthToken();
@@ -134,7 +131,6 @@ export default function ProductDetailSection() {
           minOrder: apiProduct.min_order,
           unit: apiProduct.unit ?? "unit",
 
-          status: apiProduct.status,
           hsCode: apiProduct.hs_code ?? "-",
 
           image: apiProduct.images[0]?.image_url ?? "",
@@ -251,6 +247,8 @@ export default function ProductDetailSection() {
     );
   }
 
+  const canOrder = isBuyer === true;
+
   return (
     <section className="py-12">
       <div className="mx-auto max-w-6xl px-4">
@@ -299,11 +297,6 @@ export default function ProductDetailSection() {
                   <p className="font-medium">
                     {product.minOrder} {product.unit}
                   </p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500">Status</p>
-                  <p className="font-medium">{product.status}</p>
                 </div>
 
                 <div>
@@ -369,11 +362,24 @@ export default function ProductDetailSection() {
 
                 <button
                   onClick={handleBuy}
-                  disabled={isBuying || product.status !== "Active"}
+                  disabled={isBuying || !canOrder}
+                  aria-disabled={!canOrder}
                   className="w-full rounded-lg bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                 >
                   {isBuying ? "Memproses pesanan..." : "Order"}
                 </button>
+
+                {!canOrder ? (
+                  <p className="text-xs text-gray-500">
+                    Hanya akun Buyer yang dapat melakukan order.{" "}
+                    <button
+                      onClick={() => router.push("/login")}
+                      className="font-medium text-green-600 underline"
+                    >
+                      Login sebagai Buyer
+                    </button>
+                  </p>
+                ) : null}
 
                 <p className="text-xs text-gray-500">
                   Setelah pesanan dibuat, data akan muncul di dashboard admin

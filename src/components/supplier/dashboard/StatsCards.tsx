@@ -34,6 +34,10 @@ interface StatsCardsProps {
   totalOrders: number;
   totalRevenue: number;
   totalViews: number;
+  productsTrend?: string;
+  ordersTrend?: string;
+  revenueTrend?: string;
+  viewsTrend?: string;
 }
 
 export function StatsCards({
@@ -41,6 +45,10 @@ export function StatsCards({
   totalOrders,
   totalRevenue,
   totalViews,
+  productsTrend,
+  ordersTrend,
+  revenueTrend,
+  viewsTrend,
 }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -48,14 +56,14 @@ export function StatsCards({
         title="Total Produk"
         value={totalProducts}
         icon={<Package className="w-6 h-6 text-blue-600" />}
-        trend="Terbaru"
+        trend={productsTrend}
         trendUp
       />
       <StatCard
         title="Total Pesanan"
         value={totalOrders}
         icon={<ShoppingBag className="w-6 h-6 text-green-600" />}
-        trend="Aktif"
+        trend={ordersTrend}
         trendUp
       />
       <StatCard
@@ -66,14 +74,14 @@ export function StatsCards({
           maximumFractionDigits: 0,
         }).format(totalRevenue)}
         icon={<DollarSign className="w-6 h-6 text-yellow-600" />}
-        trend="Dari pesanan"
+        trend={revenueTrend}
         trendUp
       />
       <StatCard
         title="View Produk"
         value={totalViews}
         icon={<TrendingUp className="w-6 h-6 text-purple-600" />}
-        trend="Keseluruhan"
+        trend={viewsTrend}
         trendUp
       />
     </div>

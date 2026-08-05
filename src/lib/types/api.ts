@@ -73,6 +73,7 @@ export interface Product {
   unit: string | null;
   hs_code: string | null;
   views: number;
+  status?: string;
   slug: string | null;
   createdAt: string;
   updatedAt: string;

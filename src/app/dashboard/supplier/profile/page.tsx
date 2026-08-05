@@ -1,6 +1,8 @@
 import { CompanyProfileSection } from "@/components/supplier/profile/CompanyProfileSection";
 import { SupplierLayout } from "@/components/supplier/Layout";
 
+export const dynamic = "force-dynamic";
+
 export default function CompanyProfilePage() {
   return (
     <SupplierLayout>

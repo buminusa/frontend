@@ -289,7 +289,7 @@ export default function Navbar() {
                       <div className="py-1">
                         <Link
                           href={
-                            user?.isSupplier ? "/suplier/profile" : "/profile"
+                            user?.isSupplier ? "/dashboard/supplier/profile" : "/profile"
                           }
                           onClick={() => setShowProfileMenu(false)}
                           className="flex items-center gap-3 px-5 py-3 text-gray-700 transition-colors hover:bg-gray-50"

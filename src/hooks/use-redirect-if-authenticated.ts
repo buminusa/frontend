@@ -23,7 +23,7 @@ export function useRedirectIfAuthenticated() {
         break
 
       case "Supplier":
-        router.replace("/suplier")
+        router.replace("/dashboard/supplier")
         break
 
       case "Admin":

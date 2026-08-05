@@ -18,12 +18,14 @@ export const orderService = {
     return apiGet<Order>(`/api/v1/orders/${id}`);
   },
 
-  async getMyOrdersAsBuyer(): Promise<ApiResponse<Order[]>> {
-    return apiGet<Order[]>("/api/v1/orders/buyer/my-orders");
+  async getMyOrdersAsBuyer(limit?: number): Promise<ApiResponse<Order[]>> {
+    const qs = limit ? `?limit=${limit}` : "";
+    return apiGet<Order[]>(`/api/v1/orders/buyer/my-orders${qs}`);
   },
 
-  async getMyOrdersAsSupplier(): Promise<ApiResponse<Order[]>> {
-    return apiGet<Order[]>("/api/v1/orders/supplier/my-orders");
+  async getMyOrdersAsSupplier(limit?: number): Promise<ApiResponse<Order[]>> {
+    const qs = limit ? `?limit=${limit}` : "";
+    return apiGet<Order[]>(`/api/v1/orders/supplier/my-orders${qs}`);
   },
 
   async updateStatus(id: number, status: string): Promise<void> {

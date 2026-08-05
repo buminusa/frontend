@@ -1,5 +1,8 @@
-import { Eye, ShoppingCart } from "lucide-react";
+"use client";
+
+import { Eye, ShoppingCart, Download } from "lucide-react";
 import type { SupplierDashboardProduct } from "@/hooks/useSupplierDashboard";
+import { downloadCSV } from "@/lib/utils/csv";
 
 const statusColors = {
   Active: "bg-green-100 text-green-800",
@@ -13,10 +16,33 @@ interface ProductOverviewProps {
 }
 
 export function ProductOverview({ products }: ProductOverviewProps) {
+  const handleExport = () => {
+    downloadCSV(
+      products.map((product) => ({
+        Nama: product.name,
+        Kategori: product.category,
+        Harga: product.price,
+        "Min Order (kg)": product.minOrder,
+        Status: product.status,
+        Views: product.views,
+      })),
+      "overview-produk",
+    );
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Overview Produk</h2>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={products.length === 0}
+          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="w-4 h-4" />
+          CSV
+        </button>
       </div>
       <div className="divide-y divide-gray-100">
         {products.length === 0 ? (

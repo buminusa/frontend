@@ -2,26 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
-import { getAuthToken } from "@/lib/auth";
-
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
-).replace(/\/$/, "");
-
-type ApiProduct = {
-  id: number;
-  nama: string;
-  price_min?: string | number;
-  price_max?: string | number;
-  min_order?: number;
-  unit?: string | null;
-  hs_code?: string | null;
-  status?: string;
-  description?: string | null;
-  spectification?: string | null;
-  category?: { id?: number; name_categories?: string } | null;
-  images?: { image_url?: string }[];
-};
+import { productService } from "@/lib/api/services/products";
+import { categoryService } from "@/lib/api/services/categories";
+import type { ApiResponse, Category, Product } from "@/lib/types/api";
 
 type ProductRow = {
   id: number;
@@ -29,8 +12,8 @@ type ProductRow = {
   category: string;
   price: string;
   stock: number;
-  status: string;
   description: string;
+  images: { id: number; image_url: string }[];
 };
 
 type ProductFormState = {
@@ -59,8 +42,11 @@ const emptyForm = (): ProductFormState => ({
   images: null,
 });
 
+const MAX_IMAGES = 5;
+
 export default function SupplierProducts() {
   const [products, setProducts] = useState<ProductRow[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -68,31 +54,15 @@ export default function SupplierProducts() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<ProductFormState>(emptyForm());
   const [submitting, setSubmitting] = useState(false);
+  const [existingImages, setExistingImages] = useState<
+    { id: number; image_url: string }[]
+  >([]);
 
   const loadProducts = async () => {
-    const token = getAuthToken();
-
-    if (!token) {
-      setProducts([]);
-      setLoading(false);
-      setError("Silakan login terlebih dahulu");
-      return;
-    }
-
     try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/v1/products/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json().catch(() => ({}));
+      const response: ApiResponse<Product[]> = await productService.getMy();
+      const list = Array.isArray(response.data) ? response.data : [];
 
-      if (!response.ok) {
-        throw new Error(result.message || "Gagal memuat produk");
-      }
-
-      const list = Array.isArray(result.data)
-        ? (result.data as ApiProduct[])
-        : [];
       setProducts(
         list.map((product) => ({
           id: product.id,
@@ -104,8 +74,11 @@ export default function SupplierProducts() {
             maximumFractionDigits: 0,
           }),
           stock: Number(product.min_order ?? 0),
-          status: product.status ?? "Pending",
           description: product.description ?? "-",
+          images: (product.images ?? []).map((img) => ({
+            id: img.id,
+            image_url: img.image_url,
+          })),
         })),
       );
       setError("");
@@ -119,49 +92,126 @@ export default function SupplierProducts() {
   };
 
   useEffect(() => {
-    void loadProducts();
+    let active = true;
+
+    const initial = async () => {
+      try {
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          productService.getMy(),
+          categoryService.getAll(),
+        ]);
+        if (!active) return;
+
+        const list = Array.isArray(productsResponse.data)
+          ? productsResponse.data
+          : [];
+        setProducts(
+          list.map((product) => ({
+            id: product.id,
+            name: product.nama,
+            category: product.category?.name_categories ?? "Tanpa kategori",
+            price: Number(product.price_min ?? 0).toLocaleString("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              maximumFractionDigits: 0,
+            }),
+            stock: Number(product.min_order ?? 0),
+            description: product.description ?? "-",
+            images: (product.images ?? []).map((img) => ({
+              id: img.id,
+              image_url: img.image_url,
+            })),
+          })),
+        );
+        setCategories(categoriesResponse.data ?? []);
+        setError("");
+      } catch (loadError) {
+        if (!active) return;
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Gagal memuat produk",
+        );
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    void initial();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const resetForm = () => {
     setForm(emptyForm());
     setEditingId(null);
+    setExistingImages([]);
     setIsModalOpen(false);
   };
 
   const handleOpenCreate = () => {
     setEditingId(null);
     setForm(emptyForm());
+    setExistingImages([]);
     setMessage("");
     setError("");
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (product: ProductRow) => {
+  const handleOpenEdit = async (product: ProductRow) => {
     setEditingId(product.id);
-    setForm((prev) => ({
-      ...prev,
-      nama: product.name,
-      description: product.description,
-      spectification: "",
-      min_order: String(product.stock || ""),
-      price_min: "",
-      price_max: "",
-      unit: "",
-      hs_code: "",
-      categoryId: "",
-      images: null,
-    }));
     setMessage("");
     setError("");
-    setIsModalOpen(true);
+
+    try {
+      const response: ApiResponse<Product> = await productService.getById(
+        product.id,
+      );
+      const full = response.data;
+
+      setForm({
+        nama: full.nama ?? "",
+        description: full.description ?? "",
+        spectification: full.spectification ?? "",
+        min_order: full.min_order ? String(full.min_order) : "",
+        price_min: full.price_min !== undefined ? String(full.price_min) : "",
+        price_max: full.price_max !== undefined ? String(full.price_max) : "",
+        unit: full.unit ?? "",
+        hs_code: full.hs_code ?? "",
+        categoryId: full.categoryId ? String(full.categoryId) : "",
+        images: null,
+      });
+      setExistingImages(
+        (full.images ?? []).map((img) => ({
+          id: img.id,
+          image_url: img.image_url,
+        })),
+      );
+      setIsModalOpen(true);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Gagal memuat detail produk",
+      );
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const token = getAuthToken();
-    if (!token) {
-      setError("Silakan login terlebih dahulu");
+    const minOrder = Number(form.min_order);
+    const priceMin = Number(form.price_min);
+    const priceMax = Number(form.price_max);
+
+    if (form.min_order !== "" && minOrder < 100) {
+      setError("Minimal order harus lebih besar atau sama dengan 100.");
+      return;
+    }
+    if (form.price_min !== "" && form.price_max !== "" && priceMin > priceMax) {
+      setError("Harga minimum tidak boleh lebih besar dari harga maksimum.");
       return;
     }
 
@@ -181,24 +231,16 @@ export default function SupplierProducts() {
       if (form.hs_code) formData.append("hs_code", form.hs_code);
       if (form.categoryId) formData.append("categoryId", form.categoryId);
 
-      Array.from(form.images ?? []).forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
+      Array.from(form.images ?? [])
+        .slice(0, MAX_IMAGES)
+        .forEach((file, index) => {
+          formData.append(`images[${index}]`, file);
+        });
 
-      const url = editingId
-        ? `${API_BASE_URL}/api/v1/products/${editingId}`
-        : `${API_BASE_URL}/api/v1/products`;
-      const method = editingId ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.message || "Gagal menyimpan produk");
+      if (editingId) {
+        await productService.update(editingId, formData);
+      } else {
+        await productService.create(formData);
       }
 
       setMessage(
@@ -224,23 +266,8 @@ export default function SupplierProducts() {
       return;
     }
 
-    const token = getAuthToken();
-    if (!token) {
-      setError("Silakan login terlebih dahulu");
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/products/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.message || "Gagal menghapus produk");
-      }
-
+      await productService.delete(id);
       setMessage("Produk berhasil dihapus.");
       await loadProducts();
     } catch (deleteError) {
@@ -248,6 +275,20 @@ export default function SupplierProducts() {
         deleteError instanceof Error
           ? deleteError.message
           : "Gagal menghapus produk",
+      );
+    }
+  };
+
+  const handleDeleteImage = async (imageId: number) => {
+    try {
+      await productService.deleteImage(imageId);
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      setMessage("Gambar berhasil dihapus.");
+    } catch (imageError) {
+      setError(
+        imageError instanceof Error
+          ? imageError.message
+          : "Gagal menghapus gambar",
       );
     }
   };
@@ -307,10 +348,7 @@ export default function SupplierProducts() {
                   Harga
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Stok
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Status
+                  Min Order
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                   Aksi
@@ -343,14 +381,9 @@ export default function SupplierProducts() {
                       {product.stock}
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                        {product.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleOpenEdit(product)}
+                          onClick={() => void handleOpenEdit(product)}
                           className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-100"
                         >
                           <Pencil size={16} />
@@ -415,9 +448,11 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Minimal order
+                  Minimal order (kg)
                   <input
                     type="number"
+                    min={100}
+                    required
                     value={form.min_order}
                     onChange={(event) =>
                       setForm((prev) => ({
@@ -427,11 +462,13 @@ export default function SupplierProducts() {
                     }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
                   />
+                  <span className="mt-0.5 block text-xs text-gray-400">
+                    Minimal 100
+                  </span>
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Category ID (opsional)
-                  <input
-                    type="number"
+                  Kategori
+                  <select
                     value={form.categoryId}
                     onChange={(event) =>
                       setForm((prev) => ({
@@ -439,13 +476,22 @@ export default function SupplierProducts() {
                         categoryId: event.target.value,
                       }))
                     }
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                  />
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 bg-white"
+                  >
+                    <option value="">Tanpa kategori</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={String(category.id)}>
+                        {category.name_categories}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="text-sm font-medium text-gray-700">
                   Harga minimum
                   <input
                     type="number"
+                    min={0}
+                    required
                     value={form.price_min}
                     onChange={(event) =>
                       setForm((prev) => ({
@@ -460,6 +506,8 @@ export default function SupplierProducts() {
                   Harga maksimum
                   <input
                     type="number"
+                    min={0}
+                    required
                     value={form.price_max}
                     onChange={(event) =>
                       setForm((prev) => ({
@@ -484,21 +532,56 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Gambar (opsional)
+                  Gambar (maksimal {MAX_IMAGES})
                   <input
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={(event) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        images: event.target.files,
-                      }))
-                    }
+                    onChange={(event) => {
+                      const files = event.target.files;
+                      if (files && files.length > MAX_IMAGES) {
+                        const dt = new DataTransfer();
+                        Array.from(files)
+                          .slice(0, MAX_IMAGES)
+                          .forEach((file) => dt.items.add(file));
+                        setForm((prev) => ({ ...prev, images: dt.files }));
+                        setError(`Maksimal ${MAX_IMAGES} gambar per produk.`);
+                      } else {
+                        setForm((prev) => ({ ...prev, images: files }));
+                        setError("");
+                      }
+                    }}
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
                   />
                 </label>
               </div>
+
+              {existingImages.length > 0 && (
+                <div>
+                  <span className="text-sm font-medium text-gray-700">
+                    Gambar saat ini
+                  </span>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {existingImages.map((img) => (
+                      <div key={img.id} className="relative">
+                        <img
+                          src={img.image_url}
+                          alt="Produk"
+                          className="h-20 w-20 rounded-lg border border-gray-200 object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteImage(img.id)}
+                          className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                          aria-label="Hapus gambar"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <label className="block text-sm font-medium text-gray-700">
                 Deskripsi

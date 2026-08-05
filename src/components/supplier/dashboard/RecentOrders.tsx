@@ -1,5 +1,16 @@
-import { Clock, CheckCircle, XCircle, Package } from "lucide-react";
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  Package,
+  Search,
+  Download,
+} from "lucide-react";
 import type { SupplierDashboardOrder } from "@/hooks/useSupplierDashboard";
+import { downloadCSV } from "@/lib/utils/csv";
 
 const statusColors = {
   Pending: "bg-yellow-100 text-yellow-800",
@@ -24,10 +35,85 @@ interface RecentOrdersProps {
 }
 
 export function RecentOrders({ orders }: RecentOrdersProps) {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Semua");
+
+  const statuses = useMemo(
+    () =>
+      Array.from(new Set(orders.map((order) => order.status))).sort(),
+    [orders],
+  );
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return orders.filter((order) => {
+      if (statusFilter !== "Semua" && order.status !== statusFilter) {
+        return false;
+      }
+      if (!query) return true;
+      return (
+        order.id.toLowerCase().includes(query) ||
+        order.customer.toLowerCase().includes(query) ||
+        order.product.toLowerCase().includes(query)
+      );
+    });
+  }, [orders, search, statusFilter]);
+
+  const handleExport = () => {
+    downloadCSV(
+      filtered.map((order) => ({
+        "No. Pesanan": order.id,
+        Pembeli: order.customer,
+        Produk: order.product,
+        Total: order.amountLabel,
+        Status: order.status,
+        Tanggal: new Date(order.date).toLocaleDateString("id-ID"),
+      })),
+      "pesanan-terbaru",
+    );
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900">Pesanan Terbaru</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Pesanan Terbaru
+          </h2>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari pesanan..."
+                className="pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700"
+            >
+              <option value="Semua">Semua Status</option>
+              {statuses.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={filtered.length === 0}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4" />
+              CSV
+            </button>
+          </div>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -54,17 +140,19 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {orders.length === 0 ? (
+            {filtered.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}
                   className="px-6 py-8 text-sm text-gray-500 text-center"
                 >
-                  Belum ada pesanan.
+                  {search || statusFilter !== "Semua"
+                    ? "Tidak ada pesanan yang cocok."
+                    : "Belum ada pesanan."}
                 </td>
               </tr>
             ) : (
-              orders.map((order) => {
+              filtered.map((order) => {
                 const StatusIcon =
                   statusIcons[order.status as keyof typeof statusIcons] ??
                   Clock;

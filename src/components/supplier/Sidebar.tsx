@@ -1,26 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingBag,
-  Users,
-  FileText,
-  Settings,
-  LogOut,
-  Store,
-  BarChart3,
-} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Package, ShoppingCart, LogOut } from "lucide-react";
+import { clearAuthToken } from "@/lib/auth";
+import { redirectByRole } from "@/lib/redirect";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/suplier/dashboard" },
-  { icon: Package, label: "Produk Saya", href: "/suplier/products" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/supplier" },
+  { icon: Package, label: "Produk Saya", href: "/dashboard/supplier/products" },
+  { icon: ShoppingCart, label: "Pesanan", href: "/dashboard/supplier/orders" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    clearAuthToken();
+    redirectByRole(null, router);
+  };
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
@@ -57,7 +56,10 @@ export function Sidebar() {
 
       {/* Logout */}
       <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center gap-3 px-4 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
+        >
           <LogOut className="w-5 h-5" />
           Logout
         </button>

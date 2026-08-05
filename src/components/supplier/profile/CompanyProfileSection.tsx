@@ -13,10 +13,7 @@ import {
   getAuthToken,
   getUserFromToken,
 } from "@/lib/auth"
-
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
-).replace(/\/$/, "")
+import { companyProfileService } from "@/lib/api/services/company-profiles"
 
 type ApiCompanyProfile = {
   id: number
@@ -29,16 +26,17 @@ type ApiCompanyProfile = {
   phone: string
   logo_url: string | null
   business_description: string
+  verificationStatus: "Pending" | "Verified" | "Rejected"
 
   user: {
     id: number
     email: string
 
-    role: {
+    role?: {
       id: number
       name_role: string
-    }
-  }
+    } | null
+  } | null
 
   products: {
     id: number
@@ -71,7 +69,7 @@ type CompanyProfile = {
     createdAt: string
   }[]
 
-  verificationStatus?: string
+  verificationStatus?: "Pending" | "Verified" | "Rejected"
 }
 
 export function CompanyProfileSection() {
@@ -99,25 +97,12 @@ export function CompanyProfileSection() {
       setError("")
 
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/v1/company-profile/${user.userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            signal: controller.signal,
-          }
+        const response = await companyProfileService.getDetailByUserId(
+          user.userId
         )
 
-        const result = await response.json()
-
-        if (!response.ok) {
-          throw new Error(
-            result.message || "Gagal memuat profil perusahaan."
-          )
-        }
-
-        const data: ApiCompanyProfile = result.data
+        const data: ApiCompanyProfile =
+          response.data as unknown as ApiCompanyProfile
 
         setCompany({
           id: data.id,
@@ -131,12 +116,11 @@ export function CompanyProfileSection() {
           logo_url: data.logo_url ?? "",
           business_description: data.business_description,
 
-          email: data.user.email,
+          email: data.user?.email ?? "",
 
           products: data.products,
 
-          // backend belum menyediakan field ini
-          verificationStatus: undefined,
+          verificationStatus: data.verificationStatus,
         })
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
@@ -170,14 +154,68 @@ export function CompanyProfileSection() {
     }
   }, [])
 
-  const handleUpdateCompany = (
+  const [saveError, setSaveError] = useState("")
+
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleUpdateCompany = async (
     data: Partial<CompanyProfile>
   ) => {
-    setCompany((prev) =>
-      prev ? { ...prev, ...data } : prev
-    )
+    const user = getUserFromToken()
+    if (!user) return
 
-    setIsEditing(false)
+    setIsSaving(true)
+    setSaveError("")
+
+    try {
+      await companyProfileService.update(user.userId, {
+        company_name: data.company_name,
+        address: data.address,
+        province: data.province,
+        country: data.country,
+        phone: data.phone,
+        business_description: data.business_description,
+      })
+
+      setCompany((prev) =>
+        prev ? { ...prev, ...data } : prev
+      )
+      setIsEditing(false)
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Gagal menyimpan profil perusahaan."
+      )
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleUpdateLogo = async (file: File) => {
+    const user = getUserFromToken()
+    if (!user) return
+
+    setSaveError("")
+
+    try {
+      const response = await companyProfileService.updateLogo(
+        user.userId,
+        file
+      )
+
+      setCompany((prev) =>
+        prev
+          ? { ...prev, logo_url: response.data.logo_url ?? "" }
+          : prev
+      )
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Gagal mengunggah logo."
+      )
+    }
   }
 
   if (isLoading) {
@@ -228,6 +266,9 @@ export function CompanyProfileSection() {
           onCancel={() =>
             setIsEditing(false)
           }
+          onLogoUpload={handleUpdateLogo}
+          isSaving={isSaving}
+          saveError={saveError}
         />
       ) : (
         <>

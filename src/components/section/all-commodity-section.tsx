@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LayoutGrid, Tag } from "lucide-react";
-
+import { useSearchParams } from "next/navigation"
 import CategoryChip from "../category-chip";
 import Pagination from "../pagination";
 import ProductCard from "../product-card";
@@ -43,19 +43,20 @@ export default function AllCommoditySection() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams()
+
+  const keyword = searchParams.get("search") ?? ""
+
+  // reset back to page 1 whenever the search term or category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, selectedCategoryId]);
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function loadProducts() {
       const token = getAuthToken();
-
-      if (!token) {
-        setProducts([]);
-        setTotalPages(1);
-        setIsLoading(false);
-        return;
-      }
 
       setIsLoading(true);
       setError("");
@@ -69,9 +70,13 @@ export default function AllCommoditySection() {
         params.set("categoryId", String(selectedCategoryId));
       }
 
+      if (keyword.trim()) {
+        params.set("search", keyword)
+      }
+
       try {
         const response = await fetch(`${API_BASE_URL}/api/v1/products?${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
           signal: controller.signal,
         });
         const result = await response.json();
@@ -83,15 +88,15 @@ export default function AllCommoditySection() {
         const apiProducts = result.data as ApiProduct[];
 
         setProducts(
-  (result.data as ApiProduct[]).map((product) => ({
-    id: product.id,
-    slug: product.slug ?? String(product.id),
-    name: product.nama,
-    image: product.images[0]?.image_url ?? "/hasil_bumi.png",
-    location: product.supplier?.address ?? "Indonesia",
-    category: product.category?.name_categories ?? "Lainnya",
-  }))
-)
+          apiProducts.map((product) => ({
+            id: product.id,
+            slug: product.slug ?? String(product.id),
+            name: product.nama,
+            image: product.images[0]?.image_url ?? "/hasil_bumi.png",
+            location: product.supplier?.address ?? "Indonesia",
+            category: product.category?.name_categories ?? "Lainnya",
+          }))
+        )
         setTotalPages(result.meta?.totalPages ?? 1);
         setCategories((currentCategories) => {
           const nextCategories = new Map(currentCategories.map((category) => [category.id, category]));
@@ -123,11 +128,10 @@ export default function AllCommoditySection() {
       controller.abort();
       window.removeEventListener(AUTH_EVENT_NAME, loadProducts);
     };
-  }, [currentPage, selectedCategoryId]);
+  }, [currentPage, selectedCategoryId, keyword]);
 
   function selectCategory(categoryId: number | null) {
     setSelectedCategoryId(categoryId);
-    setCurrentPage(1);
   }
 
   return (

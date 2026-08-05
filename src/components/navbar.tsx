@@ -15,7 +15,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   AUTH_EVENT_NAME,
   clearAuthToken,
@@ -75,12 +75,23 @@ function decodeJwtPayload(token: string) {
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [search, setSearch] = useState("")
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // keep the input in sync with the URL (e.g. back/forward navigation)
+  useEffect(() => {
+    if (pathname === "/komoditas") {
+      setSearch(searchParams.get("search") ?? "");
+    }
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     const syncUser = () => {
@@ -149,24 +160,39 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const pushSearch = (value: string) => {
+    const params = new URLSearchParams(
+      pathname === "/komoditas" ? searchParams.toString() : undefined
+    );
+
+    if (value.trim()) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+
+    router.replace(`/komoditas?${params.toString()}`, { scroll: false });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      pushSearch(value);
+    }, 400);
+  };
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    pushSearch(search);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
-      {/* <div className="hidden h-9 border-b border-gray-200 bg-yellow-400 md:block">
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2 text-sm">
-            <Flag className="h-4 w-4 text-gray-600" />
-            <span className="font-semibold">ID</span>
-            <ChevronDown className="h-4 w-4 -rotate-90" />
-          </div>
-
-          <div className="hidden items-center gap-8 text-sm text-gray-600 lg:flex">
-            <Link href="#">Tentang Bumi Nusa</Link>
-            <Link href="#">Mulai Berjualan</Link>
-            <Link href="#">Bantuan</Link>
-          </div>
-        </div>
-      </div> */}
-
       <div className="h-14">
         <div className="mx-auto flex h-full max-w-7xl items-center gap-3 px-4 md:px-6">
           <Link href="/home" className="flex shrink-0 items-center gap-3">
@@ -175,17 +201,6 @@ export default function Navbar() {
               BUMI_NUSA
             </span>
           </Link>
-
-          {/* <div
-            className="relative hidden lg:block"
-            onMouseEnter={() => setShowCategory(true)}
-            onMouseLeave={() => setShowCategory(false)}
-            onClick={() => setShowCategory((prev) => !prev)}
-          >
-            <button className="rounded-lg px-4 py-2 text-[15px] transition hover:bg-gray-100">
-              Komoditas
-            </button>
-          </div> */}
 
           <div className="min-w-0 flex-1">
             <div className="relative">
@@ -196,6 +211,9 @@ export default function Navbar() {
 
               <input
                 type="text"
+                value={search}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearch}
                 placeholder="Cari komoditas..."
                 className="h-10 w-full rounded-xl border border-gray-300 pl-10 pr-3 text-sm outline-none focus:border-green-600"
               />

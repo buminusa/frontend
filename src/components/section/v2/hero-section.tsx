@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const images = ["/img1.jpg", "/img2.jpg", "/img3.jpg", "/img5.jpg"];
+const images = ["/img1.webp", "/img2.webp", "/img3.webp", "/img5.webp"];
 
 export default function HeroV2() {
   const [currentIndex, setCurrentIndex] = useState(0);

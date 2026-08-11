@@ -12,6 +12,7 @@ import CompanyFields from "./register/company-fields"
 import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
+import TermsModal from "./terms-modal"
 
 export default function RegisterSection() {
   useRedirectIfAuthenticated()
@@ -20,6 +21,7 @@ export default function RegisterSection() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [agreeTerms, setAgreeTerms] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
 
   const [account, setAccount] = useState({
     email: "",
@@ -165,7 +167,7 @@ export default function RegisterSection() {
         </motion.div>
 
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-  <label className="flex items-start gap-3 cursor-pointer">
+  <label className="flex cursor-pointer items-start gap-3">
     <input
       type="checkbox"
       checked={agreeTerms}
@@ -183,22 +185,15 @@ export default function RegisterSection() {
 
     <span className="text-sm leading-6 text-gray-600">
       Saya telah membaca dan menyetujui{" "}
-      <Link
-        href="/terms"
-        target="_blank"
+
+      <button
+        type="button"
+        onClick={() => setShowTerms(true)}
         className="font-semibold text-green-600 hover:underline"
       >
         Syarat & Ketentuan
-      </Link>{" "}
-      serta{" "}
-      <Link
-        href="/privacy"
-        target="_blank"
-        className="font-semibold text-green-600 hover:underline"
-      >
-        Kebijakan Privasi
-      </Link>{" "}
-      Bumi Nusa.
+      </button>
+      {" "}Bumi Nusa.
     </span>
   </label>
 </div>
@@ -239,6 +234,7 @@ export default function RegisterSection() {
   {isSubmitting ? "Memproses..." : "Daftar"}
 </motion.button>
       </motion.form>
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
     </AuthShell>
   )
 }

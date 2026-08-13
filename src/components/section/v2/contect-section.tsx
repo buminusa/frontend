@@ -11,7 +11,7 @@ export default function ContentSection() {
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
           <div className="relative min-h-[520px] overflow-hidden rounded-3xl">
             <Image
-              src="/img6.jpg"
+              src="/img6.webp"
               alt="Tentang Kami"
               fill
               className="object-cover"
@@ -94,7 +94,7 @@ export default function ContentSection() {
 
            <div className="relative flex min-h-[250px] flex-col justify-between overflow-hidden rounded-3xl p-6">
   <Image
-    src="/img7.jpg"
+    src="/img7.webp"
     alt="Perkebunan"
     fill
     className="object-cover"

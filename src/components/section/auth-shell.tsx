@@ -29,7 +29,7 @@ export default function AuthShell({
         <aside className="hidden self-start md:sticky md:top-24 md:flex md:h-[calc(100vh-16rem)] md:min-h-[24rem] md:flex-col md:mr-0 md:items-start md:justify-center">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#1A3A1B]/70">
             <Sprout className="h-3.5 w-3.5" strokeWidth={2.2} />
-            <span>Bumi_Nusa</span>
+            <span>BumiNusa.id</span>
           </div>
 
           <div className="relative max-w-md pl-6 mt-12">
@@ -48,7 +48,7 @@ export default function AuthShell({
             <div className="hidden items-center gap-2 pb-8 md:hidden">
               <Sprout className="h-4 w-4 text-[#1A3A1B]" strokeWidth={2.2} />
               <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1A3A1B]">
-                Bumi_Nusa
+                BumiNusa.id
               </span>
             </div>
 

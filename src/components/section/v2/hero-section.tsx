@@ -79,7 +79,7 @@ export default function HeroV2() {
               size="lg"
               className="h-14 rounded-full border-white/40 bg-white/10 px-8 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:border-white hover:text-white"
             >
-              <Link href="/">Pelajari Lebih Lanjut</Link>
+              <Link href="/#cara-kerja">Pelajari Lebih Lanjut</Link>
             </Button>
           </div>
           <div className="flex items-center justify-center gap-10 pt-8">

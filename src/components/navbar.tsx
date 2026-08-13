@@ -198,7 +198,7 @@ export default function Navbar() {
           <Link href="/home" className="flex shrink-0 items-center gap-3">
             <Image src="/logo.png" alt="BUMI NUSA" width={50} height={50} />
             <span className="hidden text-2xl font-bold text-green-600 sm:block">
-              BUMI_NUSA
+              BumiNusa.id
             </span>
           </Link>
 

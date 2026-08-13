@@ -19,7 +19,7 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "BUMI NUSA",
-  description: "Bumi_nusa adalah platfrom penjualan rempah rempah",
+  description: "BumiNusa.id adalah platfrom penjualan rempah rempah",
 };
 
 export default function RootLayout({

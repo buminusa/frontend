@@ -4,11 +4,11 @@ import Image from 'next/image';
 
 const categories = [
   { title: 'Rempah-rempah', image: '/spices.jpg' },
-  { title: 'Perkebunan', image: '/img2.jpg' },
-  { title: 'Hortikultura', image: '/img8.jpg' },
-  { title: 'Perikanan', image: '/img9.jpg' },
-  { title: 'Peternakan', image: '/img10.jpg' },
-  { title: 'Pertanian Pangan', image: '/img5.jpg' },
+  { title: 'Perkebunan', image: '/img2.webp' },
+  { title: 'Hortikultura', image: '/img8.webp' },
+  { title: 'Perikanan', image: '/img9.webp' },
+  { title: 'Peternakan', image: '/img10.webp' },
+  { title: 'Pertanian Pangan', image: '/img5.webp' },
 ];
 
 export default function KomoditasSection() {

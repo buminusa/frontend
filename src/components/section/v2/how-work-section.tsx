@@ -60,14 +60,14 @@ const steps = [
 
 export default function HowWorkSection() {
   return (
-    <section className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-24 bg-white">
+    <section id="cara-kerja" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-24 bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Heading */}
         <div className="flex flex-col items-center text-center mb-14 sm:mb-20">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium mb-3 sm:mb-4">
             <span className="text-neutral-800">Cara Kerja </span>
             <span className="bg-gradient-to-r from-emerald-800 via-green-500 to-green-400 bg-clip-text text-transparent">
-              Bumi Nusa
+              BumiNusa.id
             </span>
           </h2>
           <p className="text-sm sm:text-base text-neutral-500 max-w-xl leading-relaxed">

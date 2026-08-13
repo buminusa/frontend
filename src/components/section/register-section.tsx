@@ -13,6 +13,7 @@ import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
 import TermsModal from "./terms-modal"
+import { getErrorMessage } from "@/lib/api/errors"
 
 export default function RegisterSection() {
   useRedirectIfAuthenticated()
@@ -76,22 +77,20 @@ export default function RegisterSection() {
 
     try {
       if (role === "buyer") {
-        const response = await registerBuyerUser({
+        await registerBuyerUser({
           ...account,
           ...buyerData,
         })
-        setMessage(response.message)
-        router.push("/login")
       } else {
-        const response = await registerCompanyUser({
+        await registerCompanyUser({
           ...account,
           ...companyData,
         })
-        setMessage(response.message)
-        router.push("/login")
       }
+      setMessage("Registrasi berhasil. Silakan masuk.")
+      router.push("/login")
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Registrasi gagal")
+      setMessage(getErrorMessage(error, "Registrasi gagal"))
     } finally {
       setIsSubmitting(false)
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { productService } from "@/lib/api/services/products";
 import { categoryService } from "@/lib/api/services/categories";
@@ -564,9 +565,12 @@ export default function SupplierProducts() {
                   <div className="mt-2 flex flex-wrap gap-3">
                     {existingImages.map((img) => (
                       <div key={img.id} className="relative">
-                        <img
+                        <Image
                           src={img.image_url}
                           alt="Produk"
+                          width={80}
+                          height={80}
+                          unoptimized={img.image_url.startsWith("http")}
                           className="h-20 w-20 rounded-lg border border-gray-200 object-cover"
                         />
                         <button

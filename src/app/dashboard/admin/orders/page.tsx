@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { orderService } from "@/lib/api/services/orders";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { Order, OrderStatus } from "@/lib/types/api";
 import { formatIdNumber } from "@/lib/format";
 import {
@@ -40,6 +42,7 @@ const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
 };
 
 export default function OrdersPage() {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,24 +53,26 @@ export default function OrdersPage() {
   const [showStatusModal, setShowStatusModal] = useState<number | null>(null);
 
   const loadOrders = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await orderService.getAll();
       setOrders(res.data || []);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat pesanan");
+      setError(getErrorMessage(err, "Gagal memuat pesanan"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadOrders();
+    const init = async () => {
+      await loadOrders();
+    };
+    void init();
   }, [loadOrders]);
 
   const handleStatusUpdate = async (id: number, status: OrderStatus) => {
@@ -79,10 +84,10 @@ export default function OrdersPage() {
       );
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal mengubah status");
+      setError(getErrorMessage(err, "Gagal mengubah status"));
     } finally {
       setActionLoadingId(null);
     }
@@ -96,10 +101,10 @@ export default function OrdersPage() {
       setOrders((prev) => prev.filter((o) => o.id !== id));
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal menghapus pesanan");
+      setError(getErrorMessage(err, "Gagal menghapus pesanan"));
     } finally {
       setActionLoadingId(null);
     }
@@ -243,7 +248,10 @@ export default function OrdersPage() {
               </p>
             </div>
             <button
-              onClick={loadOrders}
+              onClick={() => {
+                setLoading(true);
+                loadOrders();
+              }}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
@@ -292,7 +300,10 @@ export default function OrdersPage() {
             data={filteredOrders}
             loading={loading}
             error={error}
-            onRetry={loadOrders}
+            onRetry={() => {
+              setLoading(true);
+              loadOrders();
+            }}
             emptyMessage="Belum ada pesanan"
             keyExtractor={(item) => item.id}
           />

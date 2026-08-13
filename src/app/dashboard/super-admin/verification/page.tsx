@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { CompanyProfile } from "@/lib/types/api";
 import { Search, RefreshCw, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
 
@@ -16,6 +18,7 @@ const STATUS_COLORS = {
 };
 
 export default function SuperAdminVerificationPage() {
+  const router = useRouter();
   const [suppliers, setSuppliers] = useState<CompanyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,24 +27,26 @@ export default function SuperAdminVerificationPage() {
   const [showStatusModal, setShowStatusModal] = useState<number | null>(null);
 
   const loadSuppliers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await companyProfileService.getAll();
       setSuppliers(res.data || []);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat verifikasi");
+      setError(getErrorMessage(err, "Gagal memuat verifikasi"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadSuppliers();
+    const init = async () => {
+      await loadSuppliers();
+    };
+    void init();
   }, [loadSuppliers]);
 
   const handleVerify = async (id: number, status: "Pending" | "Verified" | "Rejected") => {
@@ -52,10 +57,10 @@ export default function SuperAdminVerificationPage() {
       setShowStatusModal(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal memverifikasi supplier");
+      setError(getErrorMessage(err, "Gagal memverifikasi supplier"));
     } finally {
       setActionLoadingId(null);
     }
@@ -118,7 +123,10 @@ export default function SuperAdminVerificationPage() {
               <p className="text-sm text-gray-500 mt-1">Pantau status verifikasi supplier dan data platform</p>
             </div>
             <button
-              onClick={loadSuppliers}
+              onClick={() => {
+                setLoading(true);
+                loadSuppliers();
+              }}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
@@ -144,7 +152,10 @@ export default function SuperAdminVerificationPage() {
             data={filteredSuppliers}
             loading={loading}
             error={error}
-            onRetry={loadSuppliers}
+            onRetry={() => {
+              setLoading(true);
+              loadSuppliers();
+            }}
             emptyMessage="Belum ada data verifikasi"
             keyExtractor={(item) => item.id}
           />

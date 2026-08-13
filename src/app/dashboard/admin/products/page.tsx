@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { productService } from "@/lib/api/services/products";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { Product } from "@/lib/types/api";
 import { formatIdNumber } from "@/lib/format";
 import {
@@ -15,6 +17,7 @@ import {
 } from "lucide-react";
 
 export default function ProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,24 +25,26 @@ export default function ProductsPage() {
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
 
   const loadProducts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await productService.getAll();
       setProducts(res.data || []);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat produk");
+      setError(getErrorMessage(err, "Gagal memuat produk"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadProducts();
+    const init = async () => {
+      await loadProducts();
+    };
+    void init();
   }, [loadProducts]);
 
   const handleDelete = async (id: number) => {
@@ -50,10 +55,10 @@ export default function ProductsPage() {
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal menghapus produk");
+      setError(getErrorMessage(err, "Gagal menghapus produk"));
     } finally {
       setActionLoadingId(null);
     }
@@ -142,7 +147,10 @@ export default function ProductsPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={loadProducts}
+                onClick={() => {
+                  setLoading(true);
+                  loadProducts();
+                }}
                 className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <RefreshCw size={14} />
@@ -169,7 +177,10 @@ export default function ProductsPage() {
             data={filteredProducts}
             loading={loading}
             error={error}
-            onRetry={loadProducts}
+            onRetry={() => {
+              setLoading(true);
+              loadProducts();
+            }}
             emptyMessage="Belum ada produk"
             keyExtractor={(item) => item.id}
           />

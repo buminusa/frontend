@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Search, ArrowRight } from "lucide-react"
 
 const images = [
@@ -16,6 +17,7 @@ export default function HeroHomeV2() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [search, setSearch] = useState("")
+  const router = useRouter()
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % images.length)
@@ -35,11 +37,11 @@ export default function HeroHomeV2() {
     const keyword = search.trim()
 
     if (!keyword) {
-      window.location.href = "/komoditas"
+      router.push("/komoditas")
       return
     }
 
-    window.location.href = `/komoditas?search=${encodeURIComponent(keyword)}`
+    router.push(`/komoditas?search=${encodeURIComponent(keyword)}`)
   }
 
   return (

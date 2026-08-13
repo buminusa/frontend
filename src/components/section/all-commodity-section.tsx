@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { LayoutGrid, Tag } from "lucide-react";
-import { useSearchParams } from "next/navigation"
 import CategoryChip from "../category-chip";
 import Pagination from "../pagination";
 import ProductCard from "../product-card";
@@ -35,7 +34,11 @@ type Category = {
   name: string;
 };
 
-export default function AllCommoditySection() {
+export default function AllCommoditySection({
+  initialKeyword = "",
+}: {
+  initialKeyword?: string;
+}) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -43,14 +46,18 @@ export default function AllCommoditySection() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const searchParams = useSearchParams()
 
-  const keyword = searchParams.get("search") ?? ""
+  const keyword = initialKeyword
+  const [prevFilter, setPrevFilter] = useState<{ keyword: string; selectedCategoryId: number | null }>(() => ({
+    keyword,
+    selectedCategoryId,
+  }));
 
   // reset back to page 1 whenever the search term or category changes
-  useEffect(() => {
+  if (prevFilter.keyword !== keyword || prevFilter.selectedCategoryId !== selectedCategoryId) {
+    setPrevFilter({ keyword, selectedCategoryId });
     setCurrentPage(1);
-  }, [keyword, selectedCategoryId]);
+  }
 
   useEffect(() => {
     const controller = new AbortController();

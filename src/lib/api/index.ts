@@ -10,6 +10,8 @@ export {
   registerBuyerUser,
   registerCompanyUser,
   logoutUser,
+  forgotPasswordUser,
+  resetPasswordUser,
   AUTH_TOKEN_KEY,
   AUTH_EVENT_NAME,
 } from "./auth";

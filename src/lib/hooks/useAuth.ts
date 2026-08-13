@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { getAuthToken, clearAuthToken, getUserRoleFromToken, AUTH_EVENT_NAME } from "@/lib/auth";
 
 interface UserInfo {
@@ -32,36 +33,37 @@ function getInitials(email: string): string {
   return name.substring(0, 2).toUpperCase();
 }
 
+function readUserFromToken(): UserInfo | null {
+  const token = getAuthToken();
+  if (!token) return null;
+
+  const email = decodeEmailFromToken(token);
+
+  return {
+    email,
+    role: getUserRoleFromToken(token),
+    initials: getInitials(email),
+  };
+}
+
 export function useAuth() {
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [user, setUser] = useState<UserInfo | null>(() => readUserFromToken());
+  const [loading] = useState(false);
 
   const loadUser = useCallback(() => {
-    const token = getAuthToken();
-    if (!token) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
-    const role = getUserRoleFromToken(token);
-    const email = decodeEmailFromToken(token);
-    const initials = getInitials(email);
-
-    setUser({ email, role, initials });
-    setLoading(false);
+    setUser(readUserFromToken());
   }, []);
 
   useEffect(() => {
-    loadUser();
     window.addEventListener(AUTH_EVENT_NAME, loadUser);
     return () => window.removeEventListener(AUTH_EVENT_NAME, loadUser);
   }, [loadUser]);
 
   const logout = useCallback(() => {
     clearAuthToken();
-    window.location.href = "/login";
-  }, []);
+    router.push("/login");
+  }, [router]);
 
   return { user, loading, logout };
 }

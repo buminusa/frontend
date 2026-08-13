@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -153,9 +154,12 @@ export function CompanyForm({
           </span>
           <div className="flex items-center gap-4">
             {logoPreview ? (
-              <img
+              <Image
                 src={logoPreview}
                 alt="Logo preview"
+                width={64}
+                height={64}
+                unoptimized
                 className="h-16 w-16 rounded-lg object-cover border border-gray-200"
               />
             ) : (

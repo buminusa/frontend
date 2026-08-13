@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapPin, Search, RefreshCw } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
-import { StatusActions, canAdvanceOrder } from "./StatusActions";
+import { StatusActions } from "./StatusActions";
 import type { Order, OrderStatus } from "@/lib/types/api";
 
 const statusColors: Record<OrderStatus, string> = {
@@ -208,6 +208,9 @@ export default function SupplierOrders() {
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                     Status
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
@@ -242,6 +245,14 @@ export default function SupplierOrders() {
                       >
                         {order.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusActions
+                        orderId={order.id}
+                        status={statusFilterValue(order.status)}
+                        onStatusChange={handleStatusChange}
+                        busy={busyId === order.id}
+                      />
                     </td>
                   </tr>
                 ))}

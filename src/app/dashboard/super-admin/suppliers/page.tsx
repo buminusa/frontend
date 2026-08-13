@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { CompanyProfile } from "@/lib/types/api";
 import { relativeTime } from "@/lib/format";
 import {
@@ -36,6 +39,7 @@ function isImageExtension(url: string): boolean {
 }
 
 export default function SuperAdminSuppliersPage() {
+  const router = useRouter();
   const [suppliers, setSuppliers] = useState<CompanyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,24 +52,26 @@ export default function SuperAdminSuppliersPage() {
   const [detail, setDetail] = useState<CompanyProfile | null>(null);
 
   const loadSuppliers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await companyProfileService.getAll();
       setSuppliers(res.data || []);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat supplier");
+      setError(getErrorMessage(err, "Gagal memuat supplier"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadSuppliers();
+    const init = async () => {
+      await loadSuppliers();
+    };
+    void init();
   }, [loadSuppliers]);
 
   const openDetail = async (supplier: CompanyProfile) => {
@@ -98,10 +104,10 @@ export default function SuperAdminSuppliersPage() {
       setShowStatusModal(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal memverifikasi supplier");
+      setError(getErrorMessage(err, "Gagal memverifikasi supplier"));
     } finally {
       setActionLoadingId(null);
     }
@@ -123,9 +129,12 @@ export default function SuperAdminSuppliersPage() {
       render: (item: CompanyProfile) => (
         <div className="flex items-center gap-3">
           {item.logo_url ? (
-            <img
+            <Image
               src={item.logo_url}
               alt={item.company_name}
+              width={40}
+              height={40}
+              unoptimized={item.logo_url.startsWith("http")}
               className="w-10 h-10 rounded-xl object-cover"
             />
           ) : (
@@ -218,7 +227,10 @@ export default function SuperAdminSuppliersPage() {
               <p className="text-sm text-gray-500 mt-1">Kelola semua supplier yang terdaftar</p>
             </div>
             <button
-              onClick={loadSuppliers}
+              onClick={() => {
+                setLoading(true);
+                loadSuppliers();
+              }}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
@@ -275,7 +287,10 @@ export default function SuperAdminSuppliersPage() {
             data={filteredSuppliers}
             loading={loading}
             error={error}
-            onRetry={loadSuppliers}
+            onRetry={() => {
+              setLoading(true);
+              loadSuppliers();
+            }}
             emptyMessage="Belum ada supplier"
             keyExtractor={(item) => item.id}
           />
@@ -293,9 +308,12 @@ export default function SuperAdminSuppliersPage() {
                     <div className="flex items-center justify-between p-6 border-b border-gray-100">
                       <div className="flex items-center gap-4">
                         {detail.logo_url ? (
-                          <img
+                          <Image
                             src={detail.logo_url}
                             alt={detail.company_name}
+                            width={56}
+                            height={56}
+                            unoptimized={detail.logo_url.startsWith("http")}
                             className="w-14 h-14 rounded-xl object-cover"
                           />
                         ) : (
@@ -371,9 +389,12 @@ export default function SuperAdminSuppliersPage() {
                           <div className="space-y-2">
                             {isImageExtension(detail.npwp) ? (
                               <div className="relative">
-                                <img
+                                <Image
                                   src={detail.npwp}
                                   alt="NPWP"
+                                  width={800}
+                                  height={600}
+                                  unoptimized={detail.npwp.startsWith("http")}
                                   className="w-full max-h-48 object-contain rounded-lg border border-gray-200"
                                 />
                               </div>

@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 
 import CategoryChip from "../category-chip"
 import ProductCard from "../product-card"
 import Link from "next/link"
 
-import { ArrowRight, LayoutGrid, Tag } from "lucide-react"
+import { ArrowRight, LayoutGrid } from "lucide-react"
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth"
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "")

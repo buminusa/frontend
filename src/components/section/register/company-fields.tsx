@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import { Upload, X, Building2, MapPin, Phone, Globe, FileText } from "lucide-react"
 import AuthField from "../auth-field"
 
@@ -73,9 +74,12 @@ function FileUploadField({
 
       {preview && file?.type.startsWith("image/") ? (
         <div className="relative w-fit">
-          <img
+          <Image
             src={preview}
             alt={label}
+            width={512}
+            height={384}
+            unoptimized
             className="h-32 w-auto rounded-xl border border-gray-200 object-contain"
           />
           <button

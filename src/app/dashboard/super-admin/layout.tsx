@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -19,7 +19,7 @@ function isSuperAdminRole(role: string | null | undefined) {
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [authorized, setAuthorized] = useState(false);
+  const authorized = !loading && !!user?.role && isSuperAdminRole(user.role);
 
   useEffect(() => {
     if (loading) return;
@@ -31,10 +31,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
     if (!isSuperAdminRole(user.role)) {
       router.replace("/dashboard/admin");
-      return;
     }
-
-    setAuthorized(true);
   }, [loading, router, user?.role]);
 
   if (loading || !authorized) {

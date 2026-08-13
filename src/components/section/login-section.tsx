@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Mail, Lock } from "lucide-react"
 import { motion } from "framer-motion"
 import { loginUser, saveAuthToken, getUserRoleFromToken } from "@/lib/auth"
@@ -10,6 +10,23 @@ import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
 import { redirectByRole } from "@/lib/redirect"
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
+import { getErrorMessage } from "@/lib/api/errors"
+
+function SessionExpiredNotice() {
+  const searchParams = useSearchParams()
+
+  if (searchParams.get("session") !== "expired") return null
+
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700"
+    >
+      Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.
+    </motion.p>
+  )
+}
 
 export default function LoginSection() {
   useRedirectIfAuthenticated()
@@ -20,6 +37,7 @@ export default function LoginSection() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -29,10 +47,12 @@ export default function LoginSection() {
     e.preventDefault()
     setIsSubmitting(true)
     setMessage(null)
+    setIsSuccess(false)
 
     try {
       const response = await loginUser(formData)
-      setMessage(response.message)
+      setMessage("Login berhasil. Mengalihkan ke halaman utama...")
+      setIsSuccess(true)
 
       if (response.token) {
         saveAuthToken(response.token)
@@ -41,7 +61,7 @@ export default function LoginSection() {
         redirectByRole(role, router)
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Login gagal")
+      setMessage(getErrorMessage(error, "Login gagal"))
     } finally {
       setIsSubmitting(false)
     }
@@ -89,11 +109,28 @@ export default function LoginSection() {
           error={message && !formData.password ? "Password wajib diisi" : null}
         />
 
+        <div className="text-right">
+          <Link
+            href="/forgot-password"
+            className="text-xs font-semibold text-green-600 hover:text-green-700 hover:underline"
+          >
+            Lupa password?
+          </Link>
+        </div>
+
+        <Suspense fallback={null}>
+          <SessionExpiredNotice />
+        </Suspense>
+
         {message ? (
           <motion.p
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2"
+            className={
+              isSuccess
+                ? "rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700"
+                : "rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+            }
           >
             {message}
           </motion.p>

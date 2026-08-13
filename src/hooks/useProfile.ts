@@ -1,5 +1,6 @@
 // hooks/useProfile.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { getErrorMessage } from "@/lib/api/errors";
 
 interface Profile {
   id: number;
@@ -8,7 +9,7 @@ interface Profile {
   province: string;
   country: string;
   phone: string;
-  orders: any[];
+  orders: unknown[];
 }
 
 export function useProfile() {
@@ -16,24 +17,25 @@ export function useProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
-      setLoading(true);
-      // Replace with actual API call
       const response = await fetch("/api/profile");
-      if (!response.ok) throw new Error("Failed to fetch profile");
+      if (!response.ok) throw new Error("Gagal memuat profil");
       const data = await response.json();
       setProfile(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(getErrorMessage(err, "Gagal memuat profil"));
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      await fetchProfile();
+    };
+    void init();
+  }, [fetchProfile]);
 
   const updateProfile = async (data: Partial<Profile>) => {
     try {
@@ -42,7 +44,7 @@ export function useProfile() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error("Failed to update profile");
+      if (!response.ok) throw new Error("Gagal memperbarui profil");
       const updated = await response.json();
       setProfile(updated);
     } catch (err) {

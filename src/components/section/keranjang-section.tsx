@@ -53,10 +53,6 @@ export default function KeranjangSection() {
   const router = useRouter();
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedStatus]);
-
-  useEffect(() => {
     const controller = new AbortController();
 
     async function loadOrders() {
@@ -150,7 +146,10 @@ export default function KeranjangSection() {
       name="Semua"
       icon={ListFilter}
       active={selectedStatus === null}
-      onClick={() => setSelectedStatus(null)}
+      onClick={() => {
+        setSelectedStatus(null);
+        setCurrentPage(1);
+      }}
     />
     {statuses.map((status) => (
       <CategoryChip
@@ -158,7 +157,10 @@ export default function KeranjangSection() {
         name={status}
         icon={Tag}
         active={selectedStatus === status}
-        onClick={() => setSelectedStatus(status)}
+        onClick={() => {
+          setSelectedStatus(status);
+          setCurrentPage(1);
+        }}
       />
     ))}
   </div>

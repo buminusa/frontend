@@ -7,14 +7,12 @@ import {
   ChevronDown,
   ShoppingCart,
   Menu,
-  Flag,
-  Pin,
   LogOut,
   User,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   AUTH_EVENT_NAME,
@@ -23,7 +21,6 @@ import {
   getUserRoleFromToken,
   logoutUser,
 } from "@/lib/auth";
-import avatar from "./avatar";
 import Avatar from "./avatar";
 
 const categories = [
@@ -73,25 +70,79 @@ function decodeJwtPayload(token: string) {
   }
 }
 
-export default function Navbar() {
+function SearchBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [search, setSearch] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [prevUrlSearch, setPrevUrlSearch] = useState<string | null>(null);
+
+  // keep the input in sync with the URL (e.g. back/forward navigation)
+  if (pathname === "/komoditas") {
+    const urlSearch = searchParams.get("search") ?? "";
+    if (urlSearch !== prevUrlSearch) {
+      setPrevUrlSearch(urlSearch);
+      setSearch(urlSearch);
+    }
+  }
+
+  const pushSearch = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value.trim()) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+
+    router.replace(`/komoditas?${params.toString()}`, { scroll: false });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      pushSearch(value);
+    }, 400);
+  };
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    pushSearch(search);
+  };
+
+  return (
+    <div className="relative">
+      <Search
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+        size={20}
+      />
+
+      <input
+        type="text"
+        value={search}
+        onChange={handleSearchChange}
+        onKeyDown={handleSearch}
+        placeholder="Cari komoditas..."
+        className="h-10 w-full rounded-xl border border-gray-300 pl-10 pr-3 text-sm outline-none focus:border-green-600"
+      />
+    </div>
+  );
+}
+
+export default function Navbar() {
+  const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [search, setSearch] = useState("")
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // keep the input in sync with the URL (e.g. back/forward navigation)
-  useEffect(() => {
-    if (pathname === "/komoditas") {
-      setSearch(searchParams.get("search") ?? "");
-    }
-  }, [pathname, searchParams]);
 
   useEffect(() => {
     const syncUser = () => {
@@ -160,37 +211,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const pushSearch = (value: string) => {
-    const params = new URLSearchParams(
-      pathname === "/komoditas" ? searchParams.toString() : undefined
-    );
-
-    if (value.trim()) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
-    }
-
-    router.replace(`/komoditas?${params.toString()}`, { scroll: false });
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      pushSearch(value);
-    }, 400);
-  };
-
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter") return;
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    pushSearch(search);
-  };
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
       <div className="h-14">
@@ -203,21 +223,9 @@ export default function Navbar() {
           </Link>
 
           <div className="min-w-0 flex-1">
-            <div className="relative">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-
-              <input
-                type="text"
-                value={search}
-                onChange={handleSearchChange}
-                onKeyDown={handleSearch}
-                placeholder="Cari komoditas..."
-                className="h-10 w-full rounded-xl border border-gray-300 pl-10 pr-3 text-sm outline-none focus:border-green-600"
-              />
-            </div>
+            <Suspense fallback={null}>
+              <SearchBar />
+            </Suspense>
           </div>
 
           

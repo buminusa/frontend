@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   AlertTriangle,
@@ -15,6 +16,7 @@ import {
 export function SessionExpiredBanner() {
   const [visible, setVisible] = useState(true);
   const [countdown, setCountdown] = useState(30);
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -59,7 +61,7 @@ export function SessionExpiredBanner() {
           <div className="flex items-center gap-4 mt-4">
             <button
               className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/30"
-              onClick={() => (window.location.href = "/login")}
+              onClick={() => router.push("/login?session=expired")}
             >
               Login Ulang
               <span className="flex items-center gap-1 px-2 py-0.5 bg-red-500 rounded-full text-xs">

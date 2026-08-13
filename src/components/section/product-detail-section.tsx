@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import { getAuthToken, getUserRoleFromToken } from "@/lib/auth";
-import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
 
@@ -78,15 +78,14 @@ export default function ProductDetailSection() {
   const [isBuying, setIsBuying] = useState(false);
   const [purchaseMessage, setPurchaseMessage] = useState("");
   const [purchaseError, setPurchaseError] = useState("");
-  const [isBuyer, setIsBuyer] = useState<boolean | null>(null);
+  const [isBuyer] = useState<boolean | null>(
+    () => getUserRoleFromToken(getAuthToken() ?? "") === "Buyer"
+  );
 
   const router = useRouter();
 
   useEffect(() => {
     const controller = new AbortController();
-
-    const token = getAuthToken();
-    setIsBuyer(getUserRoleFromToken(token ?? "") === "Buyer");
 
     async function loadProduct() {
       const token = getAuthToken();
@@ -263,9 +262,12 @@ export default function ProductDetailSection() {
         <div className="grid gap-12 lg:grid-cols-2">
           {/* Product Image */}
           <div>
-            <img
+            <Image
               src={product.image || "/placeholder.png"}
               alt={product.name}
+              width={720}
+              height={720}
+              unoptimized={product.image.startsWith("http")}
               className="aspect-square w-full rounded-2xl border object-cover"
             />
           </div>

@@ -1,4 +1,5 @@
-import { Building2, MapPin, Phone, Globe, FileText, CreditCard } from "lucide-react";
+import Image from "next/image";
+import { Building2, MapPin, Phone, Globe, CreditCard } from "lucide-react";
 
 interface CompanyInfoProps {
   company: {
@@ -31,9 +32,12 @@ export function CompanyInfo({ company }: CompanyInfoProps) {
       {company.logo_url && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-500 mb-2">Company Logo</p>
-          <img 
+          <Image 
             src={company.logo_url} 
             alt={company.company_name}
+            width={80}
+            height={80}
+            unoptimized={company.logo_url.startsWith("http")}
             className="h-20 w-auto object-contain"
           />
         </div>

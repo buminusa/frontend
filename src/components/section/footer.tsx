@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
 import { 
   Mail, 
   Phone, 
@@ -32,7 +32,7 @@ export default function Footer() {
           {/* Column 1 - Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src="/logo.png" alt="BumiNusa.id" className="w-10 h-10 rounded-full" />
+              <Image src="/logo.png" alt="BumiNusa.id" width={40} height={40} className="w-10 h-10 rounded-full" />
               <h2 className="text-xl font-bold">
                 BumiNusa.id
               </h2>

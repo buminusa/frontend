@@ -6,15 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 
+interface ProfileFormData {
+  full_name: string;
+  address: string;
+  province: string;
+  country: string;
+  phone: string;
+}
+
 interface ProfileFormProps {
-  profile: {
-    full_name: string;
-    address: string;
-    province: string;
-    country: string;
-    phone: string;
-  };
-  onSubmit: (data: any) => void;
+  profile: ProfileFormData;
+  onSubmit: (data: ProfileFormData) => void;
   onCancel: () => void;
 }
 

@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { categoryService } from "@/lib/api/services/categories";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { Category } from "@/lib/types/api";
 import { Search, RefreshCw, Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 
 export default function SuperAdminCategoriesPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,24 +23,26 @@ export default function SuperAdminCategoriesPage() {
   const [formLoading, setFormLoading] = useState(false);
 
   const loadCategories = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await categoryService.getAll();
       setCategories(res.data || []);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat kategori");
+      setError(getErrorMessage(err, "Gagal memuat kategori"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadCategories();
+    const init = async () => {
+      await loadCategories();
+    };
+    void init();
   }, [loadCategories]);
 
   const openCreateModal = () => {
@@ -69,10 +74,10 @@ export default function SuperAdminCategoriesPage() {
       setFormName("");
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal menyimpan kategori");
+      setError(getErrorMessage(err, "Gagal menyimpan kategori"));
     } finally {
       setFormLoading(false);
     }
@@ -85,10 +90,10 @@ export default function SuperAdminCategoriesPage() {
       setCategories((prev) => prev.filter((c) => c.id !== id));
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal menghapus kategori");
+      setError(getErrorMessage(err, "Gagal menghapus kategori"));
     }
   };
 
@@ -144,7 +149,10 @@ export default function SuperAdminCategoriesPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={loadCategories}
+                onClick={() => {
+                  setLoading(true);
+                  loadCategories();
+                }}
                 className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <RefreshCw size={14} />
@@ -178,7 +186,10 @@ export default function SuperAdminCategoriesPage() {
             data={filteredCategories}
             loading={loading}
             error={error}
-            onRetry={loadCategories}
+            onRetry={() => {
+              setLoading(true);
+              loadCategories();
+            }}
             emptyMessage="Belum ada kategori"
             keyExtractor={(item) => item.id}
           />

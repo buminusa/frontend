@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { dashboardService } from "@/lib/api/services/dashboard";
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { CompanyProfile, Product, CategoryCount } from "@/lib/types/dashboard";
 
 interface DashboardData {
@@ -36,11 +37,6 @@ export function useDashboardData(): DashboardData {
   const [totalProdukSemua, setTotalProdukSemua] = useState(0);
 
   const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    setSessionExpired(false);
-    setPartialWarnings([]);
-
     const warnings: string[] = [];
 
     try {
@@ -88,12 +84,14 @@ export function useDashboardData(): DashboardData {
         warnings.push("Gagal memuat produk terpopuler");
       }
 
+      setErrorMsg(null);
+      setSessionExpired(false);
       setPartialWarnings(warnings);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
         setSessionExpired(true);
       } else {
-        setErrorMsg(err?.message || "Gagal memuat data dashboard");
+        setErrorMsg(getErrorMessage(err, "Gagal memuat data dashboard"));
       }
     } finally {
       setLoading(false);
@@ -107,11 +105,11 @@ export function useDashboardData(): DashboardData {
         await companyProfileService.verify(id, status);
         // Remove from pending list
         setVerifikasiPending((prev) => prev.filter((item) => item.id !== id));
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
           setSessionExpired(true);
         } else {
-          setErrorMsg(err?.message || "Gagal memverifikasi supplier");
+          setErrorMsg(getErrorMessage(err, "Gagal memverifikasi supplier"));
         }
       } finally {
         setActionLoadingId(null);
@@ -121,7 +119,10 @@ export function useDashboardData(): DashboardData {
   );
 
   useEffect(() => {
-    loadDashboard();
+    const init = async () => {
+      await loadDashboard();
+    };
+    void init();
   }, [loadDashboard]);
 
   return {

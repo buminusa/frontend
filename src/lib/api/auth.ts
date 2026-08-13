@@ -115,3 +115,17 @@ export async function logoutUser(token?: string) {
     },
   });
 }
+
+export async function forgotPasswordUser(payload: { email: string }) {
+  return request<{ success: boolean; message: string }>('/api/v1/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function resetPasswordUser(payload: { token: string; newPassword: string }) {
+  return request<{ success: boolean; message: string }>('/api/v1/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}

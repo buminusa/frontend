@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { CompanyProfile } from "@/lib/types/api";
 import { relativeTime } from "@/lib/format";
 import {
@@ -29,6 +32,7 @@ function isImageExtension(url: string): boolean {
 }
 
 export default function VerificationPage() {
+  const router = useRouter();
   const [suppliers, setSuppliers] = useState<CompanyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,24 +47,26 @@ export default function VerificationPage() {
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadPending = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await companyProfileService.getPending();
       setSuppliers(res);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat data verifikasi");
+      setError(getErrorMessage(err, "Gagal memuat data verifikasi"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    loadPending();
+    const init = async () => {
+      await loadPending();
+    };
+    void init();
     return () => {
       if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
     };
@@ -100,10 +106,10 @@ export default function VerificationPage() {
         setDetail(null);
       } catch (err: unknown) {
         if (err instanceof UnauthorizedError) {
-          window.location.href = "/login";
+          router.push("/login?session=expired");
           return;
         }
-        alert(err instanceof Error ? err.message : "Gagal memverifikasi");
+        setError(getErrorMessage(err, "Gagal memverifikasi"));
       } finally {
         setActionLoadingId(null);
       }
@@ -129,7 +135,10 @@ export default function VerificationPage() {
               </p>
             </div>
             <button
-              onClick={loadPending}
+              onClick={() => {
+                setLoading(true);
+                loadPending();
+              }}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
@@ -160,7 +169,10 @@ export default function VerificationPage() {
               <XCircle size={32} className="mx-auto text-red-400 mb-3" />
               <p className="text-sm text-gray-500">{error}</p>
               <button
-                onClick={loadPending}
+                onClick={() => {
+                  setLoading(true);
+                  loadPending();
+                }}
                 className="mt-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
               >
                 Coba Lagi
@@ -209,9 +221,12 @@ export default function VerificationPage() {
                   >
                     <div className="flex items-center gap-4">
                       {supplier.logo_url ? (
-                        <img
+                        <Image
                           src={supplier.logo_url}
                           alt={supplier.company_name}
+                          width={48}
+                          height={48}
+                          unoptimized={supplier.logo_url.startsWith("http")}
                           className="w-12 h-12 rounded-xl object-cover"
                         />
                       ) : (
@@ -307,9 +322,12 @@ export default function VerificationPage() {
                               {detail.npwp ? (
                                 <div className="space-y-2">
                                   {isImageExtension(detail.npwp) ? (
-                                    <img
+                                    <Image
                                       src={detail.npwp}
                                       alt="NPWP"
+                                      width={800}
+                                      height={600}
+                                      unoptimized={detail.npwp.startsWith("http")}
                                       className="w-full max-h-48 object-contain rounded-lg border border-gray-200"
                                     />
                                   ) : (

@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard-section/sidebar";
 import { Topbar } from "@/components/dashboard-section/top-bar";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { userService } from "@/lib/api/services/users";
 import { UnauthorizedError } from "@/lib/api/api";
+import { getErrorMessage } from "@/lib/api/errors";
 import { Search, RefreshCw, Loader2 } from "lucide-react";
 import type { User, Role } from "@/lib/types/api";
 
 export default function SuperAdminRolesPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,24 +26,26 @@ export default function SuperAdminRolesPage() {
   ]);
 
   const loadUsers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await userService.getAll();
       setUsers(res.data || []);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      setError(err instanceof Error ? err.message : "Gagal memuat daftar pengguna");
+      setError(getErrorMessage(err, "Gagal memuat daftar pengguna"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    void loadUsers();
+    const init = async () => {
+      await loadUsers();
+    };
+    void init();
   }, [loadUsers]);
 
   const handleAssignRole = async (userId: number, roleId: number) => {
@@ -50,10 +55,10 @@ export default function SuperAdminRolesPage() {
       setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, roleId, role: roles.find((role) => role.id === roleId) ?? u.role ?? null } : u)));
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
-        window.location.href = "/login";
+        router.push("/login?session=expired");
         return;
       }
-      alert(err instanceof Error ? err.message : "Gagal mengubah role");
+      setError(getErrorMessage(err, "Gagal mengubah role"));
     } finally {
       setAssigningId(null);
     }
@@ -116,7 +121,10 @@ export default function SuperAdminRolesPage() {
               <p className="text-sm text-gray-500 mt-1">Lihat dan kelola pengguna berdasarkan role</p>
             </div>
             <button
-              onClick={loadUsers}
+              onClick={() => {
+                setLoading(true);
+                loadUsers();
+              }}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
@@ -142,7 +150,10 @@ export default function SuperAdminRolesPage() {
             data={filteredUsers}
             loading={loading}
             error={error}
-            onRetry={loadUsers}
+            onRetry={() => {
+              setLoading(true);
+              loadUsers();
+            }}
             emptyMessage="Belum ada pengguna"
             keyExtractor={(item) => item.id}
           />

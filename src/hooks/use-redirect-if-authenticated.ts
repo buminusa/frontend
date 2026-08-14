@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   getAuthToken,
   getUserRoleFromToken,
+  isAuthTokenValid,
 } from "@/lib/auth"
 
 export function useRedirectIfAuthenticated() {
@@ -13,7 +14,7 @@ export function useRedirectIfAuthenticated() {
   useEffect(() => {
     const token = getAuthToken()
 
-    if (!token) return
+    if (!isAuthTokenValid(token)) return
 
     const role = getUserRoleFromToken(token)
 
@@ -23,7 +24,7 @@ export function useRedirectIfAuthenticated() {
         break
 
       case "Supplier":
-        router.replace("/dashboard/supplier")
+        router.replace("/supplier")
         break
 
       case "Admin":

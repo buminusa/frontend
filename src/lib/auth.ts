@@ -33,9 +33,10 @@ export function getAuthToken() {
 
 type JwtPayload = {
   role?: { name_role?: string } | string;
+  exp?: number;
 };
 
-export function getUserRoleFromToken(token: string) {
+function decodeTokenPayload(token: string): JwtPayload | null {
   try {
     const encodedPayload = token.split(".")[1];
 
@@ -46,12 +47,31 @@ export function getUserRoleFromToken(token: string) {
       normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
       "="
     );
-    const payload = JSON.parse(window.atob(paddedPayload)) as JwtPayload;
 
-    return typeof payload.role === "string" ? payload.role : payload.role?.name_role ?? null;
+    return JSON.parse(window.atob(paddedPayload)) as JwtPayload;
   } catch {
     return null;
   }
+}
+
+/** Memastikan token masih berbentuk JWT valid dan belum melewati waktu kedaluwarsa. */
+export function isAuthTokenValid(token: string | null = getAuthToken()) {
+  if (!token) return false;
+
+  const payload = decodeTokenPayload(token);
+  if (!payload || typeof payload.exp !== "number") return false;
+
+  return payload.exp * 1000 > Date.now();
+}
+
+export function getAuthTokenExpiresAt(token: string | null = getAuthToken()) {
+  const payload = token ? decodeTokenPayload(token) : null;
+  return typeof payload?.exp === "number" ? payload.exp * 1000 : null;
+}
+
+export function getUserRoleFromToken(token: string) {
+  const payload = decodeTokenPayload(token);
+  return typeof payload?.role === "string" ? payload.role : payload?.role?.name_role ?? null;
 }
 
 type AuthUser = {

@@ -34,7 +34,7 @@ function destinationForRole(role: string | null) {
     case "Buyer":
       return "/home";
     case "Supplier":
-      return "/supplier";
+      return "/dashboard/supplier";
     case "Admin":
       return "/dashboard/admin";
     case "Super_Admin":

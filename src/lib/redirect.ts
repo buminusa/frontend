@@ -10,7 +10,7 @@ export function redirectByRole(
       break
 
     case "Supplier":
-      router.replace("/supplier")
+      router.replace("/dashboard/supplier")
       break
 
     case "Admin":

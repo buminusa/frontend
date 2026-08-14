@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bumi Nusa - Frontend
 
-## Getting Started
+Frontend untuk **Bumi Nusa** (BumiNusa.id), platform B2B yang mempertemukan supplier (perusahaan) dengan buyer. Dibangun dengan Next.js + React + TypeScript.
 
-First, run the development server:
+Backend API: [buminusa/backend](https://github.com/buminusa/backend)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack
+
+- **Framework:** Next.js 16 + React 19 (React Compiler aktif)
+- **Bahasa:** TypeScript
+- **Styling:** Tailwind CSS v4 (via `@tailwindcss/postcss`, tanpa `tailwind.config.js`) + shadcn/ui
+- **Animasi & Chart:** framer-motion, recharts, lucide-react
+
+## Struktur Proyek
+
+```
+src/
+├── app/                     # Routing (App Router)
+│   ├── login, register      # Autentikasi
+│   ├── forgot-password      # Lupa password
+│   ├── reset-password       # Reset password via token
+│   ├── verify-email         # Verifikasi email via link dari email
+│   ├── home, komoditas,     # Halaman publik buyer
+│   ├── suplier, keranjang
+│   └── dashboard/           # Dashboard admin, super-admin, supplier
+├── components/
+│   ├── ui/                  # Komponen shadcn/ui
+│   ├── section/             # Section halaman landing & auth
+│   └── dashboard-section/   # Komponen dashboard
+├── lib/
+│   ├── api/                 # API client (canonical) + services per domain
+│   ├── hooks/               # Custom hooks
+│   └── types/               # TypeScript types
+└── data/
+    └── dummy.ts             # Mock data
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Perintah
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Task | Command |
+|---|---|
+| Dev server | `npm run dev` |
+| Build | `npm run build` |
+| Lint | `npm run lint` |
+| Typecheck | `npx tsc --noEmit` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Konfigurasi
 
-## Learn More
+Salin `.env.example` menjadi `.env.local` (jika ada), atau set variabel berikut:
 
-To learn more about Next.js, take a look at the following resources:
+```
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Request `/api/*` di-proxy ke backend via `next.config.ts` rewrites.
+- Path alias: `@/*` → `./src/*`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Autentikasi & Verifikasi Email
 
-## Deploy on Vercel
+- JWT disimpan di `localStorage` (key `auth_token`), dikirim via header `Authorization: Bearer <token>`.
+- Perubahan token membangkitkan event `auth:changed` (listener di `AuthRouteGuard` & hooks).
+- Respons `401` melempar `UnauthorizedError` — UI harus menangani sesi kedaluwarsa.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Verifikasi email
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Registrasi (`/register`) → backend mengirim email berisi link `/verify-email?token=...`.
+2. Halaman `/verify-email` memanggil `GET /api/v1/auth/verify-email?token=...` dan menampilkan status verifikasi.
+3. **Akun yang belum verified tidak dapat login**: saat login, token tidak disimpan & redirect dibatalkan, ditampilkan notice dengan petunjuk verifikasi. Guard rute (client) juga membuang token tanpa klaim `verified: true` pada JWT payload.
+
+> Catatan: backend harus menyertakan `verified: user.verified` di payload JWT saat login agar guard bisa mendeteksi status verifikasi dari token.
+
+## Catatan API Layer
+
+- File canonical API ada di `src/lib/api/` (`api.ts`, `auth.ts`, `errors.ts`) dan dire-export via `src/lib/api/index.ts`.
+- Panggilan per domain berada di `src/lib/api/services/` (products, categories, company-profiles, users, orders, dashboard).
+- Pesan error dari backend ditampilkan apa adanya (tidak diganti pesan generik), dengan fallback untuk error jaringan/status HTTP.

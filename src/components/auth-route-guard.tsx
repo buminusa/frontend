@@ -9,6 +9,7 @@ import {
   getAuthTokenExpiresAt,
   getUserRoleFromToken,
   isAuthTokenValid,
+  isUserVerifiedFromToken,
 } from "@/lib/auth";
 
 type Role = "Buyer" | "Supplier" | "Admin" | "Super_Admin";
@@ -62,6 +63,12 @@ export function AuthRouteGuard({ children }: { children: React.ReactNode }) {
 
       if (!isAuthTokenValid(token)) {
         if (token) clearAuthToken();
+        if (protectedRoute) router.replace("/login");
+        return;
+      }
+
+      if (token && !isUserVerifiedFromToken(token)) {
+        clearAuthToken();
         if (protectedRoute) router.replace("/login");
         return;
       }

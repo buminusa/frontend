@@ -3,9 +3,11 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
+  clearAuthToken,
   getAuthToken,
   getUserRoleFromToken,
   isAuthTokenValid,
+  isUserVerifiedFromToken,
 } from "@/lib/auth"
 
 type Role =
@@ -29,6 +31,13 @@ export function useAuthGuard({
     const token = getAuthToken()
 
     if (!token || !isAuthTokenValid(token)) {
+      if (token) clearAuthToken()
+      router.replace(redirectTo)
+      return
+    }
+
+    if (!isUserVerifiedFromToken(token)) {
+      clearAuthToken()
       router.replace(redirectTo)
       return
     }

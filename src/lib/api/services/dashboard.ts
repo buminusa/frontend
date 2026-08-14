@@ -4,9 +4,9 @@ import type { DashboardStats, Product, CompanyProfile } from "@/lib/types/api";
 export const dashboardService = {
   async getStats(): Promise<DashboardStats> {
     const [suppliersRes, productsRes, categoriesRes] = await Promise.all([
-      apiGet<CompanyProfile[]>("/api/v1/company-profiles"),
-      apiGet<Product[]>("/api/v1/products"),
-      apiGet<{ id: number; name_categories: string }[]>("/api/v1/categories"),
+      apiGet<CompanyProfile[]>("/api/v1/company-profiles?limit=100000"),
+      apiGet<Product[]>("/api/v1/products?limit=100000"),
+      apiGet<{ id: number; name_categories: string }[]>("/api/v1/categories?limit=100000"),
     ]);
 
     const suppliers = suppliersRes.data || [];

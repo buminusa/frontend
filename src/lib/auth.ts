@@ -34,6 +34,7 @@ export function getAuthToken() {
 type JwtPayload = {
   role?: { name_role?: string } | string;
   exp?: number;
+  verified?: boolean;
 };
 
 function decodeTokenPayload(token: string): JwtPayload | null {
@@ -130,7 +131,12 @@ export function clearAuthToken() {
 }
 
 export async function loginUser(payload: { email: string; password: string }) {
-  return request<{ success: boolean; message: string; token?: string }>('/api/v1/auth/login', {
+  return request<{
+    success: boolean;
+    message: string;
+    token?: string;
+    data?: { verified?: boolean; warning?: string };
+  }>('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -215,4 +221,18 @@ export async function resetPasswordUser(payload: { token: string; newPassword: s
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export async function verifyEmailUser(token: string) {
+  return request<{ success: boolean; message: string }>(
+    `/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`
+  );
+}
+
+/** Menganggap token hanya valid jika klaim `verified` bernilai true (klaim hilang = belum verifikasi). */
+export function isUserVerifiedFromToken(token: string | null = getAuthToken()) {
+  if (!token) return false;
+
+  const payload = decodeTokenPayload(token);
+  return payload?.verified === true;
 }

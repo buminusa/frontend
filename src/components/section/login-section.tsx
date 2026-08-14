@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Mail, Lock } from "lucide-react"
 import { motion } from "framer-motion"
-import { loginUser, saveAuthToken, getUserRoleFromToken } from "@/lib/auth"
+import { loginUser, saveAuthToken, clearAuthToken, getUserRoleFromToken, isUserVerifiedFromToken } from "@/lib/auth"
 import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
 import { redirectByRole } from "@/lib/redirect"
@@ -38,6 +38,7 @@ export default function LoginSection() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [unverifiedNotice, setUnverifiedNotice] = useState<string | null>(null)
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -48,9 +49,20 @@ export default function LoginSection() {
     setIsSubmitting(true)
     setMessage(null)
     setIsSuccess(false)
+    setUnverifiedNotice(null)
 
     try {
       const response = await loginUser(formData)
+
+      if (response.data?.verified === false || !isUserVerifiedFromToken(response.token ?? null)) {
+        clearAuthToken()
+        setUnverifiedNotice(
+          response.data?.warning ??
+            "Email belum diverifikasi. Silakan verifikasi melalui link yang dikirim ke email Anda."
+        )
+        return
+      }
+
       setMessage("Login berhasil. Mengalihkan ke halaman utama...")
       setIsSuccess(true)
 
@@ -121,6 +133,23 @@ export default function LoginSection() {
         <Suspense fallback={null}>
           <SessionExpiredNotice />
         </Suspense>
+
+        {unverifiedNotice ? (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800"
+          >
+            <p>{unverifiedNotice}</p>
+            <p className="mt-1 text-xs text-amber-700">
+              Sudah klik link verifikasi di email? Coba{" "}
+              <Link href="/verify-email" className="font-semibold underline hover:text-amber-900">
+                buka halaman verifikasi
+              </Link>{" "}
+              lalu login kembali.
+            </p>
+          </motion.div>
+        ) : null}
 
         {message ? (
           <motion.p

@@ -12,6 +12,10 @@ export {
   logoutUser,
   forgotPasswordUser,
   resetPasswordUser,
+  verifyEmailUser,
   AUTH_TOKEN_KEY,
   AUTH_EVENT_NAME,
 } from "./auth";
+
+// Re-export JWT decode helpers (canonical: src/lib/auth.ts)
+export { isUserVerifiedFromToken } from "@/lib/auth";

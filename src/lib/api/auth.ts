@@ -43,7 +43,12 @@ export function clearAuthToken() {
 }
 
 export async function loginUser(payload: { email: string; password: string }) {
-  return request<{ success: boolean; message: string; token?: string }>('/api/v1/auth/login', {
+  return request<{
+    success: boolean;
+    message: string;
+    token?: string;
+    data?: { verified?: boolean; warning?: string };
+  }>('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -128,4 +133,10 @@ export async function resetPasswordUser(payload: { token: string; newPassword: s
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export async function verifyEmailUser(token: string) {
+  return request<{ success: boolean; message: string }>(
+    `/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`
+  );
 }

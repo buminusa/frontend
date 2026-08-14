@@ -6,6 +6,7 @@ import {
   getAuthToken,
   getUserRoleFromToken,
   isAuthTokenValid,
+  isUserVerifiedFromToken,
 } from "@/lib/auth"
 
 export function useRedirectIfAuthenticated() {
@@ -15,6 +16,9 @@ export function useRedirectIfAuthenticated() {
     const token = getAuthToken()
 
     if (!token || !isAuthTokenValid(token)) return
+
+    // Akun belum verifikasi email: biarkan tetap di halaman auth (login/register)
+    if (!isUserVerifiedFromToken(token)) return
 
     const role = getUserRoleFromToken(token)
 

@@ -6,6 +6,8 @@ const MESSAGE_MAP: Record<string, string> = {
   "email Already exists": "Email sudah terdaftar",
   "Email already registered": "Email sudah terdaftar",
   "User not found": "Pengguna tidak ditemukan",
+  "Token verifikasi tidak ditemukan": "Token verifikasi tidak ditemukan",
+  "Token verifikasi tidak valid atau sudah kedaluwarsa": "Token verifikasi tidak valid atau sudah kedaluwarsa",
   "Internal server error": "Terjadi kesalahan pada server. Silakan coba lagi",
   "Not authorized": "Anda tidak memiliki akses untuk melakukan tindakan ini",
   "Forbidden": "Anda tidak memiliki izin untuk mengakses sumber daya ini",

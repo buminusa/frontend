@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Sidebar } from "@/components/dashboard-section/sidebar";
-import { Topbar } from "@/components/dashboard-section/top-bar";
+import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout";
 import { StatCard } from "@/components/dashboard-section/StatCard";
 import { CategoryChart } from "@/components/dashboard-section/CategoryChart";
 import { PopularProducts } from "@/components/dashboard-section/PopularProducts";
@@ -52,13 +51,7 @@ export default function SuperAdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Sidebar basePath="/dashboard/super-admin" roleLabel="Super Admin" />
-
-      <div className="ml-[264px]">
-        <Topbar />
-
-        <main className="p-6">
+    <DashboardLayout basePath="/dashboard/super-admin" roleLabel="Super Admin">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
@@ -149,8 +142,6 @@ export default function SuperAdminDashboardPage() {
               </button>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </DashboardLayout>
   );
 }

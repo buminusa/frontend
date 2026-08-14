@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/dashboard-section/sidebar";
-import { Topbar } from "@/components/dashboard-section/top-bar";
+import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { productService } from "@/lib/api/services/products";
 import { UnauthorizedError } from "@/lib/api/api";
@@ -133,11 +132,8 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Sidebar />
-      <div className="ml-[264px]">
-        <Topbar />
-        <main className="p-6">
+    <DashboardLayout basePath="/dashboard/admin" roleLabel="Admin">
+      <main className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Produk</h1>
@@ -185,7 +181,6 @@ export default function ProductsPage() {
             keyExtractor={(item) => item.id}
           />
         </main>
-      </div>
-    </div>
+      </DashboardLayout>
   );
 }

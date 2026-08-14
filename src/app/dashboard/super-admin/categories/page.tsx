@@ -2,14 +2,17 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/dashboard-section/sidebar";
-import { Topbar } from "@/components/dashboard-section/top-bar";
+import Image from "next/image";
+import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { categoryService } from "@/lib/api/services/categories";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
 import type { Category } from "@/lib/types/api";
-import { Search, RefreshCw, Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
+import { Search, RefreshCw, Plus, Pencil, Trash2, Loader2, X, ImageIcon } from "lucide-react";
+
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+const IMAGE_TYPES = ["image/jpeg", "image/png"];
 
 export default function SuperAdminCategoriesPage() {
   const router = useRouter();
@@ -20,6 +23,8 @@ export default function SuperAdminCategoriesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formName, setFormName] = useState("");
+  const [formImage, setFormImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
   const loadCategories = useCallback(async () => {
@@ -48,30 +53,68 @@ export default function SuperAdminCategoriesPage() {
   const openCreateModal = () => {
     setEditingCategory(null);
     setFormName("");
+    setFormImage(null);
+    setImagePreview(null);
     setShowModal(true);
   };
 
   const openEditModal = (category: Category) => {
     setEditingCategory(category);
     setFormName(category.name_categories);
+    setFormImage(null);
+    setImagePreview(category.image_url || null);
     setShowModal(true);
+  };
+
+  const validateImage = (file: File | null, isCreate: boolean): string | null => {
+    if (isCreate && !file) return "Gambar wajib diisi";
+    if (file && !IMAGE_TYPES.includes(file.type)) return "Format gambar harus JPG atau PNG";
+    if (file && file.size > MAX_IMAGE_SIZE) return "Ukuran gambar maksimal 2MB";
+    return null;
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormImage(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else if (!editingCategory) {
+      setImagePreview(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) return;
+
+    const imageError = validateImage(formImage, !editingCategory);
+    if (imageError) {
+      setError(imageError);
+      return;
+    }
+
     setFormLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("name_categories", formName);
+      if (formImage) formData.append("image", formImage);
+
       if (editingCategory) {
-        const res = await categoryService.update(editingCategory.id, { name_categories: formName });
-        setCategories((prev) => prev.map((c) => (c.id === editingCategory.id ? { ...c, name_categories: res.data.name_categories } : c)));
+        const res = await categoryService.update(editingCategory.id, formData);
+        setCategories((prev) =>
+          prev.map((c) => (c.id === editingCategory.id ? { ...c, ...res.data } : c))
+        );
       } else {
-        const res = await categoryService.create({ name_categories: formName });
+        const res = await categoryService.create(formData);
         setCategories((prev) => [...prev, res.data]);
       }
       setShowModal(false);
       setEditingCategory(null);
       setFormName("");
+      setFormImage(null);
+      setImagePreview(null);
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
         router.push("/login?session=expired");
@@ -102,6 +145,28 @@ export default function SuperAdminCategoriesPage() {
   );
 
   const columns = [
+    {
+      key: "image",
+      label: "Gambar",
+      className: "w-16",
+      render: (item: Category) => (
+        <div className="flex items-center justify-center">
+          {item.image_url ? (
+            <Image
+              src={item.image_url}
+              alt={item.name_categories}
+              width={40}
+              height={40}
+              className="rounded-lg object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+              <ImageIcon size={16} className="text-gray-400" />
+            </div>
+          )}
+        </div>
+      ),
+    },
     {
       key: "name_categories",
       label: "Nama Kategori",
@@ -137,39 +202,36 @@ export default function SuperAdminCategoriesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Sidebar basePath="/dashboard/super-admin" roleLabel="Super Admin" />
-      <div className="ml-[264px]">
-        <Topbar />
-        <main className="p-6">
-          <div className="flex items-center justify-between mb-6">
+    <DashboardLayout basePath="/dashboard/super-admin" roleLabel="Super Admin" mainClassName="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Kategori</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Kategori</h1>
               <p className="text-sm text-gray-500 mt-1">Kelola kategori produk platform</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => {
                   setLoading(true);
                   loadCategories();
                 }}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <RefreshCw size={14} />
-                Refresh
+                <span className="hidden sm:inline">Refresh</span>
               </button>
               <button
                 onClick={openCreateModal}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
               >
                 <Plus size={14} />
-                Tambah Kategori
+                <span className="hidden sm:inline">Tambah Kategori</span>
+                <span className="sm:hidden">Tambah</span>
               </button>
             </div>
           </div>
 
           <div className="mb-4">
-            <div className="relative max-w-md">
+            <div className="relative w-full max-w-md">
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
@@ -193,31 +255,54 @@ export default function SuperAdminCategoriesPage() {
             emptyMessage="Belum ada kategori"
             keyExtractor={(item) => item.id}
           />
-        </main>
-      </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-100">
               <h3 className="text-lg font-semibold text-gray-900">{editingCategory ? "Edit Kategori" : "Tambah Kategori"}</h3>
               <button onClick={() => setShowModal(false)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <X size={16} className="text-gray-500" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
-              <input
-                type="text"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder="Masukkan nama kategori"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                autoFocus
-              />
-              <div className="flex gap-3 mt-6">
+            <form onSubmit={handleSubmit} className="p-4 lg:p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
+                <input
+                  type="text"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="Masukkan nama kategori"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Gambar {!editingCategory && <span className="text-red-500">*</span>}
+                </label>
+                {imagePreview && (
+                  <div className="mb-3 relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      width={128}
+                      height={128}
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleImageChange}
+                  className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"
+                />
+                <p className="text-xs text-gray-400 mt-1">JPG/PNG, maksimal 2MB</p>
+              </div>
+              <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">Batal</button>
-                <button type="submit" disabled={formLoading || !formName.trim()} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50">
+                <button type="submit" disabled={formLoading || !formName.trim() || (!editingCategory && !formImage)} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50">
                   {formLoading && <Loader2 size={14} className="animate-spin" />}
                   {editingCategory ? "Simpan" : "Tambah"}
                 </button>
@@ -226,6 +311,6 @@ export default function SuperAdminCategoriesPage() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 }

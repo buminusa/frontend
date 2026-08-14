@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -41,27 +41,54 @@ const SUPER_ADMIN_MENU_ITEMS = [
 export function Sidebar({
   basePath = "/dashboard/admin",
   roleLabel = "Admin",
+  open = true,
+  onClose,
 }: {
   basePath?: string;
   roleLabel?: string;
+  open?: boolean;
+  onClose?: () => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  // ponytail: mounted guard prevents SSR/CSR mismatch on pathname & auth-dependent UI
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMounted(true); }, []);
 
   const isSuperAdminRoute = pathname?.startsWith("/dashboard/super-admin") || basePath.startsWith("/dashboard/super-admin");
   const MENU_ITEMS = isSuperAdminRoute ? SUPER_ADMIN_MENU_ITEMS : BASE_MENU_ITEMS;
   const displayRoleLabel = isSuperAdminRoute ? "Super Admin" : roleLabel;
 
+  // Fix active state: exact match for root dashboard paths
+  const getIsActive = (href: string) => {
+    if (!mounted) return false; // SSR: no active item
+    if (href === "/dashboard/admin" || href === "/dashboard/super-admin") {
+      return pathname === href;
+    }
+    return pathname === href || pathname?.startsWith(href + "/");
+  };
+
   return (
-    <aside
-      className={`fixed left-0 top-0 h-screen bg-[#0B1121] flex flex-col z-40 transition-all duration-300 ease-in-out border-r border-white/[0.06] ${
-        collapsed ? "w-[72px]" : "w-[264px]"
-      }`}
-      role="navigation"
-      aria-label="Sidebar navigasi"
-    >
+    <>
+      {/* Mobile overlay */}
+      {mounted && !collapsed && open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`fixed left-0 top-0 h-screen bg-[#0B1121] flex flex-col z-40 transition-transform duration-300 ease-in-out border-r border-white/[0.06] w-[264px] lg:translate-x-0 ${
+          collapsed ? "w-[72px]" : "w-[264px]"
+        } ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        role="navigation"
+        aria-label="Sidebar navigasi"
+      >
       {/* Brand */}
       <div className="flex items-center justify-between px-4 h-[68px] border-b border-white/[0.06]">
         <div className="flex items-center gap-3 min-w-0">
@@ -98,7 +125,7 @@ export function Sidebar({
 
         <div className="space-y-1">
           {MENU_ITEMS.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            const isActive = getIsActive(item.href);
             return (
               <div key={item.label} className="relative">
                 <Link
@@ -181,43 +208,48 @@ export function Sidebar({
         )}
 
         {/* User Profile */}
-        {!collapsed ? (
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] cursor-pointer transition-all duration-200 group">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-[11px] flex-shrink-0 shadow-lg shadow-emerald-500/20">
-              {user?.initials || "U"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-medium text-white truncate leading-tight">
-                {user?.email || "Memuat..."}
+        {mounted && (
+          <>
+            {!collapsed ? (
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] cursor-pointer transition-all duration-200 group">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-[11px] flex-shrink-0 shadow-lg shadow-emerald-500/20">
+                  {user?.initials || "U"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium text-white truncate leading-tight">
+                    {user?.email || "Memuat..."}
+                  </div>
+                  <div className="text-[11px] text-gray-500 leading-tight mt-0.5">
+                    {user?.role || displayRoleLabel}
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    logout();
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-white/[0.08] transition-all duration-200 flex-shrink-0 opacity-60 group-hover:opacity-100"
+                  title="Keluar"
+                  aria-label="Keluar dari akun"
+                >
+                  <LogOut size={15} className="text-gray-400 group-hover:text-red-400 transition-colors duration-200" />
+                </button>
               </div>
-              <div className="text-[11px] text-gray-500 leading-tight mt-0.5">
-                {user?.role || displayRoleLabel}
+            ) : (
+              <div className="flex justify-center relative group">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-[11px] cursor-pointer hover:scale-105 transition-all duration-200 shadow-lg shadow-emerald-500/20">
+                  {user?.initials || "U"}
+                </div>
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  {user?.email || "User"}
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-gray-900" />
+                </div>
               </div>
-            </div>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                logout();
-              }}
-              className="p-1.5 rounded-lg hover:bg-white/[0.08] transition-all duration-200 flex-shrink-0 opacity-60 group-hover:opacity-100"
-              title="Keluar"
-              aria-label="Keluar dari akun"
-            >
-              <LogOut size={15} className="text-gray-400 group-hover:text-red-400 transition-colors duration-200" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex justify-center relative group">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-[11px] cursor-pointer hover:scale-105 transition-all duration-200 shadow-lg shadow-emerald-500/20">
-              {user?.initials || "U"}
-            </div>
-            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              {user?.email || "User"}
-              <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-gray-900" />
-            </div>
-          </div>
+            )}
+          </>
         )}
       </div>
     </aside>
-  );
+  </>
+);
 }

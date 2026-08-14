@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/dashboard-section/sidebar";
-import { Topbar } from "@/components/dashboard-section/top-bar";
+import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
@@ -112,11 +111,8 @@ export default function SuperAdminVerificationPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Sidebar basePath="/dashboard/super-admin" roleLabel="Super Admin" />
-      <div className="ml-[264px]">
-        <Topbar />
-        <main className="p-6">
+    <DashboardLayout basePath="/dashboard/super-admin" roleLabel="Super Admin">
+      <main className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Verifikasi</h1>
@@ -160,7 +156,6 @@ export default function SuperAdminVerificationPage() {
             keyExtractor={(item) => item.id}
           />
         </main>
-      </div>
-    </div>
+      </DashboardLayout>
   );
 }

@@ -14,12 +14,12 @@ export const categoryService = {
     return apiGet<Category>(`/api/v1/categories/slug/${slug}`);
   },
 
-  async create(data: { name_categories: string }): Promise<ApiResponse<Category>> {
-    return apiPost<Category>("/api/v1/categories", data);
+  async create(formData: FormData): Promise<ApiResponse<Category>> {
+    return apiPost<Category>("/api/v1/categories", formData);
   },
 
-  async update(id: number, data: { name_categories: string }): Promise<ApiResponse<Category>> {
-    return apiPut<Category>(`/api/v1/categories/${id}`, data);
+  async update(id: number, formData: FormData): Promise<ApiResponse<Category>> {
+    return apiPut<Category>(`/api/v1/categories/${id}`, formData);
   },
 
   async delete(id: number): Promise<void> {

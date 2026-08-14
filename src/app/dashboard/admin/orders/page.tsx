@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/dashboard-section/sidebar";
-import { Topbar } from "@/components/dashboard-section/top-bar";
+import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { orderService } from "@/lib/api/services/orders";
 import { UnauthorizedError } from "@/lib/api/api";
@@ -234,11 +233,8 @@ export default function OrdersPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Sidebar />
-      <div className="ml-[264px]">
-        <Topbar />
-        <main className="p-6" onClick={() => setShowStatusModal(null)}>
+    <DashboardLayout basePath="/dashboard/admin" roleLabel="Admin">
+      <main className="p-6" onClick={() => setShowStatusModal(null)}>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -439,7 +435,6 @@ export default function OrdersPage() {
             </div>
           )}
         </main>
-      </div>
-    </div>
+      </DashboardLayout>
   );
 }

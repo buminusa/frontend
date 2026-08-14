@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/dashboard-section/sidebar";
-import { Topbar } from "@/components/dashboard-section/top-bar";
+import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout";
 import { DataTable } from "@/components/dashboard-section/DataTable";
 import { productService } from "@/lib/api/services/products";
 import { categoryService } from "@/lib/api/services/categories";
@@ -188,11 +187,8 @@ export default function SuperAdminProductsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Sidebar basePath="/dashboard/super-admin" roleLabel="Super Admin" />
-      <div className="ml-[264px]">
-        <Topbar />
-        <main className="p-6">
+    <DashboardLayout basePath="/dashboard/super-admin" roleLabel="Super Admin">
+      <main className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Produk</h1>
@@ -245,7 +241,6 @@ export default function SuperAdminProductsPage() {
             keyExtractor={(item) => item.id}
           />
         </main>
-      </div>
 
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -309,6 +304,6 @@ export default function SuperAdminProductsPage() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 }

@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: "/logo.png",
+    icon: "/icon.png",
   },
 };
 

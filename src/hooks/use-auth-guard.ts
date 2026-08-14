@@ -28,7 +28,7 @@ export function useAuthGuard({
   useEffect(() => {
     const token = getAuthToken()
 
-    if (!isAuthTokenValid(token)) {
+    if (!token || !isAuthTokenValid(token)) {
       router.replace(redirectTo)
       return
     }

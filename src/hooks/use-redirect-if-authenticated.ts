@@ -14,7 +14,7 @@ export function useRedirectIfAuthenticated() {
   useEffect(() => {
     const token = getAuthToken()
 
-    if (!isAuthTokenValid(token)) return
+    if (!token || !isAuthTokenValid(token)) return
 
     const role = getUserRoleFromToken(token)
 

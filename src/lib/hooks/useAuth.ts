@@ -35,7 +35,7 @@ function getInitials(email: string): string {
 
 function readUserFromToken(): UserInfo | null {
   const token = getAuthToken();
-  if (!isAuthTokenValid(token)) return null;
+  if (!token || !isAuthTokenValid(token)) return null;
 
   const email = decodeEmailFromToken(token);
 

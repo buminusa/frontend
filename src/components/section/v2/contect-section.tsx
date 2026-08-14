@@ -132,7 +132,7 @@ export default function ContentSection() {
         </div>
 
         {/* Banner */}
-        <div className="mt-5">
+        {/* <div className="mt-5">
           <Link
             href="/produk"
             className="group relative flex items-center justify-between gap-4 overflow-hidden rounded-3xl bg-gradient-to-br from-amber-200 via-amber-400 to-yellow-600 px-8 py-8 transition-all duration-300 hover:from-amber-300 hover:to-yellow-700"
@@ -164,7 +164,7 @@ export default function ContentSection() {
               </svg>
             </div>
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );

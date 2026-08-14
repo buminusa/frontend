@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Mail, Phone, MapPin, ChevronDown, ChevronRight } from "lucide-react";
-import { categoryService } from "@/lib/api/services/categories";
-import type { Category } from "@/lib/types/api";
 
 const menuItems = [
   { name: "Komoditas", info: "Temukan komoditas pilihan dari supplier Indonesia dan bandingkan produk sesuai kebutuhan Anda." },
@@ -14,27 +11,18 @@ const menuItems = [
   { name: "Kontak", info: "Hubungi tim BumiNusa.id melalui telepon atau email untuk bantuan dan informasi lebih lanjut." },
 ];
 
+const kategoriList = [
+  { name: "Rempah-rempah" },
+  { name: "Perkebunan" },
+  { name: "Hortikultura" },
+  { name: "Perikanan" },
+  { name: "Peternakan" },
+  { name: "Pertanian Pangan" },
+];
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    categoryService
-      .getAll(100)
-      .then((response) => {
-        if (isActive) setCategories(response.data ?? []);
-      })
-      .catch(() => {
-        if (isActive) setCategories([]);
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
 
   return (
     <footer className="bg-[#1A3A1B] text-white">
@@ -69,15 +57,12 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Kategori</h3>
             <ul className="space-y-2">
-              {categories.map((category) => (
-                <li key={category.id}>
-                  <Link href={`/komoditas?categoryId=${category.id}`} className="flex items-center gap-1 text-sm text-gray-300 transition-colors hover:text-white">
-                    <ChevronRight className="w-3 h-3" />
-                    {category.name_categories}
-                  </Link>
+              {kategoriList.map((category) => (
+                <li key={category.name} className="flex items-center gap-1 text-sm text-gray-300">
+                  <ChevronRight className="w-3 h-3" />
+                  {category.name}
                 </li>
               ))}
-              {categories.length === 0 && <li className="text-sm text-gray-400">Kategori belum tersedia.</li>}
             </ul>
           </div>
 
@@ -86,7 +71,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-3"><MapPin className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" /><span className="text-sm text-gray-300">Jl. Komoditas No. 123, <br /> Jakarta, Indonesia</span></li>
               <li className="flex items-center gap-3"><Phone className="w-5 h-5 text-gray-400" /><a href="tel:+62123456789" className="text-sm text-gray-300 hover:text-white transition-colors">+62 123 456 789</a></li>
-              <li className="flex items-center gap-3"><Mail className="w-5 h-5 text-gray-400" /><a href="mailto:info@buminusa.com" className="text-sm text-gray-300 hover:text-white transition-colors">info@buminusa.com</a></li>
+              <li className="flex items-center gap-3"><Mail className="w-5 h-5 text-gray-400" /><a href="mailto:admin@buminusa.com" className="text-sm text-gray-300 hover:text-white transition-colors">admin@buminusa.id</a></li>
             </ul>
           </div>
         </div>

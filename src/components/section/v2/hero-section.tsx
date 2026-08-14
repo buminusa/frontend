@@ -87,7 +87,7 @@ export default function HeroV2() {
                 label: "PETANI MITRA",
               },
               {
-                value: "24",
+                value: "38",
                 label: "PROVINSI",
               },
             ].map((stat, idx) => (

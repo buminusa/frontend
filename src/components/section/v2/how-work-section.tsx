@@ -3,9 +3,8 @@
 const steps = [
   {
     number: '1',
-    title: 'Daftar & Verifikasi',
-    description: 'Buat akun dan verifikasi identitas untuk memulai transaksi yang aman.',
-    offset: 'up',
+    title: 'Register',
+    description: 'Buat akun supplier dan buyer',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none" />
@@ -19,9 +18,8 @@ const steps = [
   },
   {
     number: '2',
-    title: 'Pilih Komoditas',
-    description: 'Jelajahi dan pilih dari berbagai kategori komoditas unggulan.',
-    offset: 'down',
+    title: 'Verifikasi ',
+    description: 'Verifikasi identitas untuk memulai transaksi dengan aman',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4l2.5 4.5h-5L12 4z" />
@@ -32,9 +30,8 @@ const steps = [
   },
   {
     number: '3',
-    title: 'Transaksi Aman',
-    description: 'Lakukan pembayaran dengan metode yang aman dan terjamin.',
-    offset: 'up',
+    title: 'Pilih komoditas',
+    description: 'Jelajahi dan pilih dari berbagai katagori komoditas unggulan',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" />
@@ -44,9 +41,21 @@ const steps = [
   },
   {
     number: '4',
-    title: 'Pengiriman Terpantau',
-    description: 'Lacak pesanan Anda hingga tiba di tujuan dengan selamat.',
-    offset: 'down',
+    title: 'Negosiasi',
+    description: 'Mencapai Kesepakatan bersama yang saling menguntungkan',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="2.5" y="9" width="11" height="7" strokeWidth={2} />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 12h4l3 3v1h-7v-4z" />
+        <circle cx="6" cy="17.5" r="1.5" strokeWidth={2} />
+        <circle cx="16.5" cy="17.5" r="1.5" strokeWidth={2} />
+      </svg>
+    ),
+  },
+  {
+    number: '5',
+    title: 'Transaksi',
+    description: 'Lakukan pembayaran dengan metode yang aman dan terjamin',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <rect x="2.5" y="9" width="11" height="7" strokeWidth={2} />
@@ -76,15 +85,18 @@ export default function HowWorkSection() {
           </p>
         </div>
 
+        {/* Desktop: straight single row */}
         <div className="hidden lg:block relative">
           <svg
-            className="absolute inset-x-0 top-0 w-full h-[140px] -z-0"
-            viewBox="0 0 100 40"
+            className="absolute inset-x-0 top-8 w-full h-[2px] -z-0"
+            viewBox="0 0 100 2"
             preserveAspectRatio="none"
           >
-            <path
-              d="M12.5,12 L37.5,28 L62.5,12 L87.5,28"
-              fill="none"
+            <line
+              x1="10"
+              y1="1"
+              x2="90"
+              y2="1"
               stroke="#D4B96A"
               strokeWidth="1"
               strokeDasharray="3 2.5"
@@ -93,13 +105,11 @@ export default function HowWorkSection() {
             />
           </svg>
 
-          <div className="grid grid-cols-4 relative z-10">
+          <div className="grid grid-cols-5 relative z-10">
             {steps.map((step, idx) => (
               <div
                 key={idx}
-                className={`flex flex-col items-center text-center px-3 ${
-                  step.offset === 'up' ? 'lg:-translate-y-3' : 'lg:translate-y-9'
-                }`}
+                className="flex flex-col items-center text-center px-3"
               >
                 <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center text-emerald-900 mb-5">
                   {step.icon}

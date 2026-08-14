@@ -1,3 +1,5 @@
+import { UnauthorizedError } from "./api";
+
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
 export const AUTH_TOKEN_KEY = "auth_token";
 export const AUTH_EVENT_NAME = "auth:changed";
@@ -17,6 +19,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   });
 
   const data = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    throw new UnauthorizedError(data?.message ?? "Sesi login sudah habis.");
+  }
 
   if (!response.ok) {
     throw new Error(data?.message || `Request failed with status ${response.status}`);

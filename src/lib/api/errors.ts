@@ -6,8 +6,6 @@ const MESSAGE_MAP: Record<string, string> = {
   "email Already exists": "Email sudah terdaftar",
   "Email already registered": "Email sudah terdaftar",
   "User not found": "Pengguna tidak ditemukan",
-  "Token verifikasi tidak ditemukan": "Token verifikasi tidak ditemukan",
-  "Token verifikasi tidak valid atau sudah kedaluwarsa": "Token verifikasi tidak valid atau sudah kedaluwarsa",
   "Internal server error": "Terjadi kesalahan pada server. Silakan coba lagi",
   "Not authorized": "Anda tidak memiliki akses untuk melakukan tindakan ini",
   "Forbidden": "Anda tidak memiliki izin untuk mengakses sumber daya ini",
@@ -36,25 +34,49 @@ function mapByStatus(status: number): string {
   }
 }
 
+// Menangkap status HTTP yang tertanam di pesan error, misalnya
+// "Request failed with status 500" (src/lib/api/api.ts) atau
+// "Request gagal (500)" (src/lib/api/api.ts).
+function parseStatusFromMessage(message: string): number | null {
+  if (message.startsWith("Request failed with status ")) {
+    const status = Number(message.slice("Request failed with status ".length).trim());
+    return Number.isFinite(status) ? status : null;
+  }
+
+  if (message.startsWith("Request gagal (")) {
+    const status = Number(message.slice("Request gagal (".length, -1));
+    return Number.isFinite(status) ? status : null;
+  }
+
+  return null;
+}
+
 export function getErrorMessage(error: unknown, fallback = GENERIC_MESSAGE): string {
   if (error instanceof UnauthorizedError) {
     return "Sesi Anda telah berakhir. Silakan masuk kembali";
   }
 
-  if (error instanceof Error) {
-    const message = error.message;
+  // Gagal jaringan (fetch) melempar TypeError dengan pesan teknis seperti
+  // "Failed to fetch" — jangan tampilkan mentah ke pengguna.
+  if (error instanceof TypeError) {
+    return fallback;
+  }
 
-    if (message.startsWith("Request failed with status ")) {
-      const status = Number(message.replace("Request failed with status ", "").trim());
-      return Number.isFinite(status) ? mapByStatus(status) : GENERIC_MESSAGE;
-    }
+  if (error instanceof Error) {
+    const message = error.message.trim();
+
+    if (!message) return fallback;
+
+    const status = parseStatusFromMessage(message);
+    if (status !== null) return mapByStatus(status);
 
     if (message in MESSAGE_MAP) {
       return MESSAGE_MAP[message];
     }
 
-    const isEnglishOnly = /^[a-z0-9\s.,'!?-]*$/i.test(message);
-    return isEnglishOnly && message.length > 0 ? fallback : message;
+    // Pesan error dari backend ditampilkan apa adanya agar informasi tidak
+    // hilang (backend sebagian besar sudah berbahasa Indonesia).
+    return message;
   }
 
   return fallback;

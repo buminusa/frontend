@@ -73,7 +73,13 @@ export default function LoginSection() {
         redirectByRole(role, router)
       }
     } catch (error) {
-      setMessage(getErrorMessage(error, "Login gagal"))
+      const errorMessage = getErrorMessage(error, "Login gagal")
+
+      if (/diverifikasi/i.test(errorMessage)) {
+        setUnverifiedNotice(errorMessage)
+      } else {
+        setMessage(errorMessage)
+      }
     } finally {
       setIsSubmitting(false)
     }

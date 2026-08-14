@@ -36,10 +36,12 @@ type Category = {
 
 export default function AllCommoditySection({
   initialKeyword = "",
+  initialCategoryId = null,
 }: {
   initialKeyword?: string;
+  initialCategoryId?: number | null;
 }) {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,6 +54,10 @@ export default function AllCommoditySection({
     keyword,
     selectedCategoryId,
   }));
+
+  useEffect(() => {
+    setSelectedCategoryId(initialCategoryId);
+  }, [initialCategoryId]);
 
   // reset back to page 1 whenever the search term or category changes
   if (prevFilter.keyword !== keyword || prevFilter.selectedCategoryId !== selectedCategoryId) {

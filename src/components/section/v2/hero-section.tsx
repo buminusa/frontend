@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const images = ["/img1.webp", "/img2.webp", "/img3.webp", "/img5.webp"];
+// Versi khusus hero: lebar maksimal 1920px dan telah dikompresi agar tidak
+// mengunduh foto asli berukuran 3.600–5.184px.
+const images = ["/hero-1.webp", "/hero-2.webp", "/hero-3.webp", "/hero-4.webp"];
 
 export default function HeroV2() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -29,25 +31,17 @@ export default function HeroV2() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background Slider */}
-      {images.map((image, index) => (
-        <div
-          key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-          }`}
-        >
-          <Image
-            src={image}
-            alt={`Hero Background ${index + 1}`}
-            fill
-            priority={index === 0}
-            className="object-cover object-center"
-            sizes="100vw"
-            quality={90}
-          />
-        </div>
-      ))}
+      {/* Hanya slide aktif yang dirender agar tiga gambar lain tidak ikut diunduh. */}
+      <Image
+        key={images[currentIndex]}
+        src={images[currentIndex]}
+        alt={`Latar hero ${currentIndex + 1}`}
+        fill
+        priority
+        className="object-cover object-center"
+        sizes="100vw"
+        quality={65}
+      />
 
       <div className="absolute inset-0 z-10 bg-black/50" />
       <div className="absolute inset-0 z-20 flex items-center justify-center px-4 text-center sm:px-6">

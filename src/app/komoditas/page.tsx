@@ -14,14 +14,18 @@ export const metadata: Metadata = {
 export default async function KomoditasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string }>
+  searchParams: Promise<{ search?: string; categoryId?: string }>
 }) {
-  const { search } = await searchParams
+  const { search, categoryId } = await searchParams
+  const parsedCategoryId = Number(categoryId)
 
   return (
     <>
       <Navbar />
-      <AllCommoditySection initialKeyword={search ?? ""} />
+      <AllCommoditySection
+        initialKeyword={search ?? ""}
+        initialCategoryId={Number.isInteger(parsedCategoryId) && parsedCategoryId > 0 ? parsedCategoryId : null}
+      />
     </>
   )
 }

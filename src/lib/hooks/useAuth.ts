@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthToken, clearAuthToken, getUserRoleFromToken, AUTH_EVENT_NAME } from "@/lib/auth";
+import { getAuthToken, clearAuthToken, getUserRoleFromToken, isAuthTokenValid, AUTH_EVENT_NAME } from "@/lib/auth";
 
 interface UserInfo {
   email: string;
@@ -35,7 +35,7 @@ function getInitials(email: string): string {
 
 function readUserFromToken(): UserInfo | null {
   const token = getAuthToken();
-  if (!token) return null;
+  if (!token || !isAuthTokenValid(token)) return null;
 
   const email = decodeEmailFromToken(token);
 

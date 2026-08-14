@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
+import { AuthRouteGuard } from "@/components/auth-route-guard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -68,7 +69,9 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthRouteGuard>{children}</AuthRouteGuard>
+      </body>
     </html>
   );
 }

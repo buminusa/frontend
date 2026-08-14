@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   getAuthToken,
   getUserRoleFromToken,
+  isAuthTokenValid,
 } from "@/lib/auth"
 
 type Role =
@@ -27,7 +28,7 @@ export function useAuthGuard({
   useEffect(() => {
     const token = getAuthToken()
 
-    if (!token) {
+    if (!token || !isAuthTokenValid(token)) {
       router.replace(redirectTo)
       return
     }

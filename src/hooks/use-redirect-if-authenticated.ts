@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   getAuthToken,
   getUserRoleFromToken,
+  isAuthTokenValid,
 } from "@/lib/auth"
 
 export function useRedirectIfAuthenticated() {
@@ -13,7 +14,7 @@ export function useRedirectIfAuthenticated() {
   useEffect(() => {
     const token = getAuthToken()
 
-    if (!token) return
+    if (!token || !isAuthTokenValid(token)) return
 
     const role = getUserRoleFromToken(token)
 

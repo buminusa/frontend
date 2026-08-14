@@ -216,7 +216,7 @@ export default function Navbar() {
       <div className="h-14">
         <div className="mx-auto flex h-full max-w-7xl items-center gap-3 px-4 md:px-6">
           <Link href="/home" className="flex shrink-0 items-center gap-3">
-            <Image src="/logo.png" alt="BUMI NUSA" width={50} height={50} />
+            <Image src="/logo.png" alt="BumiNusa.id" width={50} height={50} />
             <span className="hidden text-2xl font-bold text-green-600 sm:block">
               BumiNusa.id
             </span>

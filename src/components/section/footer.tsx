@@ -30,8 +30,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Kontak</h3>
             <ul className="space-y-3">
-              <li className="flex items-start gap-3"><MapPin className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" /><span className="text-sm text-gray-300">Jl. Komoditas No. 123, <br /> Jakarta, Indonesia</span></li>
-              <li className="flex items-center gap-3"><Phone className="w-5 h-5 text-gray-400" /><a href="tel:+62123456789" className="text-sm text-gray-300 hover:text-white transition-colors">+62 123 456 789</a></li>
+              <li className="flex items-center gap-3"><Phone className="w-5 h-5 text-gray-400" /><a href="tel:+62123456789" className="text-sm text-gray-300 hover:text-white transition-colors">+62 813-1059-9740</a></li>
               <li className="flex items-center gap-3"><Mail className="w-5 h-5 text-gray-400" /><a href="mailto:admin@buminusa.com" className="text-sm text-gray-300 hover:text-white transition-colors">admin@buminusa.id</a></li>
             </ul>
           </div>

@@ -1,21 +1,11 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import HeroCategories from "@/components/section/hero-categories"
 
 export default function Hero() {
   const hero = {
     labels: ["Efisien", "Terpercaya"]
   }
-
-  const categories = [
-    { name: "Rempah-rempah", image: "/rempah.png" },
-    { name: "Perkebunan", image: "/perkebunan.png" },
-    { name: "Hortikultura", image: "/Hortikultura.png" },
-    { name: "Perikanan", image: "/Hortikultura.png" },
-    { name: "Peternakan", image: "/Hortikultura.png" },
-    {name: "Pertanian Pangan", image: "/Hortikultura.png"},
-    {name: "Kehutanan", image: "/Hortikultura.png"},
-    {name: "Lainya", image: "/Hortikultura.png"}
-  ]
 
   return (
     <>
@@ -57,26 +47,7 @@ export default function Hero() {
             Sedia Komoditas
           </h2>
 
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {categories.map((category) => (
-              <div
-                key={category.name}
-                className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-lg"
-              >
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  width={70}
-                  height={70}
-                  className="h-16 w-16 object-contain lg:h-20 lg:w-20"
-                />
-
-                <span className="mt-4 text-center text-sm font-medium lg:text-base">
-                  {category.name}
-                </span>
-              </div>
-            ))}
-          </div>
+          <HeroCategories />
         </div>
       </section>
     </>

@@ -182,9 +182,6 @@ export default function RegisterSection() {
       "
     />
 
-    <span className="text-sm leading-6 text-gray-600">
-      Saya telah membaca dan menyetujui{" "}
-
       <button
         type="button"
         onClick={() => setShowTerms(true)}
@@ -192,8 +189,7 @@ export default function RegisterSection() {
       >
         Syarat & Ketentuan
       </button>
-      {" "}Bumi Nusa.
-    </span>
+      {" "}
   </label>
 </div>
 
@@ -233,7 +229,17 @@ export default function RegisterSection() {
   {isSubmitting ? "Memproses..." : "Daftar"}
 </motion.button>
       </motion.form>
-      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
+      <TermsModal
+        open={showTerms}
+        checked={agreeTerms}
+        onClose={() => setShowTerms(false)}
+        onChange={(nextChecked) => {
+          setAgreeTerms(nextChecked)
+          if (nextChecked) {
+            setShowTerms(false)
+          }
+        }}
+      />
     </AuthShell>
   )
 }

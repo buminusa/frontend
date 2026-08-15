@@ -11,7 +11,7 @@ export default function ContentSection() {
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
           <div className="relative min-h-[520px] overflow-hidden rounded-3xl">
             <Image
-              src="/img6.webp"
+              src="/img12.webp"
               alt="Tentang Kami"
               fill
               className="object-cover"

@@ -4,12 +4,16 @@ import { X } from "lucide-react"
 
 interface TermsModalProps {
   open: boolean
+  checked: boolean
   onClose: () => void
+  onChange: (checked: boolean) => void
 }
 
 export default function TermsModal({
   open,
+  checked,
   onClose,
+  onChange,
 }: TermsModalProps) {
   if (!open) return null
 
@@ -266,10 +270,23 @@ export default function TermsModal({
 
         {/* Footer */}
         <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
+          <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => onChange(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600"
+            />
+            <span>
+              Saya telah membaca dan menyetujui seluruh isi Syarat & Ketentuan.
+            </span>
+          </label>
+
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-full bg-green-600 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
+            disabled={!checked}
+            className="w-full rounded-full bg-green-600 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
           >
             Saya Mengerti
           </button>

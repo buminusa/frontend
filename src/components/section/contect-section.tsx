@@ -36,7 +36,7 @@ export default function ContentSection() {
         {/* Heading */}
         <div className="max-w-2xl">
           <h2 className="text-2xl font-bold text-[#1A3A1B] lg:text-3xl">
-            Kenapa Bumi Nusa?
+            Kenapa BumiNusa.id?
           </h2>
 
           <p className="mt-4 text-base leading-relaxed text-gray-600 lg:text-lg">

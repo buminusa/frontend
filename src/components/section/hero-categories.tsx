@@ -10,7 +10,7 @@ export default async function HeroCategories() {
   return (
     <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {categories.map((category) => {
-        const href = category.slug ? `/komoditas/${category.slug}` : "/komoditas";
+        const href = "/login";
 
         return (
           <Link

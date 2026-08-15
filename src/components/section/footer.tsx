@@ -38,7 +38,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10"><div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-20 py-4"><div className="flex flex-col md:flex-row justify-between items-center gap-2">
-        <p className="text-sm text-gray-400">&copy; {currentYear} Bumi Nusa. All rights reserved.</p>
+        <p className="text-sm text-gray-400">&copy; {currentYear} BumiNusa.id. All rights reserved.</p>
         <div className="flex gap-6"><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Privasi</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Syarat & Ketentuan</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Bantuan</a></div>
       </div></div></div>
     </footer>

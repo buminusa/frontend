@@ -98,7 +98,7 @@ export function Sidebar({
           {!collapsed && (
             <div className="min-w-0">
               <div className="font-semibold text-white text-[13px] tracking-wide leading-tight">
-                BUMI NUSA
+                BumiNusa.id
               </div>
               <div className="text-[10px] text-green-400/80 font-medium leading-tight mt-0.5">
                 {displayRoleLabel}

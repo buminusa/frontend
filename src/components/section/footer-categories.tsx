@@ -12,7 +12,7 @@ export default async function FooterCategories() {
       {categories.map((category) => (
         <li key={category.id}>
           <Link
-            href={`/komoditas/${category.slug}`}
+            href="/login"
             className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition-colors"
           >
             <ChevronRight className="w-3 h-3" />

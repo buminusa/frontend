@@ -41,7 +41,7 @@ export default function ContentSection() {
               </h3>
 
               <p className="max-w-xl leading-relaxed text-white/85">
-                Bumi Nusa adalah jembatan yang menghubungkan dedikasi petani
+                BumiNusa.id adalah jembatan yang menghubungkan dedikasi petani
                 lokal dengan permintaan pasar global. Kami memastikan kualitas
                 premium dari sumber daya alam Indonesia, dikelola dengan praktik
                 berkelanjutan.
@@ -87,7 +87,7 @@ export default function ContentSection() {
     </h4>
 
     <p className="text-sm text-white/80">
-      Kualitas ekspor terbaik
+      Vanila, Lada, Cengkeh dll
     </p>
   </div>
 </div>

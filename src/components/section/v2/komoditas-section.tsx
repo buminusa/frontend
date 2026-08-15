@@ -36,7 +36,7 @@ export default async function KomoditasSection() {
           {categories.map((item) => (
             <Link
               key={item.id}
-              href={`/komoditas/${item.slug}`}
+              href="/login"
               className="group relative rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-[5/4] cursor-pointer"
             >
               {item.image_url ? (

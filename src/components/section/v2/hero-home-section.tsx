@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Search, ArrowRight } from "lucide-react"
+import { useLanguage } from "@/lib/langue/provider"
 
 const images = [
   "/img1.webp",
@@ -18,6 +19,7 @@ export default function HeroHomeV2() {
   const [isPaused, setIsPaused] = useState(false)
   const [search, setSearch] = useState("")
   const router = useRouter()
+  const { t } = useLanguage()
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % images.length)
@@ -63,7 +65,7 @@ export default function HeroHomeV2() {
         >
           <Image
             src={image}
-            alt={`Komoditas Indonesia ${index + 1}`}
+            alt={t("landing.heroHome.slideAlt", { n: index + 1 })}
             fill
             priority={index === 0}
             sizes="100vw"
@@ -87,16 +89,15 @@ export default function HeroHomeV2() {
           </p>
 
           <h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Temukan
+            {t("landing.heroHome.titleLine1")}
             <br />
             <span className="text-green-500">
-              Komoditas Indonesia
+              {t("landing.heroHome.titleLine2")}
             </span>
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-white/80 md:text-lg">
-            Temukan berbagai hasil bumi berkualitas dari
-            supplier terpercaya di seluruh Indonesia.
+            {t("landing.heroHome.subtitle")}
           </p>
 
           {/* Search */}
@@ -114,7 +115,7 @@ export default function HeroHomeV2() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari komoditas..."
+              placeholder={t("common.searchPlaceholder")}
               className="h-12 min-w-0 flex-1 bg-transparent px-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 md:text-base"
             />
 
@@ -122,7 +123,7 @@ export default function HeroHomeV2() {
               type="submit"
               className="flex h-12 shrink-0 items-center gap-2 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white transition hover:bg-green-700 md:px-6"
             >
-              Cari
+              {t("common.search")}
               <ArrowRight size={17} />
             </button>
           </form>
@@ -134,7 +135,7 @@ export default function HeroHomeV2() {
               href="/komoditas"
               className="text-sm font-medium text-white/80 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white"
             >
-              Lihat semua komoditas
+              {t("landing.heroHome.viewAll")}
             </Link>
           </div>
 
@@ -149,7 +150,7 @@ export default function HeroHomeV2() {
             key={index}
             type="button"
             onClick={() => setCurrentIndex(index)}
-            aria-label={`Slide ${index + 1}`}
+            aria-label={t("landing.heroHome.slideIndicator", { n: index + 1 })}
             className={`h-1.5 rounded-full transition-all ${
               index === currentIndex
                 ? "w-8 bg-white"

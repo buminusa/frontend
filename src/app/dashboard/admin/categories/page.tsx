@@ -8,6 +8,7 @@ import { DataTable } from "@/components/dashboard-section/DataTable";
 import { categoryService } from "@/lib/api/services/categories";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/lib/langue/provider";
 import type { Category } from "@/lib/types/api";
 import {
   Search,
@@ -25,6 +26,7 @@ const IMAGE_TYPES = ["image/jpeg", "image/png"];
 
 export default function CategoriesPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function CategoriesPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memuat kategori"));
+      setError(getErrorMessage(err, t("dashboard.categories.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -60,9 +62,9 @@ export default function CategoriesPage() {
   }, [loadCategories]);
 
   const validateImage = (file: File | null, isCreate: boolean): string | null => {
-    if (isCreate && !file) return "Gambar wajib diisi";
-    if (file && !IMAGE_TYPES.includes(file.type)) return "Format gambar harus JPG atau PNG";
-    if (file && file.size > MAX_IMAGE_SIZE) return "Ukuran gambar maksimal 2MB";
+    if (isCreate && !file) return t("dashboard.categories.imageRequired");
+    if (file && !IMAGE_TYPES.includes(file.type)) return t("dashboard.categories.imageFormat");
+    if (file && file.size > MAX_IMAGE_SIZE) return t("dashboard.categories.imageSize");
     return null;
   };
 
@@ -113,14 +115,14 @@ export default function CategoriesPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal menyimpan kategori"));
+      setError(getErrorMessage(err, t("dashboard.categories.saveFailed")));
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Yakin ingin menghapus kategori ini?")) return;
+    if (!confirm(t("dashboard.categories.deleteConfirm"))) return;
     try {
       await categoryService.delete(id);
       setCategories((prev) => prev.filter((c) => c.id !== id));
@@ -129,7 +131,7 @@ export default function CategoriesPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal menghapus kategori"));
+      setError(getErrorMessage(err, t("dashboard.categories.deleteFailed")));
     }
   };
 
@@ -156,7 +158,7 @@ export default function CategoriesPage() {
   const columns = [
     {
       key: "image",
-      label: "Gambar",
+      label: t("dashboard.categories.image"),
       className: "w-16",
       render: (item: Category) => (
         <div className="flex items-center justify-center">
@@ -178,21 +180,21 @@ export default function CategoriesPage() {
     },
     {
       key: "name_categories",
-      label: "Nama Kategori",
+      label: t("dashboard.categories.name"),
       render: (item: Category) => (
         <span className="font-medium text-gray-900">{item.name_categories}</span>
       ),
     },
     {
       key: "slug",
-      label: "Slug",
+      label: t("dashboard.categories.slug"),
       render: (item: Category) => (
         <span className="text-gray-500 font-mono text-xs">{item.slug || "-"}</span>
       ),
     },
     {
       key: "createdAt",
-      label: "Dibuat",
+      label: t("dashboard.common.created"),
       render: (item: Category) => (
         <span className="text-gray-500">
           {item.createdAt ? new Date(item.createdAt).toLocaleDateString("id-ID") : "-"}
@@ -208,14 +210,14 @@ export default function CategoriesPage() {
           <button
             onClick={() => openEditModal(item)}
             className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
-            title="Edit"
+            title={t("dashboard.common.edit")}
           >
             <Pencil size={14} />
           </button>
           <button
             onClick={() => handleDelete(item.id)}
             className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-            title="Hapus"
+            title={t("dashboard.common.delete")}
           >
             <Trash2 size={14} />
           </button>
@@ -229,9 +231,9 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Kategori</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t("dashboard.categories.title")}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Kelola kategori produk
+            {t("dashboard.categories.description")}
           </p>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
@@ -243,15 +245,15 @@ export default function CategoriesPage() {
             className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
           >
             <RefreshCw size={14} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t("dashboard.common.refresh")}</span>
           </button>
           <button
             onClick={openCreateModal}
             className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
           >
             <Plus size={14} />
-            <span className="hidden sm:inline">Tambah Kategori</span>
-            <span className="sm:hidden">Tambah</span>
+            <span className="hidden sm:inline">{t("dashboard.categories.add")}</span>
+            <span className="sm:hidden">{t("dashboard.common.add")}</span>
           </button>
         </div>
       </div>
@@ -262,7 +264,7 @@ export default function CategoriesPage() {
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Cari kategori..."
+            placeholder={t("dashboard.categories.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -280,7 +282,7 @@ export default function CategoriesPage() {
           setLoading(true);
           loadCategories();
         }}
-        emptyMessage="Belum ada kategori"
+        emptyMessage={t("dashboard.categories.empty")}
         keyExtractor={(item) => item.id}
       />
 
@@ -290,7 +292,7 @@ export default function CategoriesPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-100">
               <h3 className="text-lg font-semibold text-gray-900">
-                {editingCategory ? "Edit Kategori" : "Tambah Kategori"}
+                {editingCategory ? t("dashboard.categories.edit") : t("dashboard.categories.add")}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -302,20 +304,20 @@ export default function CategoriesPage() {
             <form onSubmit={handleSubmit} className="p-4 lg:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nama Kategori
+                  {t("dashboard.categories.name")}
                 </label>
                 <input
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  placeholder="Masukkan nama kategori"
+                  placeholder={t("dashboard.categories.namePlaceholder")}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   autoFocus
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Gambar {!editingCategory && <span className="text-red-500">*</span>}
+                  {t("dashboard.categories.image")} {!editingCategory && <span className="text-red-500">*</span>}
                 </label>
                 {imagePreview && (
                   <div className="mb-3 relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200">
@@ -334,7 +336,7 @@ export default function CategoriesPage() {
                   onChange={handleImageChange}
                   className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"
                 />
-                <p className="text-xs text-gray-400 mt-1">JPG/PNG, maksimal 2MB</p>
+                <p className="text-xs text-gray-400 mt-1">{t("dashboard.categories.imageHint")}</p>
               </div>
               <div className="flex gap-3 pt-2">
                 <button
@@ -342,7 +344,7 @@ export default function CategoriesPage() {
                   onClick={() => setShowModal(false)}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
                 >
-                  Batal
+                  {t("dashboard.common.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -350,7 +352,7 @@ export default function CategoriesPage() {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
                   {formLoading && <Loader2 size={14} className="animate-spin" />}
-                  {editingCategory ? "Simpan" : "Tambah"}
+                  {editingCategory ? t("dashboard.common.save") : t("dashboard.common.add")}
                 </button>
               </div>
             </form>

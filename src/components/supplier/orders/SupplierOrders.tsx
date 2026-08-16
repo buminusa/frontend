@@ -5,6 +5,7 @@ import { MapPin, Search, RefreshCw } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
 import { StatusActions } from "./StatusActions";
 import type { Order, OrderStatus } from "@/lib/types/api";
+import { useLanguage } from "@/lib/langue/provider";
 
 const statusColors: Record<OrderStatus, string> = {
   Pending: "bg-yellow-100 text-yellow-800",
@@ -13,6 +14,15 @@ const statusColors: Record<OrderStatus, string> = {
   Shipped: "bg-indigo-100 text-indigo-800",
   Completed: "bg-green-100 text-green-800",
   Cancelled: "bg-red-100 text-red-800",
+};
+
+const statusLabels: Record<OrderStatus, string> = {
+  Pending: "supplier.status.pending",
+  Confirmed: "supplier.status.confirmed",
+  Processing: "supplier.status.processing",
+  Shipped: "supplier.status.shipped",
+  Completed: "supplier.status.completed",
+  Cancelled: "supplier.status.cancelled",
 };
 
 const ALL_STATUSES: Array<"Semua" | OrderStatus> = [
@@ -37,6 +47,7 @@ function formatCurrency(value: number) {
 }
 
 export default function SupplierOrders() {
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -52,7 +63,9 @@ export default function SupplierOrders() {
       setError("");
     } catch (loadError) {
       setError(
-        loadError instanceof Error ? loadError.message : "Gagal memuat pesanan",
+        loadError instanceof Error
+          ? loadError.message
+          : t("supplier.orders.loadFailed"),
       );
     } finally {
       setLoading(false);
@@ -73,7 +86,7 @@ export default function SupplierOrders() {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "Gagal memuat pesanan",
+            : t("supplier.orders.loadFailed"),
         );
       } finally {
         if (active) setLoading(false);
@@ -102,7 +115,7 @@ export default function SupplierOrders() {
 
   const itemsSummary = (order: Order) =>
     (order.orderItems ?? [])
-      .map((item) => item.product?.nama ?? "Produk")
+      .map((item) => item.product?.nama ?? t("supplier.orders.product"))
       .join(", ");
 
   const handleStatusChange = async (id: number, next: OrderStatus) => {
@@ -115,7 +128,7 @@ export default function SupplierOrders() {
       setError(
         updateError instanceof Error
           ? updateError.message
-          : "Gagal mengubah status pesanan",
+          : t("supplier.orders.updateFailed"),
       );
     } finally {
       setBusyId(null);
@@ -126,9 +139,11 @@ export default function SupplierOrders() {
     <div className="space-y-4 p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Pesanan Masuk</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {t("supplier.orders.title")}
+          </h1>
           <p className="text-sm text-gray-500">
-            Kelola status pesanan dari pembeli.
+            {t("supplier.orders.subtitle")}
           </p>
         </div>
         <button
@@ -137,7 +152,7 @@ export default function SupplierOrders() {
           className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          Muat ulang
+          {t("supplier.orders.reload")}
         </button>
       </div>
 
@@ -154,7 +169,7 @@ export default function SupplierOrders() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nomor pesanan, pembeli..."
+            placeholder={t("supplier.orders.searchPlaceholder")}
             className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -165,7 +180,9 @@ export default function SupplierOrders() {
         >
           {ALL_STATUSES.map((s) => (
             <option key={s} value={s}>
-              {s === "Semua" ? "Semua Status" : s}
+              {s === "Semua"
+                ? t("supplier.orders.allStatuses")
+                : t(statusLabels[s])}
             </option>
           ))}
         </select>
@@ -173,13 +190,13 @@ export default function SupplierOrders() {
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-          Memuat pesanan...
+          {t("supplier.orders.loading")}
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
           {search || status !== "Semua"
-            ? "Tidak ada pesanan yang cocok."
-            : "Belum ada pesanan masuk."}
+            ? t("supplier.orders.noMatching")
+            : t("supplier.orders.noOrders")}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -188,28 +205,28 @@ export default function SupplierOrders() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    No. Pesanan
+                    {t("supplier.orders.orderNo")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Pembeli
+                    {t("supplier.orders.buyer")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Produk
+                    {t("supplier.orders.product")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Total
+                    {t("supplier.orders.total")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Alamat Pengiriman
+                    {t("supplier.orders.shippingAddress")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Tanggal
+                    {t("supplier.orders.date")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Status
+                    {t("supplier.orders.status")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    Aksi
+                    {t("supplier.orders.actions")}
                   </th>
                 </tr>
               </thead>
@@ -220,7 +237,8 @@ export default function SupplierOrders() {
                       {order.order_number}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {order.buyer?.full_name ?? "Pembeli tidak tersedia"}
+                      {order.buyer?.full_name ??
+                        t("supplier.orders.buyerUnavailable")}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {itemsSummary(order)}
@@ -243,7 +261,7 @@ export default function SupplierOrders() {
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[statusFilterValue(order.status)]}`}
                       >
-                        {order.status}
+                        {t(statusLabels[statusFilterValue(order.status)])}
                       </span>
                     </td>
                     <td className="px-4 py-3">

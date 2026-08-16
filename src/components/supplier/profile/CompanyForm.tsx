@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface CompanyFormProps {
   company: {
@@ -39,6 +40,7 @@ export function CompanyForm({
   isSaving,
   saveError,
 }: CompanyFormProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     company_name: company.company_name || "",
     npwp: company.npwp || "",
@@ -82,7 +84,7 @@ export function CompanyForm({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Edit Company Profile
+        {t("supplier.profile.editTitle")}
       </h2>
       {saveError && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
@@ -92,17 +94,17 @@ export function CompanyForm({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Company Name"
+            label={t("supplier.profile.companyName")}
             name="company_name"
-            placeholder="Enter company name"
+            placeholder={t("supplier.profile.companyNamePlaceholder")}
             value={formData.company_name}
             onChange={handleChange}
             required
           />
           <Input
-            label="NPWP (read-only)"
+            label={t("supplier.profile.npwp")}
             name="npwp"
-            placeholder="Enter NPWP"
+            placeholder={t("supplier.profile.npwpPlaceholder")}
             value={formData.npwp}
             onChange={handleChange}
             disabled
@@ -110,9 +112,9 @@ export function CompanyForm({
         </div>
 
         <Textarea
-          label="Address"
+          label={t("supplier.profile.address")}
           name="address"
-          placeholder="Enter company address"
+          placeholder={t("supplier.profile.addressPlaceholder")}
           value={formData.address}
           onChange={handleChange}
           rows={3}
@@ -121,17 +123,17 @@ export function CompanyForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Province"
+            label={t("supplier.profile.province")}
             name="province"
-            placeholder="Enter province"
+            placeholder={t("supplier.profile.provincePlaceholder")}
             value={formData.province}
             onChange={handleChange}
             required
           />
           <Input
-            label="Country"
+            label={t("supplier.profile.country")}
             name="country"
-            placeholder="Enter country"
+            placeholder={t("supplier.profile.countryPlaceholder")}
             value={formData.country}
             onChange={handleChange}
             required
@@ -139,10 +141,10 @@ export function CompanyForm({
         </div>
 
         <Input
-          label="Phone"
+          label={t("supplier.profile.phone")}
           name="phone"
           type="tel"
-          placeholder="Enter phone number"
+          placeholder={t("supplier.profile.phonePlaceholder")}
           value={formData.phone}
           onChange={handleChange}
           required
@@ -150,13 +152,13 @@ export function CompanyForm({
 
         <div>
           <span className="text-sm font-medium text-gray-700 block mb-1.5">
-            Company Logo
+            {t("supplier.profile.companyLogo")}
           </span>
           <div className="flex items-center gap-4">
             {logoPreview ? (
               <Image
                 src={logoPreview}
-                alt="Logo preview"
+                alt={t("supplier.profile.logoPreview")}
                 width={64}
                 height={64}
                 unoptimized
@@ -164,7 +166,7 @@ export function CompanyForm({
               />
             ) : (
               <div className="h-16 w-16 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
-                No logo
+                {t("supplier.profile.noLogo")}
               </div>
             )}
             <input
@@ -177,15 +179,15 @@ export function CompanyForm({
           </div>
           {logoFile && (
             <p className="mt-1.5 text-xs text-gray-500">
-              Logo akan diunggah saat dipilih.
+              {t("supplier.profile.logoUploadHint")}
             </p>
           )}
         </div>
 
         <Textarea
-          label="Business Description"
+          label={t("supplier.profile.businessDescLabel")}
           name="business_description"
-          placeholder="Describe your business"
+          placeholder={t("supplier.profile.businessDescPlaceholder")}
           value={formData.business_description}
           onChange={handleChange}
           rows={4}
@@ -194,7 +196,9 @@ export function CompanyForm({
 
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
           <Button type="submit" className="flex-1" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSaving
+              ? t("supplier.profile.saving")
+              : t("supplier.profile.saveChanges")}
           </Button>
           <Button
             type="button"
@@ -203,7 +207,7 @@ export function CompanyForm({
             className="flex-1"
             disabled={isSaving}
           >
-            Cancel
+            {t("supplier.profile.cancel")}
           </Button>
         </div>
       </form>

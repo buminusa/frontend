@@ -7,11 +7,13 @@ import { DataTable } from "@/components/dashboard-section/DataTable";
 import { userService } from "@/lib/api/services/users";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/lib/langue/provider";
 import { Search, RefreshCw, Loader2 } from "lucide-react";
 import type { User, Role } from "@/lib/types/api";
 
 export default function SuperAdminRolesPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export default function SuperAdminRolesPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memuat daftar pengguna"));
+      setError(getErrorMessage(err, t("dashboard.roles.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,7 @@ export default function SuperAdminRolesPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal mengubah role"));
+      setError(getErrorMessage(err, t("dashboard.roles.roleUpdateFailed")));
     } finally {
       setAssigningId(null);
     }
@@ -74,17 +76,17 @@ export default function SuperAdminRolesPage() {
   const columns = [
     {
       key: "email",
-      label: "Email",
+      label: t("dashboard.roles.email"),
       render: (item: User) => <span className="font-medium text-gray-900">{item.email}</span>,
     },
     {
       key: "role",
-      label: "Role",
+      label: t("dashboard.roles.role"),
       render: (item: User) => <span className="text-gray-700">{item.role?.name_role || "-"}</span>,
     },
     {
       key: "role",
-      label: "Ubah Role",
+      label: t("dashboard.roles.changeRole"),
       render: (item: User) => (
         <div className="flex items-center gap-2">
           <select
@@ -103,7 +105,7 @@ export default function SuperAdminRolesPage() {
     },
     {
       key: "createdAt",
-      label: "Terdaftar",
+      label: t("dashboard.roles.registered"),
       render: (item: User) => <span className="text-gray-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("id-ID") : "-"}</span>,
     },
   ];
@@ -113,8 +115,8 @@ export default function SuperAdminRolesPage() {
       <main className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Manajemen Role</h1>
-              <p className="text-sm text-gray-500 mt-1">Lihat dan kelola pengguna berdasarkan role</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.roles.title")}</h1>
+              <p className="text-sm text-gray-500 mt-1">{t("dashboard.roles.description")}</p>
             </div>
             <button
               onClick={() => {
@@ -124,7 +126,7 @@ export default function SuperAdminRolesPage() {
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
-              Refresh
+              {t("dashboard.common.refresh")}
             </button>
           </div>
 
@@ -133,7 +135,7 @@ export default function SuperAdminRolesPage() {
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari pengguna..."
+                placeholder={t("dashboard.roles.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -150,7 +152,7 @@ export default function SuperAdminRolesPage() {
               setLoading(true);
               loadUsers();
             }}
-            emptyMessage="Belum ada pengguna"
+            emptyMessage={t("dashboard.roles.empty")}
             keyExtractor={(item) => item.id}
           />
         </main>

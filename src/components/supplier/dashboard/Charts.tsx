@@ -16,6 +16,7 @@ import type {
   SupplierDashboardOrder,
   SupplierDashboardProduct,
 } from "@/hooks/useSupplierDashboard";
+import { useLanguage } from "@/lib/langue/provider";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -39,6 +40,7 @@ export function RevenueTrendChart({
 }: {
   orders: SupplierDashboardOrder[];
 }) {
+  const { t } = useLanguage();
   const days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
@@ -69,10 +71,10 @@ export function RevenueTrendChart({
       <div className="flex items-start justify-between mb-6">
         <div>
           <h3 className="text-base font-semibold text-gray-900">
-            Tren Pendapatan
+            {t("supplier.dashboard.revenueTrendTitle")}
           </h3>
           <p className="text-xs text-gray-500 mt-1">
-            Total pendapatan 7 hari terakhir
+            {t("supplier.dashboard.revenueTrendSubtitle")}
           </p>
         </div>
         <div className="p-2.5 bg-blue-50 rounded-full">
@@ -98,13 +100,18 @@ export function RevenueTrendChart({
               axisLine={false}
               tickLine={false}
               tickFormatter={(v: number) =>
-                v >= 1_000_000 ? `${Math.round(v / 1_000_000)}jt` : String(v)
+                v >= 1_000_000
+                  ? `${Math.round(v / 1_000_000)}${t("supplier.dashboard.millionAbbr")}`
+                  : String(v)
               }
               width={60}
             />
             <Tooltip
               contentStyle={tooltipStyle}
-              formatter={(v) => [formatCurrency(Number(v)), "Pendapatan"]}
+              formatter={(v) => [
+                formatCurrency(Number(v)),
+                t("supplier.dashboard.revenueSeries"),
+              ]}
             />
             <Line
               type="monotone"
@@ -126,6 +133,7 @@ export function ProductViewsChart({
 }: {
   products: SupplierDashboardProduct[];
 }) {
+  const { t } = useLanguage();
   const data = [...products]
     .sort((a, b) => b.views - a.views)
     .slice(0, 5)
@@ -139,10 +147,10 @@ export function ProductViewsChart({
       <div className="flex items-start justify-between mb-6">
         <div>
           <h3 className="text-base font-semibold text-gray-900">
-            Produk Terpopuler
+            {t("supplier.dashboard.popularProducts")}
           </h3>
           <p className="text-xs text-gray-500 mt-1">
-            5 produk dengan view terbanyak
+            {t("supplier.dashboard.popularProductsSubtitle")}
           </p>
         </div>
         <div className="p-2.5 bg-purple-50 rounded-full">
@@ -179,7 +187,10 @@ export function ProductViewsChart({
             <Tooltip
               cursor={{ fill: "rgba(59, 130, 246, 0.05)" }}
               contentStyle={tooltipStyle}
-              formatter={(v) => [`${v} view`, "Total"]}
+              formatter={(v) => [
+                t("supplier.dashboard.viewsSeries", { count: String(v) }),
+                t("supplier.dashboard.totalSeries"),
+              ]}
             />
             <Bar
               dataKey="views"

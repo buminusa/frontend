@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface ProductTabsProps {
   description: string;
@@ -11,6 +12,7 @@ export default function ProductTabs({
   description,
   specifications,
 }: ProductTabsProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"description" | "specification">(
     "description",
   );
@@ -26,7 +28,7 @@ export default function ProductTabs({
               : "text-gray-400 hover:text-gray-600"
           }`}
         >
-          Deskripsi
+          {t("komoditas.tabs.description")}
         </button>
 
         <button
@@ -37,7 +39,7 @@ export default function ProductTabs({
               : "text-gray-400 hover:text-gray-600"
           }`}
         >
-          Spesifikasi
+          {t("komoditas.tabs.specifications")}
         </button>
       </div>
 

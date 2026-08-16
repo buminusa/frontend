@@ -1,4 +1,7 @@
+"use client";
+
 import { Package, ShoppingBag, DollarSign, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface StatCardProps {
   title: string;
@@ -50,24 +53,26 @@ export function StatsCards({
   revenueTrend,
   viewsTrend,
 }: StatsCardsProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
-        title="Total Produk"
+        title={t("supplier.dashboard.totalProducts")}
         value={totalProducts}
         icon={<Package className="w-6 h-6 text-blue-600" />}
         trend={productsTrend}
         trendUp
       />
       <StatCard
-        title="Total Pesanan"
+        title={t("supplier.dashboard.totalOrders")}
         value={totalOrders}
         icon={<ShoppingBag className="w-6 h-6 text-green-600" />}
         trend={ordersTrend}
         trendUp
       />
       <StatCard
-        title="Pendapatan"
+        title={t("supplier.dashboard.revenue")}
         value={new Intl.NumberFormat("id-ID", {
           style: "currency",
           currency: "IDR",
@@ -78,7 +83,7 @@ export function StatsCards({
         trendUp
       />
       <StatCard
-        title="View Produk"
+        title={t("supplier.dashboard.productViews")}
         value={totalViews}
         icon={<TrendingUp className="w-6 h-6 text-purple-600" />}
         trend={viewsTrend}

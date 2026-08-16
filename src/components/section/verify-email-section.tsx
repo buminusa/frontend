@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import { verifyEmailUser } from "@/lib/auth"
 import AuthShell from "./auth-shell"
 import { getErrorMessage } from "@/lib/api/errors"
+import { useLanguage } from "@/lib/langue/provider"
 
 type VerifyState = "loading" | "success" | "error"
 
@@ -15,9 +16,10 @@ export default function VerifyEmailSection({
 }: {
   token: string | null
 }) {
+  const { t } = useLanguage()
   const [state, setState] = useState<VerifyState>(token ? "loading" : "error")
   const [message, setMessage] = useState<string | null>(
-    token ? null : "Token verifikasi tidak ditemukan"
+    token ? null : t("auth.verify.tokenMissing")
   )
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function VerifyEmailSection({
         setState("success")
       } catch (error) {
         if (!isMounted) return
-        setMessage(getErrorMessage(error, "Gagal memverifikasi email"))
+        setMessage(getErrorMessage(error, t("auth.verify.failed")))
         setState("error")
       }
     }
@@ -55,7 +57,7 @@ export default function VerifyEmailSection({
           className="flex flex-col items-center gap-3 rounded-lg bg-green-50 px-3 py-6 text-center"
         >
           <Loader2 className="h-8 w-8 animate-spin text-green-600" strokeWidth={2} />
-          <p className="text-sm text-green-700">Memverifikasi email Anda...</p>
+          <p className="text-sm text-green-700">{t("auth.verify.loading")}</p>
         </motion.div>
       )
     }
@@ -86,7 +88,7 @@ export default function VerifyEmailSection({
           </p>
           {!isSuccess ? (
             <p className="text-xs text-gray-500">
-              Buka link verifikasi dari email yang dikirim saat pendaftaran, lalu coba kembali.
+              {t("auth.verify.retryHint")}
             </p>
           ) : null}
         </div>
@@ -96,7 +98,7 @@ export default function VerifyEmailSection({
             href="/login"
             className="block w-full h-11 rounded-full bg-green-600 font-semibold text-white text-center leading-[2.75rem] transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30"
           >
-            Masuk ke Akun
+            {t("auth.verify.signIn")}
           </Link>
         ) : (
           <div className="flex gap-3">
@@ -104,13 +106,13 @@ export default function VerifyEmailSection({
               href="/login"
               className="flex-1 h-11 rounded-full bg-green-600 font-semibold text-white text-center leading-[2.75rem] transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30"
             >
-              Halaman Login
+              {t("auth.verify.loginPage")}
             </Link>
             <Link
               href="/register"
               className="flex-1 h-11 rounded-full border border-green-600 font-semibold text-green-600 text-center leading-[2.75rem] transition hover:-translate-y-px hover:bg-green-50"
             >
-              Daftar Akun
+              {t("auth.verify.register")}
             </Link>
           </div>
         )}
@@ -120,15 +122,15 @@ export default function VerifyEmailSection({
 
   return (
     <AuthShell
-      eyebrow="Verifikasi akun"
-      title="Verifikasi Email"
-      subtitle="Konfirmasikan alamat email Anda untuk mengaktifkan akun BumiNusa.id"
-      quote="Email terverifikasi memastikan setiap transaksi aman dan terpercaya bagi semua mitra bisnis."
+      eyebrow={t("auth.verify.eyebrow")}
+      title={t("auth.verify.title")}
+      subtitle={t("auth.verify.subtitle")}
+      quote={t("auth.verify.quote")}
       footerLink={
         <>
-          Sudah terverifikasi?{" "}
+          {t("auth.verify.alreadyVerified")}{" "}
           <Link href="/login" className="font-semibold text-green-600 underline hover:text-green-700">
-            Masuk di sini
+            {t("auth.verify.signInHere")}
           </Link>
         </>
       }

@@ -3,6 +3,7 @@
 import { Eye, ShoppingCart, Download } from "lucide-react";
 import type { SupplierDashboardProduct } from "@/hooks/useSupplierDashboard";
 import { downloadCSV } from "@/lib/utils/csv";
+import { useLanguage } from "@/lib/langue/provider";
 
 const statusColors = {
   Active: "bg-green-100 text-green-800",
@@ -11,11 +12,19 @@ const statusColors = {
   Rejected: "bg-red-100 text-red-800",
 };
 
+const statusLabels = {
+  Active: "supplier.status.active",
+  Draft: "supplier.status.draft",
+  Pending: "supplier.status.pending",
+  Rejected: "supplier.status.rejected",
+};
+
 interface ProductOverviewProps {
   products: SupplierDashboardProduct[];
 }
 
 export function ProductOverview({ products }: ProductOverviewProps) {
+  const { t } = useLanguage();
   const handleExport = () => {
     downloadCSV(
       products.map((product) => ({
@@ -33,7 +42,9 @@ export function ProductOverview({ products }: ProductOverviewProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Overview Produk</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          {t("supplier.dashboard.productOverview")}
+        </h2>
         <button
           type="button"
           onClick={handleExport}
@@ -46,7 +57,9 @@ export function ProductOverview({ products }: ProductOverviewProps) {
       </div>
       <div className="divide-y divide-gray-100">
         {products.length === 0 ? (
-          <div className="p-6 text-sm text-gray-500">Belum ada produk.</div>
+          <div className="p-6 text-sm text-gray-500">
+            {t("supplier.dashboard.noProducts")}
+          </div>
         ) : (
           products.map((product) => (
             <div
@@ -77,7 +90,10 @@ export function ProductOverview({ products }: ProductOverviewProps) {
                   <span
                     className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[product.status as keyof typeof statusColors] ?? "bg-gray-100 text-gray-800"}`}
                   >
-                    {product.status}
+                    {t(
+                      statusLabels[product.status as keyof typeof statusLabels] ??
+                        "supplier.status.pending",
+                    )}
                   </span>
                 </div>
               </div>

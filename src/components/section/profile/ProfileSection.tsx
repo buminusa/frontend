@@ -8,6 +8,7 @@ import { OrderHistoryContainer } from "./OrderHistoryContainer"
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AUTH_EVENT_NAME, getAuthToken, getUserFromToken } from "@/lib/auth"
+import { useLanguage } from "@/lib/langue/provider"
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
@@ -43,6 +44,7 @@ type BuyerProfile = {
 
 export function ProfileSection() {
   const router = useRouter()
+  const { t } = useLanguage()
 
   const [isEditing, setIsEditing] = useState(false)
   const [profile, setProfile] = useState<BuyerProfile | null>(null)
@@ -78,7 +80,7 @@ export function ProfileSection() {
         const result = await response.json()
 
         if (!response.ok) {
-          throw new Error(result.message || "Gagal memuat profil.")
+          throw new Error(result.message || t("profile.loadError"))
         }
 
         const data: ApiBuyerProfile = result.data
@@ -97,7 +99,7 @@ export function ProfileSection() {
           setError(
             error instanceof Error
               ? error.message
-              : "Gagal memuat profil."
+              : t("profile.loadError")
           )
         }
       } finally {
@@ -126,7 +128,7 @@ export function ProfileSection() {
     return (
       <div className="py-10">
         <p className="text-sm text-gray-500">
-          Memuat profil...
+          {t("profile.loading")}
         </p>
       </div>
     )
@@ -146,7 +148,7 @@ export function ProfileSection() {
     return (
       <div className="py-10">
         <p className="text-sm text-gray-500">
-          Profil tidak ditemukan.
+          {t("profile.notFound")}
         </p>
       </div>
     )
@@ -159,7 +161,7 @@ export function ProfileSection() {
         className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
       >
         <ArrowLeft className="h-4 w-4" />
-        Kembali
+        {t("common.back")}
       </button>
 
       <ProfileHeader

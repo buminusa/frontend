@@ -2,9 +2,10 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useLanguage } from '@/lib/langue/provider';
 
 export default function ContentSection() {
+  const { t } = useLanguage();
   return (
     <section className="bg-white px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -12,7 +13,7 @@ export default function ContentSection() {
           <div className="relative min-h-[520px] overflow-hidden rounded-3xl">
             <Image
               src="/img12.webp"
-              alt="Tentang Kami"
+              alt={t("landing.about.title")}
               fill
               className="object-cover"
             />
@@ -37,14 +38,11 @@ export default function ContentSection() {
             </div>
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <h3 className="mb-3 text-4xl font-semibold">
-                Tentang Kami
+                {t("landing.about.title")}
               </h3>
 
               <p className="max-w-xl leading-relaxed text-white/85">
-                BumiNusa.id adalah jembatan yang menghubungkan dedikasi petani
-                lokal dengan permintaan pasar global. Kami memastikan kualitas
-                premium dari sumber daya alam Indonesia, dikelola dengan praktik
-                berkelanjutan.
+                {t("landing.about.description")}
               </p>
             </div>
           </div>
@@ -53,7 +51,7 @@ export default function ContentSection() {
            <div className="relative flex min-h-[250px] flex-col justify-between overflow-hidden rounded-3xl p-6">
   <Image
     src="/spices.jpg"
-    alt="Rempah"
+    alt={t("landing.about.spicesTitle")}
     fill
     className="object-cover"
   />
@@ -77,17 +75,17 @@ export default function ContentSection() {
     </div>
 
     <span className="rounded-full bg-white/15 px-3 py-1 text-xs text-white backdrop-blur-sm">
-      Unggulan
+      {t("landing.about.featured")}
     </span>
   </div>
 
   <div className="relative z-10">
     <h4 className="mb-2 text-2xl font-semibold text-white">
-      Rempah
+      {t("landing.about.spicesTitle")}
     </h4>
 
     <p className="text-sm text-white/80">
-      Vanila, Lada, Cengkeh dll
+      {t("landing.about.spicesDescription")}
     </p>
   </div>
 </div>
@@ -95,7 +93,7 @@ export default function ContentSection() {
            <div className="relative flex min-h-[250px] flex-col justify-between overflow-hidden rounded-3xl p-6">
   <Image
     src="/img7.webp"
-    alt="Perkebunan"
+    alt={t("landing.about.plantationsTitle")}
     fill
     className="object-cover"
   />
@@ -120,11 +118,11 @@ export default function ContentSection() {
 
   <div className="relative z-10">
     <h4 className="mb-2 text-2xl font-semibold text-white">
-      Perkebunan
+      {t("landing.about.plantationsTitle")}
     </h4>
 
     <p className="text-sm text-white/80">
-      Kopi, Teh, & Cokelat
+      {t("landing.about.plantationsDescription")}
     </p>
   </div>
 </div>

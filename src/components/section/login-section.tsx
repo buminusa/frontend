@@ -11,9 +11,11 @@ import AuthField from "./auth-field"
 import { redirectByRole } from "@/lib/redirect"
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
 import { getErrorMessage } from "@/lib/api/errors"
+import { useLanguage } from "@/lib/langue/provider"
 
 function SessionExpiredNotice() {
   const searchParams = useSearchParams()
+  const { t } = useLanguage()
 
   if (searchParams.get("session") !== "expired") return null
 
@@ -23,7 +25,7 @@ function SessionExpiredNotice() {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700"
     >
-      Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.
+      {t("auth.login.sessionExpired")}
     </motion.p>
   )
 }
@@ -31,6 +33,7 @@ function SessionExpiredNotice() {
 export default function LoginSection() {
   useRedirectIfAuthenticated()
   const router = useRouter()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -57,13 +60,12 @@ export default function LoginSection() {
       if (response.data?.verified === false || !isUserVerifiedFromToken(response.token ?? null)) {
         clearAuthToken()
         setUnverifiedNotice(
-          response.data?.warning ??
-            "Email belum diverifikasi. Silakan verifikasi melalui link yang dikirim ke email Anda."
+          response.data?.warning ?? t("auth.login.unverifiedEmail")
         )
         return
       }
 
-      setMessage("Login berhasil. Mengalihkan ke halaman utama...")
+      setMessage(t("auth.login.success"))
       setIsSuccess(true)
 
       if (response.token) {
@@ -73,7 +75,7 @@ export default function LoginSection() {
         redirectByRole(role, router)
       }
     } catch (error) {
-      const errorMessage = getErrorMessage(error, "Login gagal")
+      const errorMessage = getErrorMessage(error, t("auth.login.failed"))
 
       if (/diverifikasi/i.test(errorMessage)) {
         setUnverifiedNotice(errorMessage)
@@ -87,15 +89,15 @@ export default function LoginSection() {
 
   return (
     <AuthShell
-      eyebrow="Masuk ke akun Anda"
-      title="Masuk"
-      subtitle="Kelola bisnis komoditas Anda dengan efisien dan terpercaya"
-      quote="Jembatan perdagangan komoditas Indonesia yang menghubungkan petani dengan pasar secara langsung."
+      eyebrow={t("auth.login.eyebrow")}
+      title={t("auth.login.title")}
+      subtitle={t("auth.login.subtitle")}
+      quote={t("auth.login.quote")}
       footerLink={
         <>
-          Belum punya akun?{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link href="/register" className="font-semibold text-green-600 underline hover:text-green-700">
-            Daftar di sini
+            {t("auth.login.signUpHere")}
           </Link>
         </>
       }
@@ -108,23 +110,23 @@ export default function LoginSection() {
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <AuthField
-          label="Email"
+          label={t("auth.field.email")}
           value={formData.email}
           onChange={(v) => handleChange("email", v)}
           placeholder="nama@email.com"
           type="email"
           icon={Mail}
-          error={message && !formData.email ? "Email wajib diisi" : null}
+          error={message && !formData.email ? t("auth.field.emailRequired") : null}
         />
 
         <AuthField
-          label="Password"
+          label={t("auth.field.password")}
           value={formData.password}
           onChange={(v) => handleChange("password", v)}
-          placeholder="Masukkan password"
+          placeholder={t("auth.login.passwordPlaceholder")}
           type="password"
           icon={Lock}
-          error={message && !formData.password ? "Password wajib diisi" : null}
+          error={message && !formData.password ? t("auth.field.passwordRequired") : null}
         />
 
         <div className="text-right">
@@ -132,7 +134,7 @@ export default function LoginSection() {
             href="/forgot-password"
             className="text-xs font-semibold text-green-600 hover:text-green-700 hover:underline"
           >
-            Lupa password?
+            {t("auth.login.forgotPassword")}
           </Link>
         </div>
 
@@ -148,11 +150,11 @@ export default function LoginSection() {
           >
             <p>{unverifiedNotice}</p>
             <p className="mt-1 text-xs text-amber-700">
-              Sudah klik link verifikasi di email? Coba{" "}
+              {t("auth.login.verifyPrompt")}{" "}
               <Link href="/verify-email" className="font-semibold underline hover:text-amber-900">
-                buka halaman verifikasi
+                {t("auth.login.verifyLink")}
               </Link>{" "}
-              lalu login kembali.
+              {t("auth.login.verifyAfter")}
             </p>
           </motion.div>
         ) : null}
@@ -177,7 +179,7 @@ export default function LoginSection() {
           whileTap={{ scale: 0.98 }}
           className="w-full h-11 rounded-full bg-green-600 font-semibold text-white transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30 disabled:cursor-not-allowed disabled:bg-green-400 disabled:shadow-none disabled:transform-none"
         >
-          {isSubmitting ? "Memproses..." : "Masuk"}
+          {isSubmitting ? t("auth.login.processing") : t("auth.login.submit")}
         </motion.button>
       </motion.form>
     </AuthShell>

@@ -7,29 +7,17 @@ import { DataTable } from "@/components/dashboard-section/DataTable";
 import { orderService } from "@/lib/api/services/orders";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/lib/langue/provider";
+import { ORDER_STATUS_CONFIG } from "@/lib/dashboard-constants";
 import type { Order, OrderStatus } from "@/lib/types/api";
 import { formatIdNumber } from "@/lib/format";
 import {
   Search,
   RefreshCw,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Truck,
-  Package,
   Eye,
   Trash2,
   X,
 } from "lucide-react";
-
-const STATUS_CONFIG: Record<OrderStatus, { color: string; icon: React.ReactNode; label: string }> = {
-  Pending: { color: "bg-yellow-100 text-yellow-700", icon: <Clock size={12} />, label: "Pending" },
-  Confirmed: { color: "bg-blue-100 text-blue-700", icon: <CheckCircle size={12} />, label: "Dikonfirmasi" },
-  Processing: { color: "bg-indigo-100 text-indigo-700", icon: <Package size={12} />, label: "Diproses" },
-  Shipped: { color: "bg-purple-100 text-purple-700", icon: <Truck size={12} />, label: "Dikirim" },
-  Completed: { color: "bg-emerald-100 text-emerald-700", icon: <CheckCircle size={12} />, label: "Selesai" },
-  Cancelled: { color: "bg-red-100 text-red-700", icon: <XCircle size={12} />, label: "Dibatalkan" },
-};
 
 const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   Pending: ["Confirmed", "Cancelled"],
@@ -42,6 +30,7 @@ const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
 
 export default function OrdersPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +50,7 @@ export default function OrdersPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memuat pesanan"));
+      setError(getErrorMessage(err, t("dashboard.orders.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -86,14 +75,14 @@ export default function OrdersPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal mengubah status"));
+      setError(getErrorMessage(err, t("dashboard.orders.statusUpdateFailed")));
     } finally {
       setActionLoadingId(null);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Yakin ingin menghapus pesanan ini?")) return;
+    if (!confirm(t("dashboard.orders.deleteConfirm"))) return;
     setActionLoadingId(id);
     try {
       await orderService.delete(id);
@@ -103,7 +92,7 @@ export default function OrdersPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal menghapus pesanan"));
+      setError(getErrorMessage(err, t("dashboard.orders.deleteFailed")));
     } finally {
       setActionLoadingId(null);
     }
@@ -121,28 +110,28 @@ export default function OrdersPage() {
   const columns = [
     {
       key: "order_number",
-      label: "No. Pesanan",
+      label: t("dashboard.orders.number"),
       render: (item: Order) => (
         <span className="font-mono font-medium text-gray-900">{item.order_number}</span>
       ),
     },
     {
       key: "buyer",
-      label: "Buyer",
+      label: t("dashboard.orders.buyer"),
       render: (item: Order) => (
         <span className="text-gray-700">{item.buyer?.full_name || "-"}</span>
       ),
     },
     {
       key: "supplier",
-      label: "Supplier",
+      label: t("dashboard.orders.supplier"),
       render: (item: Order) => (
         <span className="text-gray-700">{item.supplier?.company_name || "-"}</span>
       ),
     },
     {
       key: "total_amount",
-      label: "Total",
+      label: t("dashboard.orders.total"),
       render: (item: Order) => (
         <span className="font-medium text-gray-900">
           Rp {formatIdNumber(item.total_amount)}
@@ -151,9 +140,9 @@ export default function OrdersPage() {
     },
     {
       key: "status",
-      label: "Status",
+      label: t("dashboard.common.status"),
       render: (item: Order) => {
-        const config = STATUS_CONFIG[item.status];
+        const config = ORDER_STATUS_CONFIG[item.status];
         const nextStatuses = STATUS_FLOW[item.status] || [];
         const isOpen = showStatusModal === item.id;
         return (
@@ -171,26 +160,29 @@ export default function OrdersPage() {
                   : ""
               } ${config.color}`}
             >
-              {config.icon}
-              {config.label}
+              {config.icon && <config.icon size={12} />}
+              {t(config.labelKey)}
             </button>
             {isOpen && (
               <div className="absolute left-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[160px]">
-                {nextStatuses.map((nextStatus) => (
-                  <button
-                    key={nextStatus}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleStatusUpdate(item.id, nextStatus);
-                      setShowStatusModal(null);
-                    }}
-                    disabled={actionLoadingId === item.id}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {STATUS_CONFIG[nextStatus].icon}
-                    {STATUS_CONFIG[nextStatus].label}
-                  </button>
-                ))}
+                    {nextStatuses.map((nextStatus) => {
+                      const nextConfig = ORDER_STATUS_CONFIG[nextStatus];
+                      return (
+                        <button
+                          key={nextStatus}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStatusUpdate(item.id, nextStatus);
+                            setShowStatusModal(null);
+                          }}
+                          disabled={actionLoadingId === item.id}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {nextConfig.icon && <nextConfig.icon size={12} />}
+                          {t(nextConfig.labelKey)}
+                        </button>
+                      );
+                    })}
               </div>
             )}
           </div>
@@ -199,7 +191,7 @@ export default function OrdersPage() {
     },
     {
       key: "createdAt",
-      label: "Tanggal",
+      label: t("dashboard.orders.date"),
       render: (item: Order) => (
         <span className="text-gray-500 text-sm">
           {item.createdAt ? new Date(item.createdAt).toLocaleDateString("id-ID") : "-"}
@@ -215,7 +207,7 @@ export default function OrdersPage() {
           <button
             onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
             className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-            title="Detail"
+            title={t("dashboard.common.detail")}
           >
             <Eye size={14} />
           </button>
@@ -223,7 +215,7 @@ export default function OrdersPage() {
             onClick={() => handleDelete(item.id)}
             disabled={actionLoadingId === item.id}
             className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-            title="Hapus"
+            title={t("dashboard.common.delete")}
           >
             <Trash2 size={14} />
           </button>
@@ -238,9 +230,9 @@ export default function OrdersPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pesanan</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.orders.title")}</h1>
               <p className="text-sm text-gray-500 mt-1">
-                Kelola semua pesanan
+                {t("dashboard.orders.description")}
               </p>
             </div>
             <button
@@ -251,13 +243,14 @@ export default function OrdersPage() {
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
-              Refresh
+              {t("dashboard.common.refresh")}
             </button>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-6 gap-3 mb-6">
-            {(Object.keys(STATUS_CONFIG) as OrderStatus[]).map((status) => {
+            {(Object.keys(ORDER_STATUS_CONFIG) as OrderStatus[]).map((status) => {
+              const config = ORDER_STATUS_CONFIG[status];
               const count = orders.filter((o) => o.status === status).length;
               return (
                 <button
@@ -269,7 +262,7 @@ export default function OrdersPage() {
                       : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                 >
-                  <div className="text-xs text-gray-500 mb-1">{STATUS_CONFIG[status].label}</div>
+                  <div className="text-xs text-gray-500 mb-1">{t(config.labelKey)}</div>
                   <div className="text-xl font-bold text-gray-900">{count}</div>
                 </button>
               );
@@ -282,7 +275,7 @@ export default function OrdersPage() {
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari nomor pesanan, buyer, atau supplier..."
+                placeholder={t("dashboard.orders.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -300,7 +293,7 @@ export default function OrdersPage() {
               setLoading(true);
               loadOrders();
             }}
-            emptyMessage="Belum ada pesanan"
+            emptyMessage={t("dashboard.orders.empty")}
             keyExtractor={(item) => item.id}
           />
 
@@ -315,7 +308,7 @@ export default function OrdersPage() {
                     <>
                       <div className="flex items-center justify-between p-6 border-b border-gray-100">
                         <h3 className="text-lg font-semibold text-gray-900">
-                          Detail Pesanan {order.order_number}
+                          {t("dashboard.orders.detailTitle")} {order.order_number}
                         </h3>
                         <button
                           onClick={() => setExpandedId(null)}
@@ -327,31 +320,31 @@ export default function OrdersPage() {
                       <div className="p-6 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-xs text-gray-500">Buyer</label>
+                            <label className="text-xs text-gray-500">{t("dashboard.orders.buyer")}</label>
                             <p className="font-medium text-gray-900">{order.buyer?.full_name || "-"}</p>
                           </div>
                           <div>
-                            <label className="text-xs text-gray-500">Supplier</label>
+                            <label className="text-xs text-gray-500">{t("dashboard.orders.supplier")}</label>
                             <p className="font-medium text-gray-900">{order.supplier?.company_name || "-"}</p>
                           </div>
                         </div>
                         <div>
-                          <label className="text-xs text-gray-500">Alamat Pengiriman</label>
+                          <label className="text-xs text-gray-500">{t("dashboard.orders.shippingAddress")}</label>
                           <p className="text-sm text-gray-700">{order.shipping_address}</p>
                         </div>
                         {order.notes && (
                           <div>
-                            <label className="text-xs text-gray-500">Catatan</label>
+                            <label className="text-xs text-gray-500">{t("dashboard.orders.notes")}</label>
                             <p className="text-sm text-gray-700">{order.notes}</p>
                           </div>
                         )}
                         <div>
-                          <label className="text-xs text-gray-500">Item Pesanan</label>
+                          <label className="text-xs text-gray-500">{t("dashboard.orders.orderItems")}</label>
                           <div className="mt-2 space-y-2">
                             {order.orderItems?.map((item) => (
                               <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <span className="text-sm text-gray-700">
-                                  {item.product?.nama || "Produk"}
+                                  {item.product?.nama || t("dashboard.orders.product")}
                                 </span>
                                 <span className="text-sm font-medium text-gray-900">
                                   x{item.quantity}
@@ -361,7 +354,7 @@ export default function OrdersPage() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <span className="text-sm text-gray-500">Total</span>
+                          <span className="text-sm text-gray-500">{t("dashboard.orders.total")}</span>
                           <span className="text-lg font-bold text-gray-900">
                             Rp {formatIdNumber(order.total_amount)}
                           </span>
@@ -379,7 +372,7 @@ export default function OrdersPage() {
                                   }}
                                   className="flex-1 px-4 py-2.5 text-sm font-medium text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors"
                                 >
-                                  Batalkan
+                                  {t("dashboard.orders.cancelOrder")}
                                 </button>
                                 <button
                                   onClick={() => {
@@ -388,7 +381,7 @@ export default function OrdersPage() {
                                   }}
                                   className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
                                 >
-                                  Konfirmasi
+                                  {t("dashboard.orders.confirm")}
                                 </button>
                               </>
                             )}
@@ -400,7 +393,7 @@ export default function OrdersPage() {
                                 }}
                                 className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors"
                               >
-                                Proses
+                                {t("dashboard.orders.process")}
                               </button>
                             )}
                             {order.status === "Processing" && (
@@ -411,7 +404,7 @@ export default function OrdersPage() {
                                 }}
                                 className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors"
                               >
-                                Kirim
+                                {t("dashboard.orders.ship")}
                               </button>
                             )}
                             {order.status === "Shipped" && (
@@ -422,7 +415,7 @@ export default function OrdersPage() {
                                 }}
                                 className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors"
                               >
-                                Selesai
+                                {t("dashboard.orders.complete")}
                               </button>
                             )}
                           </div>

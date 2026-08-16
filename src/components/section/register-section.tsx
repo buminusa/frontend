@@ -14,10 +14,12 @@ import AuthField from "./auth-field"
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
 import TermsModal from "./terms-modal"
 import { getErrorMessage } from "@/lib/api/errors"
+import { useLanguage } from "@/lib/langue/provider"
 
 export default function RegisterSection() {
   useRedirectIfAuthenticated()
   const router = useRouter()
+  const { t } = useLanguage()
   const [role, setRole] = useState<"buyer" | "supplier">("buyer")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -68,7 +70,7 @@ export default function RegisterSection() {
     e.preventDefault()
 
     if (!agreeTerms) {
-    setMessage("Anda harus menyetujui Syarat & Ketentuan terlebih dahulu.")
+    setMessage(t("auth.register.agreeTermsRequired"))
     return
   }
 
@@ -87,10 +89,10 @@ export default function RegisterSection() {
           ...companyData,
         })
       }
-      setMessage("Registrasi berhasil. Silakan masuk.")
+      setMessage(t("auth.register.success"))
       router.push("/login")
     } catch (error) {
-      setMessage(getErrorMessage(error, "Registrasi gagal"))
+      setMessage(getErrorMessage(error, t("auth.register.failed")))
     } finally {
       setIsSubmitting(false)
     }
@@ -98,15 +100,15 @@ export default function RegisterSection() {
 
   return (
     <AuthShell
-      eyebrow="Bergabung dengan Bumi Nusa"
-      title="Daftar Akun"
-      subtitle="Pilih peran Anda dan lengkapi data untuk memulai bertransaksi"
-      quote="Platform agregator komoditas pertama yang menghubungkan petani Indonesia ke pasar global tanpa perantara."
+      eyebrow={t("auth.register.eyebrow")}
+      title={t("auth.register.title")}
+      subtitle={t("auth.register.subtitle")}
+      quote={t("auth.register.quote")}
       footerLink={
         <>
-          Sudah punya akun?{" "}
+          {t("auth.register.haveAccount")}{" "}
           <Link href="/login" className="font-semibold text-green-600 underline hover:text-green-700">
-            Masuk di sini
+            {t("auth.register.signInHere")}
           </Link>
         </>
       }
@@ -128,7 +130,7 @@ export default function RegisterSection() {
 
         <div className="space-y-5">
           <AuthField
-            label="Email"
+            label={t("auth.field.email")}
             value={account.email}
             onChange={(v) => handleAccountChange("email", v)}
             placeholder="nama@email.com"
@@ -137,10 +139,10 @@ export default function RegisterSection() {
           />
 
           <AuthField
-            label="Password"
+            label={t("auth.field.password")}
             value={account.password}
             onChange={(v) => handleAccountChange("password", v)}
-            placeholder="Minimal 8 karakter"
+            placeholder={t("auth.register.passwordPlaceholder")}
             type="password"
             icon={Lock}
           />
@@ -152,7 +154,7 @@ export default function RegisterSection() {
           transition={{ duration: 0.3, delay: 0.1 }}
         >
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-            Detail {role === "buyer" ? "Pembeli" : "Supplier"}
+            {role === "buyer" ? t("auth.register.detailBuyer") : t("auth.register.detailSupplier")}
           </p>
           {role === "buyer" ? (
             <BuyerFields formData={buyerData} onChange={handleBuyerChange} />
@@ -167,27 +169,13 @@ export default function RegisterSection() {
 
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
   <label className="flex cursor-pointer items-start gap-3">
-    <input
-      type="checkbox"
-      checked={agreeTerms}
-      onChange={(e) => setAgreeTerms(e.target.checked)}
-      className="
-        mt-1
-        h-4
-        w-4
-        rounded
-        border-gray-300
-        text-green-600
-        focus:ring-green-600
-      "
-    />
 
       <button
         type="button"
         onClick={() => setShowTerms(true)}
         className="font-semibold text-green-600 hover:underline"
       >
-        Syarat & Ketentuan
+        {t("auth.terms.title")}
       </button>
       {" "}
   </label>
@@ -226,7 +214,7 @@ export default function RegisterSection() {
     disabled:shadow-none
   "
 >
-  {isSubmitting ? "Memproses..." : "Daftar"}
+  {isSubmitting ? t("auth.register.processing") : t("auth.register.submit")}
 </motion.button>
       </motion.form>
       <TermsModal

@@ -1,5 +1,8 @@
+"use client";
+
 import { Bell, ShoppingBag, Package, User, Star } from "lucide-react";
 import type { SupplierDashboardActivity } from "@/hooks/useSupplierDashboard";
+import { useLanguage } from "@/lib/langue/provider";
 
 const iconMap = {
   shopping: ShoppingBag,
@@ -27,17 +30,21 @@ interface ActivityFeedProps {
 }
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">
-          Aktivitas Terbaru
+          {t("supplier.dashboard.recentActivity")}
         </h2>
         <Bell className="w-5 h-5 text-gray-400" />
       </div>
       <div className="divide-y divide-gray-100">
         {activities.length === 0 ? (
-          <div className="p-6 text-sm text-gray-500">Belum ada aktivitas.</div>
+          <div className="p-6 text-sm text-gray-500">
+            {t("supplier.dashboard.noActivity")}
+          </div>
         ) : (
           activities.map((activity, index) => {
             const Icon = iconMap[activity.icon];

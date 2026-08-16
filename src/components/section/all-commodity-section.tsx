@@ -6,6 +6,7 @@ import CategoryChip from "../category-chip";
 import Pagination from "../pagination";
 import ProductCard from "../product-card";
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth";
+import { useLanguage } from "@/lib/langue/provider";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
 const PRODUCTS_PER_PAGE = 18;
@@ -41,6 +42,7 @@ export default function AllCommoditySection({
   initialKeyword?: string;
   initialCategoryId?: number | null;
 }) {
+  const { t } = useLanguage();
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -54,10 +56,12 @@ export default function AllCommoditySection({
     keyword,
     selectedCategoryId,
   }));
+  const [lastCategoryId, setLastCategoryId] = useState(initialCategoryId);
 
-  useEffect(() => {
+  if (lastCategoryId !== initialCategoryId) {
+    setLastCategoryId(initialCategoryId);
     setSelectedCategoryId(initialCategoryId);
-  }, [initialCategoryId]);
+  }
 
   // reset back to page 1 whenever the search term or category changes
   if (prevFilter.keyword !== keyword || prevFilter.selectedCategoryId !== selectedCategoryId) {
@@ -95,7 +99,7 @@ export default function AllCommoditySection({
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.message || "Gagal memuat komoditas.");
+          throw new Error(result.message || t("komoditas.list.errorLoad"));
         }
 
         const apiProducts = result.data as ApiProduct[];
@@ -106,8 +110,8 @@ export default function AllCommoditySection({
             slug: product.slug ?? String(product.id),
             name: product.nama,
             image: product.images[0]?.image_url ?? "/hasil_bumi.png",
-            location: product.supplier?.address ?? "Indonesia",
-            category: product.category?.name_categories ?? "Lainnya",
+            location: product.supplier?.address ?? t("komoditas.list.locationFallback"),
+            category: product.category?.name_categories ?? t("komoditas.list.otherCategory"),
           }))
         )
         setTotalPages(result.meta?.totalPages ?? 1);
@@ -127,7 +131,7 @@ export default function AllCommoditySection({
         });
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
-          setError(error instanceof Error ? error.message : "Gagal memuat komoditas.");
+          setError(error instanceof Error ? error.message : t("komoditas.list.errorLoad"));
         }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
@@ -141,7 +145,7 @@ export default function AllCommoditySection({
       controller.abort();
       window.removeEventListener(AUTH_EVENT_NAME, loadProducts);
     };
-  }, [currentPage, selectedCategoryId, keyword]);
+  }, [currentPage, selectedCategoryId, keyword, t]);
 
   function selectCategory(categoryId: number | null) {
     setSelectedCategoryId(categoryId);
@@ -150,11 +154,11 @@ export default function AllCommoditySection({
   return (
     <section className="py-14">
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="mb-8 text-3xl font-bold">Komoditas</h2>
+        <h2 className="mb-8 text-3xl font-bold">{t("komoditas.list.title")}</h2>
 
         <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
           <CategoryChip
-            name="Semua"
+            name={t("komoditas.list.all")}
             icon={LayoutGrid}
             active={selectedCategoryId === null}
             onClick={() => selectCategory(null)}
@@ -172,10 +176,10 @@ export default function AllCommoditySection({
         </div>
 
         <div className="mb-10 grid grid-cols-2 gap-5 md:grid-cols-4 lg:grid-cols-6">
-          {isLoading && <p className="col-span-full text-sm text-gray-500">Memuat komoditas...</p>}
+          {isLoading && <p className="col-span-full text-sm text-gray-500">{t("komoditas.list.loading")}</p>}
           {!isLoading && error && <p className="col-span-full text-sm text-red-600">{error}</p>}
           {!isLoading && !error && products.length === 0 && (
-            <p className="col-span-full text-sm text-gray-500">Belum ada komoditas.</p>
+            <p className="col-span-full text-sm text-gray-500">{t("komoditas.list.empty")}</p>
           )}
           {products.map((product) => (
             <ProductCard key={product.id} {...product} />

@@ -1,10 +1,12 @@
 'use client';
 
+import { useLanguage } from '@/lib/langue/provider';
+
 const steps = [
   {
     number: '1',
-    title: 'Register',
-    description: 'Buat akun supplier dan buyer',
+    title: 'landing.work.step1Title',
+    description: 'landing.work.step1Description',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none" />
@@ -18,8 +20,8 @@ const steps = [
   },
   {
     number: '2',
-    title: 'Verifikasi ',
-    description: 'Verifikasi identitas untuk memulai transaksi dengan aman',
+    title: 'landing.work.step2Title',
+    description: 'landing.work.step2Description',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4l2.5 4.5h-5L12 4z" />
@@ -30,8 +32,8 @@ const steps = [
   },
   {
     number: '3',
-    title: 'Pilih komoditas',
-    description: 'Jelajahi dan pilih dari berbagai katagori komoditas unggulan',
+    title: 'landing.work.step3Title',
+    description: 'landing.work.step3Description',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" />
@@ -41,8 +43,8 @@ const steps = [
   },
   {
     number: '4',
-    title: 'Negosiasi',
-    description: 'Mencapai Kesepakatan bersama yang saling menguntungkan',
+    title: 'landing.work.step4Title',
+    description: 'landing.work.step4Description',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <rect x="2.5" y="9" width="11" height="7" strokeWidth={2} />
@@ -54,8 +56,8 @@ const steps = [
   },
   {
     number: '5',
-    title: 'Transaksi',
-    description: 'Lakukan pembayaran dengan metode yang aman dan terjamin',
+    title: 'landing.work.step5Title',
+    description: 'landing.work.step5Description',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <rect x="2.5" y="9" width="11" height="7" strokeWidth={2} />
@@ -68,20 +70,21 @@ const steps = [
 ];
 
 export default function HowWorkSection() {
+  const { t } = useLanguage();
+
   return (
     <section id="cara-kerja" className="w-full px-4 sm:px-6 lg:px-12 py-16 sm:py-20 md:py-24 bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Heading */}
         <div className="flex flex-col items-center text-center mb-14 sm:mb-20">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium mb-3 sm:mb-4">
-            <span className="text-neutral-800">Cara Kerja </span>
+            <span className="text-neutral-800">{t("landing.work.title")} </span>
             <span className="bg-gradient-to-r from-emerald-800 via-green-500 to-green-400 bg-clip-text text-transparent">
               BumiNusa.id
             </span>
           </h2>
           <p className="text-sm sm:text-base text-neutral-500 max-w-xl leading-relaxed">
-            Proses yang transparan dan efisien untuk menghubungkan Anda dengan komoditas
-            terbaik Nusantara.
+            {t("landing.work.description")}
           </p>
         </div>
 
@@ -115,10 +118,10 @@ export default function HowWorkSection() {
                   {step.icon}
                 </div>
                 <h3 className="text-lg font-medium text-neutral-800 mb-2">
-                  {step.number}. {step.title}
+                  {step.number}. {t(step.title)}
                 </h3>
                 <p className="text-sm text-neutral-500 leading-relaxed max-w-[220px]">
-                  {step.description}
+                  {t(step.description)}
                 </p>
               </div>
             ))}
@@ -136,10 +139,10 @@ export default function HowWorkSection() {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-medium text-neutral-800 mb-1.5">
-                    {step.number}. {step.title}
+                    {step.number}. {t(step.title)}
                   </h3>
                   <p className="text-sm text-neutral-500 leading-relaxed">
-                    {step.description}
+                    {t(step.description)}
                   </p>
                 </div>
               </div>

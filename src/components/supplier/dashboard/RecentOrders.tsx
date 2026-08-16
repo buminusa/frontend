@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { SupplierDashboardOrder } from "@/hooks/useSupplierDashboard";
 import { downloadCSV } from "@/lib/utils/csv";
+import { useLanguage } from "@/lib/langue/provider";
 
 const statusColors = {
   Pending: "bg-yellow-100 text-yellow-800",
@@ -30,11 +31,21 @@ const statusIcons = {
   Paid: CheckCircle,
 };
 
+const statusLabels = {
+  Pending: "supplier.status.pending",
+  Processing: "supplier.status.processing",
+  Shipped: "supplier.status.shipped",
+  Completed: "supplier.status.completed",
+  Cancelled: "supplier.status.cancelled",
+  Paid: "supplier.status.paid",
+};
+
 interface RecentOrdersProps {
   orders: SupplierDashboardOrder[];
 }
 
 export function RecentOrders({ orders }: RecentOrdersProps) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
 
@@ -78,7 +89,7 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
       <div className="p-6 border-b border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h2 className="text-lg font-semibold text-gray-900">
-            Pesanan Terbaru
+            {t("supplier.dashboard.recentOrders")}
           </h2>
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -87,7 +98,7 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari pesanan..."
+                placeholder={t("supplier.dashboard.searchOrders")}
                 className="pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-48"
               />
             </div>
@@ -96,10 +107,13 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700"
             >
-              <option value="Semua">Semua Status</option>
+              <option value="Semua">{t("supplier.dashboard.allStatuses")}</option>
               {statuses.map((status) => (
                 <option key={status} value={status}>
-                  {status}
+                  {t(
+                    statusLabels[status as keyof typeof statusLabels] ??
+                      "supplier.status.pending",
+                  )}
                 </option>
               ))}
             </select>
@@ -120,22 +134,22 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                No. Pesanan
+                {t("supplier.dashboard.orderNo")}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Pembeli
+                {t("supplier.dashboard.buyer")}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Produk
+                {t("supplier.dashboard.product")}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total
+                {t("supplier.dashboard.total")}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t("supplier.dashboard.status")}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tanggal
+                {t("supplier.dashboard.date")}
               </th>
             </tr>
           </thead>
@@ -147,8 +161,8 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                   className="px-6 py-8 text-sm text-gray-500 text-center"
                 >
                   {search || statusFilter !== "Semua"
-                    ? "Tidak ada pesanan yang cocok."
-                    : "Belum ada pesanan."}
+                    ? t("supplier.dashboard.noMatchingOrders")
+                    : t("supplier.dashboard.noOrders")}
                 </td>
               </tr>
             ) : (
@@ -178,7 +192,10 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status as keyof typeof statusColors] ?? "bg-gray-100 text-gray-800"}`}
                       >
                         <StatusIcon className="w-3 h-3" />
-                        {order.status}
+                        {t(
+                          statusLabels[order.status as keyof typeof statusLabels] ??
+                            "supplier.status.pending",
+                        )}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">

@@ -1,9 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { fetchCategories } from "@/lib/api/server-categories";
+import { getServerT } from "@/lib/langue/server";
 
 export default async function KomoditasSection() {
   const categories = await fetchCategories(6);
+  const t = await getServerT();
 
   return (
     <section className="w-full px-4 sm:px-6 lg:px-12 py-20 sm:py-24 md:py-50 bg-white">
@@ -19,15 +21,14 @@ export default async function KomoditasSection() {
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium mb-3 sm:mb-4">
-            <span className="text-neutral-800">Sedia </span>
+            <span className="text-neutral-800">{t("landing.komoditas.titlePrefix")} </span>
             <span className="bg-gradient-to-r from-green-500 via-green-400 to-green-600 bg-clip-text text-transparent">
-              Komoditas
+              {t("landing.komoditas.titleAccent")}
             </span>
           </h2>
 
           <p className="text-sm sm:text-base text-neutral-500 max-w-xl leading-relaxed">
-            Menyediakan berbagai macam kategori komoditas pilihan untuk memenuhi kebutuhan
-            pasar lokal dan global.
+            {t("landing.komoditas.description")}
           </p>
         </div>
 

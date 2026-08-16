@@ -13,6 +13,7 @@ import {
   useSupplierDashboard,
   type SupplierDashboardOrder,
 } from "@/hooks/useSupplierDashboard";
+import { useLanguage } from "@/lib/langue/provider";
 
 function filterOrdersByRange(orders: SupplierDashboardOrder[], range: DateRange) {
   if (range === "all") return orders;
@@ -24,6 +25,7 @@ function filterOrdersByRange(orders: SupplierDashboardOrder[], range: DateRange)
 export default function SupplierDashboard() {
   const { stats, orders, products, activities, loading, error, reload } =
     useSupplierDashboard();
+  const { t } = useLanguage();
   const [range, setRange] = useState<DateRange>("7");
 
   const filteredOrders = useMemo(
@@ -41,7 +43,10 @@ export default function SupplierDashboard() {
     };
   }, [filteredOrders, stats]);
 
-  const rangeLabel = range === "all" ? "semua periode" : `${range} hari terakhir`;
+  const rangeLabel =
+    range === "all"
+      ? t("supplier.dashboard.allPeriod")
+      : t("supplier.dashboard.lastDays", { range });
 
   const handleRefresh = () => {
     reload();
@@ -52,10 +57,10 @@ export default function SupplierDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
-            Dashboard Supplier
+            {t("supplier.dashboard.title")}
           </h1>
           <p className="text-sm text-gray-500">
-            Ringkasan produk, pesanan, dan aktivitas terbaru.
+            {t("supplier.dashboard.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -64,16 +69,16 @@ export default function SupplierDashboard() {
             onClick={handleRefresh}
             disabled={loading}
             className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
-            aria-label="Muat ulang"
+            aria-label={t("supplier.dashboard.reload")}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            Muat ulang
+            {t("supplier.dashboard.reload")}
           </button>
           <Link
             href="/dashboard/supplier"
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
           >
-            ← Kembali ke Supplier
+            {t("supplier.dashboard.backToSupplier")}
           </Link>
         </div>
       </div>
@@ -84,7 +89,7 @@ export default function SupplierDashboard() {
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-          Memuat data dashboard...
+          {t("supplier.dashboard.loading")}
         </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-600">
@@ -97,10 +102,19 @@ export default function SupplierDashboard() {
         totalOrders={filteredStats.totalOrders}
         totalRevenue={filteredStats.totalRevenue}
         totalViews={filteredStats.totalViews}
-        productsTrend={`${products.length} produk terdaftar`}
-        ordersTrend={`${filteredOrders.length} pesanan (${rangeLabel})`}
-        revenueTrend={`dalam ${rangeLabel}`}
-        viewsTrend={`${products.length} produk`}
+        productsTrend={t("supplier.dashboard.productsTrend", {
+          count: products.length,
+        })}
+        ordersTrend={t("supplier.dashboard.ordersTrend", {
+          count: filteredOrders.length,
+          range: rangeLabel,
+        })}
+        revenueTrend={t("supplier.dashboard.revenueTrend", {
+          range: rangeLabel,
+        })}
+        viewsTrend={t("supplier.dashboard.viewsTrend", {
+          count: products.length,
+        })}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

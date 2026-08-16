@@ -9,9 +9,11 @@ import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
 import { useRedirectIfAuthenticated } from "@/hooks/use-redirect-if-authenticated"
 import { getErrorMessage } from "@/lib/api/errors"
+import { useLanguage } from "@/lib/langue/provider"
 
 export default function ForgotPasswordSection() {
   useRedirectIfAuthenticated()
+  const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSent, setIsSent] = useState(false)
@@ -24,10 +26,10 @@ export default function ForgotPasswordSection() {
 
     try {
       await forgotPasswordUser({ email })
-      setMessage("Link reset password telah dikirim ke email Anda.")
+      setMessage(t("auth.forgot.sent"))
       setIsSent(true)
     } catch (error) {
-      setMessage(getErrorMessage(error, "Gagal mengirim link reset password"))
+      setMessage(getErrorMessage(error, t("auth.forgot.failed")))
     } finally {
       setIsSubmitting(false)
     }
@@ -35,15 +37,15 @@ export default function ForgotPasswordSection() {
 
   return (
     <AuthShell
-      eyebrow="Pemulihan akun"
-      title="Lupa Password"
-      subtitle="Masukkan email terdaftar Anda dan kami akan mengirim link untuk mereset password"
-      quote="Keamanan akun Anda adalah prioritas kami. Reset password dengan aman dan mudah."
+      eyebrow={t("auth.forgot.eyebrow")}
+      title={t("auth.forgot.title")}
+      subtitle={t("auth.forgot.subtitle")}
+      quote={t("auth.forgot.quote")}
       footerLink={
         <>
-          Ingat kata sandi?{" "}
+          {t("auth.forgot.rememberPassword")}{" "}
           <Link href="/login" className="font-semibold text-green-600 underline hover:text-green-700">
-            Masuk di sini
+            {t("auth.forgot.signInHere")}
           </Link>
         </>
       }
@@ -56,13 +58,13 @@ export default function ForgotPasswordSection() {
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <AuthField
-          label="Email"
+          label={t("auth.field.email")}
           value={email}
           onChange={setEmail}
           placeholder="nama@email.com"
           type="email"
           icon={Mail}
-          error={message && !email ? "Email wajib diisi" : null}
+          error={message && !email ? t("auth.field.emailRequired") : null}
         />
 
         {message ? (
@@ -84,7 +86,7 @@ export default function ForgotPasswordSection() {
             href="/login"
             className="block w-full h-11 rounded-full bg-green-600 font-semibold text-white text-center leading-[2.75rem] transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30"
           >
-            Kembali ke Login
+            {t("auth.forgot.backToLogin")}
           </Link>
         ) : (
           <motion.button
@@ -93,7 +95,7 @@ export default function ForgotPasswordSection() {
             whileTap={{ scale: 0.98 }}
             className="w-full h-11 rounded-full bg-green-600 font-semibold text-white transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30 disabled:cursor-not-allowed disabled:bg-green-400 disabled:shadow-none disabled:transform-none"
           >
-            {isSubmitting ? "Memproses..." : "Kirim Link Reset"}
+            {isSubmitting ? t("auth.forgot.processing") : t("auth.forgot.submit")}
           </motion.button>
         )}
       </motion.form>

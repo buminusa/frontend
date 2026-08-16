@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface ProfileFormData {
   full_name: string;
@@ -21,6 +22,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     full_name: profile.full_name || "",
     address: profile.address || "",
@@ -44,22 +46,22 @@ export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Edit Profile
+        {t("profile.editTitle")}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="Full Name"
+          label={t("profile.fullName")}
           name="full_name"
-          placeholder="Enter your full name"
+          placeholder={t("profile.fullNamePlaceholder")}
           value={formData.full_name}
           onChange={handleChange}
           required
         />
         
         <Textarea
-          label="Address"
+          label={t("profile.address")}
           name="address"
-          placeholder="Enter your address"
+          placeholder={t("profile.addressPlaceholder")}
           value={formData.address}
           onChange={handleChange}
           rows={3}
@@ -68,17 +70,17 @@ export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Province"
+            label={t("profile.province")}
             name="province"
-            placeholder="Enter your province"
+            placeholder={t("profile.provincePlaceholder")}
             value={formData.province}
             onChange={handleChange}
             required
           />
           <Input
-            label="Country"
+            label={t("profile.country")}
             name="country"
-            placeholder="Enter your country"
+            placeholder={t("profile.countryPlaceholder")}
             value={formData.country}
             onChange={handleChange}
             required
@@ -86,10 +88,10 @@ export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
         </div>
         
         <Input
-          label="Phone"
+          label={t("profile.phone")}
           name="phone"
           type="tel"
-          placeholder="Enter your phone number"
+          placeholder={t("profile.phonePlaceholder")}
           value={formData.phone}
           onChange={handleChange}
           required
@@ -97,7 +99,7 @@ export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
         
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
           <Button type="submit" className="flex-1">
-            Save Changes
+            {t("profile.saveChanges")}
           </Button>
           <Button 
             type="button" 
@@ -105,7 +107,7 @@ export function ProfileForm({ profile, onSubmit, onCancel }: ProfileFormProps) {
             onClick={onCancel}
             className="flex-1"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
         </div>
       </form>

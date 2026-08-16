@@ -1,6 +1,7 @@
 "use client"
 
 import { ShoppingBag, Store } from "lucide-react"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface RoleSelectorProps {
   role: "buyer" | "supplier"
@@ -10,22 +11,24 @@ interface RoleSelectorProps {
 const options = [
   {
     id: "buyer" as const,
-    label: "Saya Pembeli",
-    sub: "Beli komoditas langsung dari petani",
+    labelKey: "auth.register.roleBuyerLabel",
+    subKey: "auth.register.roleBuyerSub",
     Icon: ShoppingBag,
   },
   {
     id: "supplier" as const,
-    label: "Saya Supplier",
-    sub: "Pasarkan produk Anda lebih luas",
+    labelKey: "auth.register.roleSupplierLabel",
+    subKey: "auth.register.roleSupplierSub",
     Icon: Store,
   },
 ]
 
 export default function RoleSelector({ role, onChange }: RoleSelectorProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="mb-8 grid grid-cols-2 gap-3">
-      {options.map(({ id, label, sub, Icon }) => {
+      {options.map(({ id, labelKey, subKey, Icon }) => {
         const active = role === id
         return (
           <button
@@ -56,10 +59,10 @@ export default function RoleSelector({ role, onChange }: RoleSelectorProps) {
                 (active ? "text-[#1A3A1B]" : "text-gray-700")
               }
             >
-              {label}
+              {t(labelKey)}
             </span>
 
-            <span className="text-[11px] leading-snug text-gray-500">{sub}</span>
+            <span className="text-[11px] leading-snug text-gray-500">{t(subKey)}</span>
           </button>
         )
       })}

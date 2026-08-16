@@ -16,9 +16,11 @@ import {
 import { useDashboardData } from "@/lib/hooks/useDashboardData";
 import { useAuthGuard } from "@/hooks/use-auth-guard"
 import { Package, Tags, ShieldCheck, Calendar } from "lucide-react";
+import { useLanguage } from "@/lib/langue/provider";
 
 export default function SuperAdminDashboardPage() {
   useAuthGuard({ allowedRoles: ["Super_Admin"] });
+  const { t } = useLanguage();
   const {
     loading,
     errorMsg,
@@ -42,12 +44,12 @@ export default function SuperAdminDashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const getGreeting = () => {
+  const getGreetingKey = () => {
     const hour = currentTime.getHours();
-    if (hour < 11) return "Selamat Pagi";
-    if (hour < 15) return "Selamat Siang";
-    if (hour < 18) return "Selamat Sore";
-    return "Selamat Malam";
+    if (hour < 11) return "dashboard.common.greetingMorning";
+    if (hour < 15) return "dashboard.common.greetingAfternoon";
+    if (hour < 18) return "dashboard.common.greetingEvening";
+    return "dashboard.common.greetingNight";
   };
 
   return (
@@ -55,7 +57,7 @@ export default function SuperAdminDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {getGreeting()}, Super Admin! 👋
+                {t(getGreetingKey())}, {t("dashboard.common.roleSuperAdmin")}! 👋
               </h1>
               <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
                 <Calendar size={14} />
@@ -68,7 +70,7 @@ export default function SuperAdminDashboardPage() {
               </p>
             </div>
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-              Ringkasan platform terpusat
+              {t("dashboard.common.centralPlatformSummary")}
             </div>
           </div>
 
@@ -85,21 +87,21 @@ export default function SuperAdminDashboardPage() {
           <div className="grid grid-cols-3 gap-5 mb-6">
             <StatCard
               icon={ShieldCheck}
-              label="Total Supplier"
+              label={t("dashboard.stats.totalSupplier")}
               value={totalSupplier}
               loading={loading}
               color="blue"
             />
             <StatCard
               icon={Package}
-              label="Total Produk"
+              label={t("dashboard.stats.totalProducts")}
               value={totalProdukSemua}
               loading={loading}
               color="emerald"
             />
             <StatCard
               icon={Tags}
-              label="Total Kategori"
+              label={t("dashboard.stats.totalCategories")}
               value={totalKategori}
               loading={loading}
               color="violet"
@@ -131,14 +133,14 @@ export default function SuperAdminDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-base font-semibold text-gray-900">
-                  Aktivitas Platform
+                  {t("dashboard.common.platformActivity")}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">
-                  Pemantauan operasional dan peninjauan data utama
+                  {t("dashboard.common.platformActivityDesc")}
                 </p>
               </div>
               <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
-                Lihat Semua
+                {t("dashboard.common.viewAll")}
               </button>
             </div>
           </div>

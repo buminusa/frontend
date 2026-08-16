@@ -1,4 +1,7 @@
+"use client";
+
 import { User, MapPin, Phone, Globe, Mail } from "lucide-react"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface ProfileInfoProps {
   profile: {
@@ -12,19 +15,21 @@ interface ProfileInfoProps {
 }
 
 export function ProfileInfo({ profile }: ProfileInfoProps) {
+  const { t } = useLanguage();
+
   const infoItems = [
-    { icon: User, label: "Full Name", value: profile.full_name },
-    { icon: Mail, label: "Email", value: profile.email },
-    { icon: MapPin, label: "Address", value: profile.address },
-    { icon: Globe, label: "Province", value: profile.province },
-    { icon: Globe, label: "Country", value: profile.country },
-    { icon: Phone, label: "Phone", value: profile.phone },
+    { icon: User, label: "profile.fullName", value: profile.full_name },
+    { icon: Mail, label: "profile.email", value: profile.email },
+    { icon: MapPin, label: "profile.address", value: profile.address },
+    { icon: Globe, label: "profile.province", value: profile.province },
+    { icon: Globe, label: "profile.country", value: profile.country },
+    { icon: Phone, label: "profile.phone", value: profile.phone },
   ]
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-semibold text-gray-900">
-        Profile Information
+        {t("profile.infoTitle")}
       </h2>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -37,7 +42,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
 
             <div className="flex-1">
               <p className="text-xs uppercase tracking-wider text-gray-500">
-                {item.label}
+                {t(item.label)}
               </p>
 
               <p className="mt-0.5 font-medium text-gray-900">

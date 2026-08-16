@@ -1,5 +1,8 @@
+"use client"
+
 import { Building2, CheckCircle, Clock, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface CompanyHeaderProps {
   companyName: string
@@ -8,12 +11,20 @@ interface CompanyHeaderProps {
   verificationStatus?: string
 }
 
+const statusLabelKeys: Record<string, string> = {
+  Verified: "supplier.status.verified",
+  Pending: "supplier.status.pendingVerification",
+  Rejected: "supplier.status.rejected",
+}
+
 export function CompanyHeader({
   companyName,
   isEditing,
   onToggleEdit,
   verificationStatus,
 }: CompanyHeaderProps) {
+  const { t } = useLanguage()
+
   const getStatusIcon = () => {
     switch (verificationStatus) {
       case "Verified":
@@ -64,7 +75,12 @@ export function CompanyHeader({
                 className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor()}`}
               >
                 {getStatusIcon()}
-                {verificationStatus ?? "Not Verified"}
+                {t(
+                  verificationStatus
+                    ? statusLabelKeys[verificationStatus] ??
+                        "supplier.profile.notVerified"
+                    : "supplier.profile.notVerified",
+                )}
               </span>
             </div>
           </div>
@@ -73,7 +89,9 @@ export function CompanyHeader({
           variant={isEditing ? "secondary" : "default"}
           onClick={onToggleEdit}
         >
-          {isEditing ? "Cancel" : "Edit Company Profile"}
+          {isEditing
+            ? t("supplier.profile.cancel")
+            : t("supplier.profile.editProfileButton")}
         </Button>
       </div>
     </div>

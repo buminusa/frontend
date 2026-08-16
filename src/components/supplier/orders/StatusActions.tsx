@@ -3,6 +3,7 @@
 import { Check, X, Package } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
 import type { OrderStatus } from "@/lib/types/api";
+import { useLanguage } from "@/lib/langue/provider";
 
 export const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   Pending: ["Confirmed", "Cancelled"],
@@ -13,16 +14,19 @@ export const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   Cancelled: [],
 };
 
-const nextActions: Record<OrderStatus, { to: OrderStatus; label: string }[]> = {
+const nextActions: Record<
+  OrderStatus,
+  { to: OrderStatus; labelKey: string }[]
+> = {
   Pending: [
-    { to: "Confirmed", label: "Konfirmasi" },
-    { to: "Cancelled", label: "Batalkan" },
+    { to: "Confirmed", labelKey: "supplier.orders.confirm" },
+    { to: "Cancelled", labelKey: "supplier.orders.cancel" },
   ],
   Confirmed: [
-    { to: "Processing", label: "Proses" },
-    { to: "Cancelled", label: "Batalkan" },
+    { to: "Processing", labelKey: "supplier.orders.process" },
+    { to: "Cancelled", labelKey: "supplier.orders.cancel" },
   ],
-  Processing: [{ to: "Shipped", label: "Kirim" }],
+  Processing: [{ to: "Shipped", labelKey: "supplier.orders.ship" }],
   Shipped: [],
   Completed: [],
   Cancelled: [],
@@ -43,10 +47,15 @@ export function StatusActions({
   onStatusChange: (id: number, next: OrderStatus) => Promise<void>;
   busy: boolean;
 }) {
+  const { t } = useLanguage();
   const actions = nextActions[status] ?? [];
 
   if (actions.length === 0) {
-    return <span className="text-xs text-gray-400">Selesai</span>;
+    return (
+      <span className="text-xs text-gray-400">
+        {t("supplier.status.completed")}
+      </span>
+    );
   }
 
   return (
@@ -67,7 +76,7 @@ export function StatusActions({
             }`}
           >
             <Icon className="h-3.5 w-3.5" />
-            {action.label}
+            {t(action.labelKey)}
           </button>
         );
       })}

@@ -6,6 +6,7 @@ import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { productService } from "@/lib/api/services/products";
 import { categoryService } from "@/lib/api/services/categories";
 import type { ApiResponse, Category, Product } from "@/lib/types/api";
+import { useLanguage } from "@/lib/langue/provider";
 
 type ProductRow = {
   id: number;
@@ -46,6 +47,7 @@ const emptyForm = (): ProductFormState => ({
 const MAX_IMAGES = 5;
 
 export default function SupplierProducts() {
+  const { t } = useLanguage();
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,7 +70,9 @@ export default function SupplierProducts() {
         list.map((product) => ({
           id: product.id,
           name: product.nama,
-          category: product.category?.name_categories ?? "Tanpa kategori",
+          category:
+            product.category?.name_categories ??
+            t("supplier.products.noCategory"),
           price: Number(product.price_min ?? 0).toLocaleString("id-ID", {
             style: "currency",
             currency: "IDR",
@@ -85,7 +89,9 @@ export default function SupplierProducts() {
       setError("");
     } catch (loadError) {
       setError(
-        loadError instanceof Error ? loadError.message : "Gagal memuat produk",
+        loadError instanceof Error
+          ? loadError.message
+          : t("supplier.products.loadFailed"),
       );
     } finally {
       setLoading(false);
@@ -110,7 +116,9 @@ export default function SupplierProducts() {
           list.map((product) => ({
             id: product.id,
             name: product.nama,
-            category: product.category?.name_categories ?? "Tanpa kategori",
+            category:
+            product.category?.name_categories ??
+            t("supplier.products.noCategory"),
             price: Number(product.price_min ?? 0).toLocaleString("id-ID", {
               style: "currency",
               currency: "IDR",
@@ -131,7 +139,7 @@ export default function SupplierProducts() {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "Gagal memuat produk",
+            : t("supplier.products.loadFailed"),
         );
       } finally {
         if (active) setLoading(false);
@@ -195,7 +203,7 @@ export default function SupplierProducts() {
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "Gagal memuat detail produk",
+          : t("supplier.products.loadDetailFailed"),
       );
     }
   };
@@ -208,11 +216,11 @@ export default function SupplierProducts() {
     const priceMax = Number(form.price_max);
 
     if (form.min_order !== "" && minOrder < 100) {
-      setError("Minimal order harus lebih besar atau sama dengan 100.");
+      setError(t("supplier.products.minOrderError"));
       return;
     }
     if (form.price_min !== "" && form.price_max !== "" && priceMin > priceMax) {
-      setError("Harga minimum tidak boleh lebih besar dari harga maksimum.");
+      setError(t("supplier.products.priceRangeError"));
       return;
     }
 
@@ -246,8 +254,8 @@ export default function SupplierProducts() {
 
       setMessage(
         editingId
-          ? "Produk berhasil diperbarui."
-          : "Produk berhasil ditambahkan.",
+          ? t("supplier.products.updatedSuccess")
+          : t("supplier.products.addedSuccess"),
       );
       resetForm();
       await loadProducts();
@@ -255,7 +263,7 @@ export default function SupplierProducts() {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Gagal menyimpan produk",
+          : t("supplier.products.saveFailed"),
       );
     } finally {
       setSubmitting(false);
@@ -263,19 +271,19 @@ export default function SupplierProducts() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Hapus produk ini?")) {
+    if (!window.confirm(t("supplier.products.deleteConfirm"))) {
       return;
     }
 
     try {
       await productService.delete(id);
-      setMessage("Produk berhasil dihapus.");
+      setMessage(t("supplier.products.deletedSuccess"));
       await loadProducts();
     } catch (deleteError) {
       setError(
         deleteError instanceof Error
           ? deleteError.message
-          : "Gagal menghapus produk",
+          : t("supplier.products.deleteFailed"),
       );
     }
   };
@@ -284,35 +292,37 @@ export default function SupplierProducts() {
     try {
       await productService.deleteImage(imageId);
       setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
-      setMessage("Gambar berhasil dihapus.");
+      setMessage(t("supplier.products.imageDeletedSuccess"));
     } catch (imageError) {
       setError(
         imageError instanceof Error
           ? imageError.message
-          : "Gagal menghapus gambar",
+          : t("supplier.products.imageDeleteFailed"),
       );
     }
   };
 
   const priceLabel = useMemo(() => {
-    if (products.length === 0) return "Belum ada produk";
-    return `${products.length} produk`;
-  }, [products.length]);
+    if (products.length === 0) return t("supplier.products.noProducts");
+    return t("supplier.products.count", { count: products.length });
+  }, [products.length, t]);
 
   return (
     <div className="space-y-4 p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Produk Saya</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {t("supplier.products.title")}
+          </h1>
           <p className="text-sm text-gray-500">
-            Kelola produk supplier dan kirim ke backend.
+            {t("supplier.products.subtitle")}
           </p>
         </div>
         <button
           onClick={handleOpenCreate}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          <Plus size={16} /> Tambah Produk
+          <Plus size={16} /> {t("supplier.products.add")}
         </button>
       </div>
 
@@ -329,7 +339,7 @@ export default function SupplierProducts() {
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-          Memuat produk...
+          {t("supplier.products.loading")}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -340,19 +350,19 @@ export default function SupplierProducts() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Nama
+                  {t("supplier.products.name")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Kategori
+                  {t("supplier.products.category")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Harga
+                  {t("supplier.products.price")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Min Order
+                  {t("supplier.products.minOrder")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Aksi
+                  {t("supplier.products.actions")}
                 </th>
               </tr>
             </thead>
@@ -363,7 +373,7 @@ export default function SupplierProducts() {
                     colSpan={6}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    Belum ada produk.
+                    {t("supplier.products.empty")}
                   </td>
                 </tr>
               ) : (
@@ -411,10 +421,12 @@ export default function SupplierProducts() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  {editingId ? "Edit Produk" : "Tambah Produk"}
+                  {editingId
+                    ? t("supplier.products.editTitle")
+                    : t("supplier.products.addTitle")}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Data akan dikirim ke endpoint produk supplier.
+                  {t("supplier.products.modalHint")}
                 </p>
               </div>
               <button
@@ -428,7 +440,7 @@ export default function SupplierProducts() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Nama produk
+                  {t("supplier.products.nameLabel")}
                   <input
                     required
                     value={form.nama}
@@ -439,7 +451,7 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Unit
+                  {t("supplier.products.unit")}
                   <input
                     value={form.unit}
                     onChange={(event) =>
@@ -449,7 +461,7 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Minimal order (kg)
+                  {t("supplier.products.minOrderLabel")}
                   <input
                     type="number"
                     min={100}
@@ -464,11 +476,11 @@ export default function SupplierProducts() {
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
                   />
                   <span className="mt-0.5 block text-xs text-gray-400">
-                    Minimal 100
+                    {t("supplier.products.minOrderHint")}
                   </span>
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Kategori
+                  {t("supplier.products.categoryLabel")}
                   <select
                     value={form.categoryId}
                     onChange={(event) =>
@@ -479,7 +491,7 @@ export default function SupplierProducts() {
                     }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 bg-white"
                   >
-                    <option value="">Tanpa kategori</option>
+                    <option value="">{t("supplier.products.noCategory")}</option>
                     {categories.map((category) => (
                       <option key={category.id} value={String(category.id)}>
                         {category.name_categories}
@@ -488,7 +500,7 @@ export default function SupplierProducts() {
                   </select>
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Harga minimum
+                  {t("supplier.products.priceMin")}
                   <input
                     type="number"
                     min={0}
@@ -504,7 +516,7 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Harga maksimum
+                  {t("supplier.products.priceMax")}
                   <input
                     type="number"
                     min={0}
@@ -520,7 +532,7 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  HS Code
+                  {t("supplier.products.hsCode")}
                   <input
                     value={form.hs_code}
                     onChange={(event) =>
@@ -533,7 +545,7 @@ export default function SupplierProducts() {
                   />
                 </label>
                 <label className="text-sm font-medium text-gray-700">
-                  Gambar (maksimal {MAX_IMAGES})
+                  {t("supplier.products.images", { max: MAX_IMAGES })}
                   <input
                     type="file"
                     multiple
@@ -546,7 +558,11 @@ export default function SupplierProducts() {
                           .slice(0, MAX_IMAGES)
                           .forEach((file) => dt.items.add(file));
                         setForm((prev) => ({ ...prev, images: dt.files }));
-                        setError(`Maksimal ${MAX_IMAGES} gambar per produk.`);
+                        setError(
+                          t("supplier.products.maxImagesError", {
+                            max: MAX_IMAGES,
+                          }),
+                        );
                       } else {
                         setForm((prev) => ({ ...prev, images: files }));
                         setError("");
@@ -560,14 +576,14 @@ export default function SupplierProducts() {
               {existingImages.length > 0 && (
                 <div>
                   <span className="text-sm font-medium text-gray-700">
-                    Gambar saat ini
+                    {t("supplier.products.currentImages")}
                   </span>
                   <div className="mt-2 flex flex-wrap gap-3">
                     {existingImages.map((img) => (
                       <div key={img.id} className="relative">
                         <Image
                           src={img.image_url}
-                          alt="Produk"
+                          alt={t("supplier.products.imageAlt")}
                           width={80}
                           height={80}
                           unoptimized={img.image_url.startsWith("http")}
@@ -577,7 +593,7 @@ export default function SupplierProducts() {
                           type="button"
                           onClick={() => void handleDeleteImage(img.id)}
                           className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                          aria-label="Hapus gambar"
+                          aria-label={t("supplier.products.deleteImageAria")}
                         >
                           <X size={12} />
                         </button>
@@ -588,7 +604,7 @@ export default function SupplierProducts() {
               )}
 
               <label className="block text-sm font-medium text-gray-700">
-                Deskripsi
+                {t("supplier.products.description")}
                 <textarea
                   value={form.description}
                   onChange={(event) =>
@@ -603,7 +619,7 @@ export default function SupplierProducts() {
               </label>
 
               <label className="block text-sm font-medium text-gray-700">
-                Spesifikasi
+                {t("supplier.products.specification")}
                 <textarea
                   value={form.spectification}
                   onChange={(event) =>
@@ -623,7 +639,7 @@ export default function SupplierProducts() {
                   onClick={resetForm}
                   className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
-                  Batal
+                  {t("supplier.products.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -631,10 +647,10 @@ export default function SupplierProducts() {
                   className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                 >
                   {submitting
-                    ? "Menyimpan..."
+                    ? t("supplier.products.saving")
                     : editingId
-                      ? "Simpan Perubahan"
-                      : "Simpan Produk"}
+                      ? t("supplier.products.saveChanges")
+                      : t("supplier.products.saveProduct")}
                 </button>
               </div>
             </form>

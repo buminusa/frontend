@@ -7,6 +7,7 @@ import { DataTable } from "@/components/dashboard-section/DataTable";
 import { productService } from "@/lib/api/services/products";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/lib/langue/provider";
 import type { Product } from "@/lib/types/api";
 import { formatIdNumber } from "@/lib/format";
 import {
@@ -17,6 +18,7 @@ import {
 
 export default function ProductsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export default function ProductsPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memuat produk"));
+      setError(getErrorMessage(err, t("dashboard.products.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -47,7 +49,7 @@ export default function ProductsPage() {
   }, [loadProducts]);
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Yakin ingin menghapus produk ini?")) return;
+    if (!confirm(t("dashboard.products.deleteConfirm"))) return;
     setActionLoadingId(id);
     try {
       await productService.delete(id);
@@ -57,7 +59,7 @@ export default function ProductsPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal menghapus produk"));
+      setError(getErrorMessage(err, t("dashboard.products.deleteFailed")));
     } finally {
       setActionLoadingId(null);
     }
@@ -74,19 +76,19 @@ export default function ProductsPage() {
   const columns = [
     {
       key: "nama",
-      label: "Produk",
+      label: t("dashboard.products.name"),
       render: (item: Product) => (
         <div>
           <div className="font-medium text-gray-900">{item.nama}</div>
           <div className="text-xs text-gray-500 mt-0.5">
-            {item.category?.name_categories || "Tanpa kategori"}
+            {item.category?.name_categories || t("dashboard.products.noCategory")}
           </div>
         </div>
       ),
     },
     {
       key: "supplier",
-      label: "Supplier",
+      label: t("dashboard.products.supplier"),
       render: (item: Product) => (
         <span className="text-gray-700">
           {item.supplier?.company_name || "-"}
@@ -95,7 +97,7 @@ export default function ProductsPage() {
     },
     {
       key: "price",
-      label: "Harga",
+      label: t("dashboard.products.price"),
       render: (item: Product) => (
         <span className="font-medium text-gray-900">
           Rp {formatIdNumber(item.price_min)}
@@ -107,7 +109,7 @@ export default function ProductsPage() {
     },
     {
       key: "views",
-      label: "Views",
+      label: t("dashboard.products.views"),
       render: (item: Product) => (
         <span className="tabular-nums">{formatIdNumber(item.views)}</span>
       ),
@@ -122,7 +124,7 @@ export default function ProductsPage() {
             onClick={() => handleDelete(item.id)}
             disabled={actionLoadingId === item.id}
             className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-            title="Hapus"
+            title={t("dashboard.common.delete")}
           >
             <Trash2 size={14} />
           </button>
@@ -136,9 +138,9 @@ export default function ProductsPage() {
       <main className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Produk</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.products.title")}</h1>
               <p className="text-sm text-gray-500 mt-1">
-                Kelola semua produk yang terdaftar
+                {t("dashboard.products.description")}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -150,7 +152,7 @@ export default function ProductsPage() {
                 className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <RefreshCw size={14} />
-                Refresh
+                {t("dashboard.common.refresh")}
               </button>
             </div>
           </div>
@@ -160,7 +162,7 @@ export default function ProductsPage() {
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari nama produk, supplier, atau kategori..."
+                placeholder={t("dashboard.products.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -177,7 +179,7 @@ export default function ProductsPage() {
               setLoading(true);
               loadProducts();
             }}
-            emptyMessage="Belum ada produk"
+            emptyMessage={t("dashboard.products.empty")}
             keyExtractor={(item) => item.id}
           />
         </main>

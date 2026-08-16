@@ -10,6 +10,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import type { Product } from "@/lib/types/dashboard";
+import { useLanguage } from "@/lib/langue/provider";
 
 export function PopularProducts({
   products,
@@ -21,6 +22,7 @@ export function PopularProducts({
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [sortBy, setSortBy] = useState<"views" | "name">("views");
+  const { t } = useLanguage();
 
   const formatViews = (views: number) => {
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
@@ -56,10 +58,10 @@ export function PopularProducts({
       <div className="flex items-start justify-between mb-6">
         <div>
           <h3 className="text-base font-semibold text-gray-900">
-            Produk Terpopuler
+            {t("dashboard.stats.popularProducts")}
           </h3>
           <p className="text-xs text-gray-500 mt-1">
-            Berdasarkan jumlah views
+            {t("dashboard.stats.popularProductsDesc")}
           </p>
         </div>
 
@@ -69,7 +71,7 @@ export function PopularProducts({
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <ArrowUpDown size={12} />
-            {sortBy === "views" ? "Views" : "Nama"}
+            {sortBy === "views" ? t("dashboard.stats.sortViews") : t("dashboard.stats.sortName")}
           </button>
 
           <div className="relative">

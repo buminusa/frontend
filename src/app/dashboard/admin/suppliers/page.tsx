@@ -8,6 +8,12 @@ import { DataTable } from "@/components/dashboard-section/DataTable";
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/lib/langue/provider";
+import {
+  VERIFICATION_STATUS_COLORS,
+  VERIFICATION_STATUS_KEYS,
+  type VerificationStatus,
+} from "@/lib/dashboard-constants";
 import type { CompanyProfile } from "@/lib/types/api";
 import { relativeTime } from "@/lib/format";
 import {
@@ -26,18 +32,13 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-const STATUS_COLORS = {
-  Verified: "bg-emerald-100 text-emerald-700",
-  Pending: "bg-yellow-100 text-yellow-700",
-  Rejected: "bg-red-100 text-red-700",
-};
-
 function isImageExtension(url: string): boolean {
   return /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(url);
 }
 
 export default function SuppliersPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [suppliers, setSuppliers] = useState<CompanyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +59,7 @@ export default function SuppliersPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memuat data supplier"));
+      setError(getErrorMessage(err, t("dashboard.suppliers.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ export default function SuppliersPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memverifikasi supplier"));
+      setError(getErrorMessage(err, t("dashboard.suppliers.verifyFailed")));
     } finally {
       setActionLoadingId(null);
     }
@@ -123,7 +124,7 @@ export default function SuppliersPage() {
   const columns = [
     {
       key: "company_name",
-      label: "Perusahaan",
+      label: t("dashboard.suppliers.company"),
       render: (item: CompanyProfile) => (
         <div className="flex items-center gap-3">
           {item.logo_url ? (
@@ -152,33 +153,36 @@ export default function SuppliersPage() {
     },
     {
       key: "email",
-      label: "Email",
+      label: t("dashboard.suppliers.email"),
       render: (item: CompanyProfile) => (
         <span className="text-gray-700 text-sm">{item.user?.email || "-"}</span>
       ),
     },
     {
       key: "phone",
-      label: "Telepon",
+      label: t("dashboard.suppliers.phone"),
       render: (item: CompanyProfile) => (
         <span className="text-gray-700">{item.phone}</span>
       ),
     },
     {
       key: "verificationStatus",
-      label: "Status",
-      render: (item: CompanyProfile) => (
-        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${STATUS_COLORS[item.verificationStatus]}`}>
-          {item.verificationStatus === "Verified" && <CheckCircle size={12} className="mr-1" />}
-          {item.verificationStatus === "Pending" && <Loader2 size={12} className="mr-1 animate-spin" />}
-          {item.verificationStatus === "Rejected" && <XCircle size={12} className="mr-1" />}
-          {item.verificationStatus}
-        </span>
-      ),
+      label: t("dashboard.common.status"),
+      render: (item: CompanyProfile) => {
+        const status = item.verificationStatus as VerificationStatus;
+        return (
+          <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${VERIFICATION_STATUS_COLORS[status]}`}>
+            {status === "Verified" && <CheckCircle size={12} className="mr-1" />}
+            {status === "Pending" && <Loader2 size={12} className="mr-1 animate-spin" />}
+            {status === "Rejected" && <XCircle size={12} className="mr-1" />}
+            {t(VERIFICATION_STATUS_KEYS[status])}
+          </span>
+        );
+      },
     },
     {
       key: "createdAt",
-      label: "Terdaftar",
+      label: t("dashboard.suppliers.registered"),
       render: (item: CompanyProfile) => (
         <span className="text-gray-500 text-sm">{relativeTime(item.createdAt)}</span>
       ),
@@ -192,7 +196,7 @@ export default function SuppliersPage() {
           <button
             onClick={() => openDetail(item)}
             className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-            title="Lihat Detail"
+            title={t("dashboard.suppliers.viewDetail")}
           >
             <Eye size={14} />
           </button>
@@ -207,9 +211,9 @@ export default function SuppliersPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Supplier</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.suppliers.title")}</h1>
               <p className="text-sm text-gray-500 mt-1">
-                Kelola semua supplier yang terdaftar
+                {t("dashboard.suppliers.description")}
               </p>
             </div>
             <button
@@ -220,13 +224,13 @@ export default function SuppliersPage() {
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
-              Refresh
+              {t("dashboard.common.refresh")}
             </button>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            {["Verified", "Pending", "Rejected"].map((status) => {
+            {(["Verified", "Pending", "Rejected"] as VerificationStatus[]).map((status) => {
               const count = suppliers.filter((s) => s.verificationStatus === status).length;
               return (
                 <button
@@ -238,7 +242,7 @@ export default function SuppliersPage() {
                       : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                 >
-                  <div className="text-xs text-gray-500 mb-1">{status}</div>
+                  <div className="text-xs text-gray-500 mb-1">{t(VERIFICATION_STATUS_KEYS[status])}</div>
                   <div className="text-2xl font-bold text-gray-900">{count}</div>
                 </button>
               );
@@ -251,7 +255,7 @@ export default function SuppliersPage() {
                   : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
-              <div className="text-xs text-gray-500 mb-1">Total</div>
+              <div className="text-xs text-gray-500 mb-1">{t("dashboard.suppliers.total")}</div>
               <div className="text-2xl font-bold text-gray-900">{suppliers.length}</div>
             </button>
           </div>
@@ -262,7 +266,7 @@ export default function SuppliersPage() {
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari nama perusahaan, email, atau provinsi..."
+                placeholder={t("dashboard.suppliers.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -280,7 +284,7 @@ export default function SuppliersPage() {
               setLoading(true);
               loadSuppliers();
             }}
-            emptyMessage="Belum ada supplier"
+            emptyMessage={t("dashboard.suppliers.empty")}
             keyExtractor={(item) => item.id}
           />
 
@@ -291,7 +295,7 @@ export default function SuppliersPage() {
                 {detailLoading ? (
                   <div className="p-12 text-center">
                     <Loader2 size={32} className="animate-spin text-blue-500 mx-auto mb-3" />
-                    <p className="text-sm text-gray-500">Memuat detail supplier...</p>
+                    <p className="text-sm text-gray-500">{t("dashboard.suppliers.loadingDetail")}</p>
                   </div>
                 ) : detail ? (
                   <>
@@ -316,11 +320,11 @@ export default function SuppliersPage() {
                           <h3 className="text-lg font-semibold text-gray-900">
                             {detail.company_name}
                           </h3>
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[detail.verificationStatus]}`}>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${VERIFICATION_STATUS_COLORS[detail.verificationStatus as VerificationStatus]}`}>
                             {detail.verificationStatus === "Verified" && <CheckCircle size={10} className="mr-1" />}
                             {detail.verificationStatus === "Pending" && <Loader2 size={10} className="mr-1 animate-spin" />}
                             {detail.verificationStatus === "Rejected" && <XCircle size={10} className="mr-1" />}
-                            {detail.verificationStatus}
+                            {t(VERIFICATION_STATUS_KEYS[detail.verificationStatus as VerificationStatus])}
                           </span>
                         </div>
                       </div>
@@ -340,7 +344,7 @@ export default function SuppliersPage() {
                           <Mail size={16} className="text-blue-600" />
                         </div>
                         <div>
-                          <div className="text-xs text-gray-500">Email</div>
+                          <div className="text-xs text-gray-500">{t("dashboard.suppliers.email")}</div>
                           <div className="text-sm font-medium text-gray-900">{detail.user?.email || "-"}</div>
                         </div>
                       </div>
@@ -352,7 +356,7 @@ export default function SuppliersPage() {
                             <Phone size={16} className="text-emerald-600" />
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500">Telepon</div>
+                            <div className="text-xs text-gray-500">{t("dashboard.suppliers.phone")}</div>
                             <div className="text-sm font-medium text-gray-900">{detail.phone}</div>
                           </div>
                         </div>
@@ -361,7 +365,7 @@ export default function SuppliersPage() {
                             <MapPin size={16} className="text-violet-600" />
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500">Lokasi</div>
+                            <div className="text-xs text-gray-500">{t("dashboard.common.location")}</div>
                             <div className="text-sm font-medium text-gray-900">{detail.province}, {detail.country}</div>
                           </div>
                         </div>
@@ -369,19 +373,19 @@ export default function SuppliersPage() {
 
                       {/* Address */}
                       <div className="p-3 bg-gray-50 rounded-xl">
-                        <div className="text-xs text-gray-500 mb-1">Alamat</div>
+                        <div className="text-xs text-gray-500 mb-1">{t("dashboard.common.address")}</div>
                         <div className="text-sm font-medium text-gray-900">{detail.address}</div>
                       </div>
 
                       {/* Business Description */}
                       <div className="p-3 bg-gray-50 rounded-xl">
-                        <div className="text-xs text-gray-500 mb-1">Deskripsi Bisnis</div>
+                        <div className="text-xs text-gray-500 mb-1">{t("dashboard.suppliers.businessDescription")}</div>
                         <div className="text-sm text-gray-700">{detail.business_description}</div>
                       </div>
 
                       {/* NPWP Document */}
                       <div className="p-3 bg-gray-50 rounded-xl">
-                        <div className="text-xs text-gray-500 mb-2">Dokumen NPWP</div>
+                        <div className="text-xs text-gray-500 mb-2">{t("dashboard.suppliers.npwpDoc")}</div>
                         {detail.npwp ? (
                           <div className="space-y-2">
                             {isImageExtension(detail.npwp) ? (
@@ -398,7 +402,7 @@ export default function SuppliersPage() {
                             ) : (
                               <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-gray-200">
                                 <FileText size={20} className="text-gray-400" />
-                                <span className="text-sm text-gray-700 flex-1">Dokumen NPWP</span>
+                                <span className="text-sm text-gray-700 flex-1">{t("dashboard.suppliers.npwpDoc")}</span>
                               </div>
                             )}
                             <a
@@ -408,20 +412,20 @@ export default function SuppliersPage() {
                               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                             >
                               <ExternalLink size={12} />
-                              {isImageExtension(detail.npwp) ? "Buka Gambar di Tab Baru" : "Lihat Dokumen"}
+                              {isImageExtension(detail.npwp) ? t("dashboard.suppliers.openImage") : t("dashboard.suppliers.viewDocument")}
                             </a>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                             <FileText size={16} className="text-yellow-600" />
-                            <span className="text-xs font-medium text-yellow-700">Belum Mengunggah Dokumen NPWP</span>
+                            <span className="text-xs font-medium text-yellow-700">{t("dashboard.suppliers.noNpwp")}</span>
                           </div>
                         )}
                       </div>
 
                       {/* Registration Date */}
                       <div className="p-3 bg-gray-50 rounded-xl">
-                        <div className="text-xs text-gray-500 mb-1">Tanggal Registrasi</div>
+                        <div className="text-xs text-gray-500 mb-1">{t("dashboard.suppliers.registrationDate")}</div>
                         <div className="text-sm font-medium text-gray-900">
                           {detail.createdAt ? new Date(detail.createdAt).toLocaleDateString("id-ID", {
                             weekday: "long",
@@ -440,7 +444,7 @@ export default function SuppliersPage() {
                           onClick={() => { setExpandedId(null); setDetail(null); }}
                           className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
                         >
-                          Tutup
+                          {t("dashboard.common.close")}
                         </button>
                         {detail.verificationStatus === "Pending" && (
                           <>
@@ -454,7 +458,7 @@ export default function SuppliersPage() {
                               ) : (
                                 <XCircle size={14} />
                               )}
-                              Tolak
+                              {t("dashboard.suppliers.reject")}
                             </button>
                             <button
                               onClick={() => handleVerify(detail.id, "Verified")}
@@ -466,7 +470,7 @@ export default function SuppliersPage() {
                               ) : (
                                 <CheckCircle size={14} />
                               )}
-                              Setujui
+                              {t("dashboard.suppliers.approve")}
                             </button>
                           </>
                         )}
@@ -476,7 +480,7 @@ export default function SuppliersPage() {
                 ) : (
                   <div className="p-12 text-center">
                     <XCircle size={32} className="mx-auto text-red-400 mb-3" />
-                    <p className="text-sm text-gray-500">Gagal memuat detail</p>
+                    <p className="text-sm text-gray-500">{t("dashboard.suppliers.failedLoadDetail")}</p>
                   </div>
                 )}
               </div>

@@ -9,6 +9,7 @@ import { resetPasswordUser } from "@/lib/auth"
 import AuthShell from "./auth-shell"
 import AuthField from "./auth-field"
 import { getErrorMessage } from "@/lib/api/errors"
+import { useLanguage } from "@/lib/langue/provider"
 
 export default function ResetPasswordSection({
   token,
@@ -16,6 +17,7 @@ export default function ResetPasswordSection({
   token: string | null
 }) {
   const router = useRouter()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
@@ -33,17 +35,17 @@ export default function ResetPasswordSection({
     setMessage(null)
 
     if (!token) {
-      setMessage("Token reset tidak valid atau sudah kedaluwarsa")
+      setMessage(t("auth.reset.invalidToken"))
       return
     }
 
     if (formData.password.length < 6) {
-      setMessage("Password minimal 6 karakter")
+      setMessage(t("auth.reset.passwordMinLength"))
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setMessage("Konfirmasi password tidak cocok")
+      setMessage(t("auth.reset.passwordMismatch"))
       return
     }
 
@@ -54,29 +56,29 @@ export default function ResetPasswordSection({
         token,
         newPassword: formData.password,
       })
-      setMessage("Password berhasil diubah. Mengalihkan ke halaman login...")
+      setMessage(t("auth.reset.success"))
       setIsSuccess(true)
 
       setTimeout(() => {
         router.push("/login")
       }, 2000)
     } catch (error) {
-      setMessage(getErrorMessage(error, "Gagal mereset password"))
+      setMessage(getErrorMessage(error, t("auth.reset.failed")))
       setIsSubmitting(false)
     }
   }
 
   return (
     <AuthShell
-      eyebrow="Buat password baru"
-      title="Reset Password"
-      subtitle="Masukkan password baru untuk akun Anda"
-      quote="Amankan kembali akses akun Anda dengan password baru yang kuat."
+      eyebrow={t("auth.reset.eyebrow")}
+      title={t("auth.reset.title")}
+      subtitle={t("auth.reset.subtitle")}
+      quote={t("auth.reset.quote")}
       footerLink={
         <>
-          Sudah ingat kata sandi?{" "}
+          {t("auth.reset.rememberPassword")}{" "}
           <Link href="/login" className="font-semibold text-green-600 underline hover:text-green-700">
-            Masuk di sini
+            {t("auth.reset.signInHere")}
           </Link>
         </>
       }
@@ -89,23 +91,23 @@ export default function ResetPasswordSection({
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <AuthField
-          label="Password Baru"
+          label={t("auth.field.newPassword")}
           value={formData.password}
           onChange={(v) => handleChange("password", v)}
-          placeholder="Minimal 6 karakter"
+          placeholder={t("auth.reset.newPasswordPlaceholder")}
           type="password"
           icon={Lock}
-          error={message && !formData.password ? "Password wajib diisi" : null}
+          error={message && !formData.password ? t("auth.field.passwordRequired") : null}
         />
 
         <AuthField
-          label="Konfirmasi Password"
+          label={t("auth.field.confirmPassword")}
           value={formData.confirmPassword}
           onChange={(v) => handleChange("confirmPassword", v)}
-          placeholder="Ulangi password baru"
+          placeholder={t("auth.reset.confirmPasswordPlaceholder")}
           type="password"
           icon={Lock}
-          error={message && !formData.confirmPassword ? "Konfirmasi password wajib diisi" : null}
+          error={message && !formData.confirmPassword ? t("auth.field.confirmPasswordRequired") : null}
         />
 
         {message ? (
@@ -128,7 +130,7 @@ export default function ResetPasswordSection({
           whileTap={{ scale: 0.98 }}
           className="w-full h-11 rounded-full bg-green-600 font-semibold text-white transition shadow-md shadow-green-600/20 hover:-translate-y-px hover:shadow-lg hover:shadow-green-600/30 disabled:cursor-not-allowed disabled:bg-green-400 disabled:shadow-none disabled:transform-none"
         >
-          {isSubmitting ? "Memproses..." : "Simpan Password Baru"}
+          {isSubmitting ? t("auth.reset.processing") : t("auth.reset.submit")}
         </motion.button>
       </motion.form>
     </AuthShell>

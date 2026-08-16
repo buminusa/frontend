@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Eye, EyeOff, LucideIcon } from "lucide-react"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface AuthFieldProps {
   label: string
@@ -28,6 +29,7 @@ export default function AuthField({
   textarea,
   rows = 3,
 }: AuthFieldProps) {
+  const { t } = useLanguage()
   const [showPassword, setShowPassword] = useState(false)
   const isPassword = type === "password"
   const resolvedType = isPassword && showPassword ? "text" : type
@@ -79,7 +81,7 @@ export default function AuthField({
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+            aria-label={showPassword ? t("auth.field.hidePassword") : t("auth.field.showPassword")}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-gray-600"
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

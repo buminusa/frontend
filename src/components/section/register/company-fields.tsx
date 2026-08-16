@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { Upload, X, Building2, MapPin, Phone, Globe, FileText } from "lucide-react"
 import AuthField from "../auth-field"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface CompanyFieldsProps {
   formData: {
@@ -41,6 +42,7 @@ function FileUploadField({
   Icon: typeof Upload
 }) {
   const [fileError, setFileError] = useState<string | null>(null)
+  const { t } = useLanguage()
   const preview = useMemo(() => {
     if (!file) return null
     return URL.createObjectURL(file)
@@ -53,7 +55,7 @@ function FileUploadField({
 
   const handleFileSelect = (file: File | null) => {
     if (file && file.size > maxSizeBytes) {
-      setFileError("Ukuran file maksimal 1 MB.")
+      setFileError(t("auth.register.fileTooLarge"))
       onSelect(null)
       return
     }
@@ -124,10 +126,12 @@ export default function CompanyFields({
   onChange,
   onFileChange,
 }: CompanyFieldsProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="space-y-5">
       <AuthField
-        label="Nama Perusahaan"
+        label={t("auth.field.companyName")}
         value={formData.company_name}
         onChange={(v) => onChange("company_name", v)}
         placeholder="PT Contoh Sejahtera"
@@ -135,37 +139,37 @@ export default function CompanyFields({
       />
 
       <FileUploadField
-        label="Logo Perusahaan (Optional)"
+        label={t("auth.register.logoLabel")}
         file={formData.logo}
         onSelect={(file) => onFileChange("logo", file)}
         onRemove={() => onFileChange("logo", null)}
-        placeholder="Upload logo perusahaan (PNG/JPG)"
+        placeholder={t("auth.register.logoPlaceholder")}
         accept="image/png,image/jpeg"
         Icon={Upload}
       />
 
       <FileUploadField
-        label="Foto NPWP (Optional)"
+        label={t("auth.register.npwpLabel")}
         file={formData.npwp_file}
         onSelect={(file) => onFileChange("npwp_file", file)}
         onRemove={() => onFileChange("npwp_file", null)}
-        placeholder="Upload foto NPWP (maks. 1 MB)"
+        placeholder={t("auth.register.npwpPlaceholder")}
         accept="image/png,image/jpeg,application/pdf"
         Icon={FileText}
       />
 
       <AuthField
-        label="Alamat"
+        label={t("auth.field.address")}
         value={formData.address}
         onChange={(v) => onChange("address", v)}
-        placeholder="Alamat perusahaan"
+        placeholder={t("auth.register.companyAddressPlaceholder")}
         icon={MapPin}
         textarea
       />
 
       <div className="grid grid-cols-2 gap-4">
         <AuthField
-          label="Provinsi"
+          label={t("auth.field.province")}
           value={formData.province}
           onChange={(v) => onChange("province", v)}
           placeholder="Jawa Barat"
@@ -173,7 +177,7 @@ export default function CompanyFields({
         />
 
         <AuthField
-          label="Negara"
+          label={t("auth.field.country")}
           value={formData.country}
           onChange={(v) => onChange("country", v)}
           placeholder="Indonesia"
@@ -182,7 +186,7 @@ export default function CompanyFields({
       </div>
 
       <AuthField
-        label="Nomor Telepon"
+        label={t("auth.field.phone")}
         value={formData.phone}
         onChange={(v) => onChange("phone", v)}
         placeholder="08xxxxxxxxxx"
@@ -191,10 +195,10 @@ export default function CompanyFields({
       />
 
       <AuthField
-        label="Deskripsi Bisnis"
+        label={t("auth.field.businessDescription")}
         value={formData.business_description}
         onChange={(v) => onChange("business_description", v)}
-        placeholder="Ceritakan tentang bisnis Anda"
+        placeholder={t("auth.register.businessDescPlaceholder")}
         icon={FileText}
         textarea
         rows={4}

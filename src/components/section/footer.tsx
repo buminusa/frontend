@@ -1,9 +1,11 @@
 import Image from "next/image";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import FooterMenu from "@/components/section/footer-menu";
 import FooterCategories from "@/components/section/footer-categories";
+import { getServerT } from "@/lib/langue/server";
 
-export default function Footer() {
+export default async function Footer() {
+  const t = await getServerT();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -15,7 +17,7 @@ export default function Footer() {
               <Image src="/logo.png" alt="BumiNusa.id" width={40} height={40} className="w-10 h-10 rounded-full" />
               <h2 className="text-xl font-bold">BumiNusa.id</h2>
             </div>
-            <p className="text-sm text-gray-300 leading-relaxed">Platform aggregator komoditas Indonesia yang transparan, efisien, dan terpercaya.</p>
+            <p className="text-sm text-gray-300 leading-relaxed">{t("landing.footer.description")}</p>
           </div>
 
           <div>
@@ -23,12 +25,12 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Kategori</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("landing.footer.categories")}</h3>
             <FooterCategories />
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Kontak</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("landing.footer.contact")}</h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-3"><Phone className="w-5 h-5 text-gray-400" /><a href="tel:+62123456789" className="text-sm text-gray-300 hover:text-white transition-colors">+62 813-1059-9740</a></li>
               <li className="flex items-center gap-3"><Mail className="w-5 h-5 text-gray-400" /><a href="mailto:admin@buminusa.com" className="text-sm text-gray-300 hover:text-white transition-colors">admin@buminusa.id</a></li>
@@ -39,7 +41,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10"><div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-20 py-4"><div className="flex flex-col md:flex-row justify-between items-center gap-2">
         <p className="text-sm text-gray-400">&copy; {currentYear} BumiNusa.id. All rights reserved.</p>
-        <div className="flex gap-6"><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Privasi</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Syarat & Ketentuan</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Bantuan</a></div>
+        <div className="flex gap-6"><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">{t("landing.footer.privacy")}</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">{t("landing.footer.terms")}</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">{t("landing.footer.help")}</a></div>
       </div></div></div>
     </footer>
   );

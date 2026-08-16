@@ -4,39 +4,12 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { ChevronLeft, ChevronRight, LogOut, HelpCircle, Zap } from "lucide-react";
+import { useLanguage } from "@/lib/langue/provider";
 import {
-  LayoutGrid,
-  Warehouse,
-  Package,
-  ShoppingCart,
-  Tags,
-  ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  HelpCircle,
-  Zap,
-  Crown,
-} from "lucide-react";
-
-const BASE_MENU_ITEMS = [
-  { icon: LayoutGrid, label: "Dashboard", href: "/dashboard/admin" },
-  { icon: Warehouse, label: "Supplier", href: "/dashboard/admin/suppliers" },
-  { icon: Package, label: "Produk", href: "/dashboard/admin/products" },
-  { icon: ShoppingCart, label: "Pesanan", href: "/dashboard/admin/orders" },
-  { icon: Tags, label: "Kategori", href: "/dashboard/admin/categories" },
-  { icon: ShieldCheck, label: "Verifikasi", href: "/dashboard/admin/verification" },
-];
-
-const SUPER_ADMIN_MENU_ITEMS = [
-  { icon: LayoutGrid, label: "Dashboard", href: "/dashboard/super-admin" },
-  { icon: Crown, label: "Manajemen Role", href: "/dashboard/super-admin/roles" },
-  { icon: Warehouse, label: "Supplier", href: "/dashboard/super-admin/suppliers" },
-  { icon: Package, label: "Produk", href: "/dashboard/super-admin/products" },
-  { icon: ShoppingCart, label: "Pesanan", href: "/dashboard/super-admin/orders" },
-  { icon: Tags, label: "Kategori", href: "/dashboard/super-admin/categories" },
-  { icon: ShieldCheck, label: "Verifikasi", href: "/dashboard/super-admin/verification" },
-];
+  BASE_MENU_ITEMS,
+  SUPER_ADMIN_MENU_ITEMS,
+} from "@/lib/dashboard-constants";
 
 export function Sidebar({
   basePath = "/dashboard/admin",
@@ -54,6 +27,7 @@ export function Sidebar({
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
 
   // ponytail: mounted guard prevents SSR/CSR mismatch on pathname & auth-dependent UI
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -61,7 +35,9 @@ export function Sidebar({
 
   const isSuperAdminRoute = pathname?.startsWith("/dashboard/super-admin") || basePath.startsWith("/dashboard/super-admin");
   const MENU_ITEMS = isSuperAdminRoute ? SUPER_ADMIN_MENU_ITEMS : BASE_MENU_ITEMS;
-  const displayRoleLabel = isSuperAdminRoute ? "Super Admin" : roleLabel;
+  const displayRoleLabel = isSuperAdminRoute || roleLabel.toLowerCase().includes("super")
+    ? t("dashboard.sidebar.roleSuperAdmin")
+    : t("dashboard.sidebar.roleAdmin");
 
   // Fix active state: exact match for root dashboard paths
   const getIsActive = (href: string) => {
@@ -87,7 +63,7 @@ export function Sidebar({
           collapsed ? "w-[72px]" : "w-[264px]"
         } ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
         role="navigation"
-        aria-label="Sidebar navigasi"
+        aria-label={t("dashboard.sidebar.navAria")}
       >
       {/* Brand */}
       <div className="flex items-center justify-between px-4 h-[68px] border-b border-white/[0.06]">
@@ -109,7 +85,7 @@ export function Sidebar({
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="p-1.5 rounded-lg hover:bg-white/[0.08] transition-all duration-200 hidden lg:flex text-gray-500 hover:text-white flex-shrink-0"
-          aria-label={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
+          aria-label={collapsed ? t("dashboard.sidebar.expandSidebar") : t("dashboard.sidebar.collapseSidebar")}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
@@ -119,18 +95,19 @@ export function Sidebar({
       <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-hide">
         {!collapsed && (
           <div className="px-3 mb-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-[0.12em]">
-            Menu Utama
+            {t("dashboard.sidebar.menu")}
           </div>
         )}
 
         <div className="space-y-1">
           {MENU_ITEMS.map((item) => {
             const isActive = getIsActive(item.href);
+            const label = t(item.labelKey);
             return (
-              <div key={item.label} className="relative">
+              <div key={item.href} className="relative">
                 <Link
                   href={item.href}
-                  onMouseEnter={() => setHoveredItem(item.label)}
+                  onMouseEnter={() => setHoveredItem(item.href)}
                   onMouseLeave={() => setHoveredItem(null)}
                   className={`group flex items-center gap-3 relative rounded-xl text-[13px] font-medium transition-all duration-200 outline-none ${
                     collapsed ? "px-0 py-2.5 justify-center" : "px-3 py-2.5"
@@ -140,7 +117,7 @@ export function Sidebar({
                       : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
                   }`}
                   aria-current={isActive ? "page" : undefined}
-                  aria-label={collapsed ? item.label : undefined}
+                  aria-label={collapsed ? label : undefined}
                 >
                   {/* Active indicator - left bar */}
                   {isActive && (
@@ -157,13 +134,13 @@ export function Sidebar({
                     }`}
                   />
 
-                  {!collapsed && <span className="truncate">{item.label}</span>}
+                  {!collapsed && <span className="truncate">{label}</span>}
                 </Link>
 
                 {/* Tooltip for collapsed state */}
-                {collapsed && hoveredItem === item.label && (
+                {collapsed && hoveredItem === item.href && (
                   <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none animate-fadeIn">
-                    {item.label}
+                    {label}
                     <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-gray-900" />
                   </div>
                 )}
@@ -184,15 +161,15 @@ export function Sidebar({
               </div>
               <div className="min-w-0">
                 <div className="text-[12px] font-semibold text-white leading-tight">
-                  Butuh Bantuan?
+                  {t("dashboard.sidebar.help")}
                 </div>
                 <div className="text-[10px] text-gray-400 leading-tight mt-0.5">
-                  Hubungi support kami
+                  {t("dashboard.sidebar.helpDesc")}
                 </div>
               </div>
             </div>
             <button className="w-full py-2 bg-[#33A853] hover:bg-[#1E7B3E] text-white text-[12px] font-medium rounded-lg transition-all duration-200 active:scale-[0.98]">
-              Hubungi Support
+              {t("dashboard.sidebar.contactSupport")}
             </button>
           </div>
         ) : (
@@ -200,7 +177,7 @@ export function Sidebar({
             <div className="w-9 h-9 rounded-xl bg-[#33A853]/15 flex items-center justify-center hover:bg-[#33A853]/25 cursor-pointer transition-all duration-200 group relative">
               <HelpCircle size={16} className="text-[#33A853] group-hover:text-[#4CAF50] transition-colors" />
               <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                Bantuan
+                {t("dashboard.sidebar.helpTooltip")}
                 <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-gray-900" />
               </div>
             </div>
@@ -217,7 +194,7 @@ export function Sidebar({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium text-white truncate leading-tight">
-                    {user?.email || "Memuat..."}
+                    {user?.email || t("dashboard.common.loading")}
                   </div>
                   <div className="text-[11px] text-gray-500 leading-tight mt-0.5">
                     {user?.role || displayRoleLabel}
@@ -229,8 +206,8 @@ export function Sidebar({
                     logout();
                   }}
                   className="p-1.5 rounded-lg hover:bg-white/[0.08] transition-all duration-200 flex-shrink-0 opacity-60 group-hover:opacity-100"
-                  title="Keluar"
-                  aria-label="Keluar dari akun"
+                  title={t("dashboard.sidebar.logout")}
+                  aria-label={t("dashboard.sidebar.logoutAria")}
                 >
                   <LogOut size={15} className="text-gray-400 group-hover:text-red-400 transition-colors duration-200" />
                 </button>
@@ -241,7 +218,7 @@ export function Sidebar({
                   {user?.initials || "U"}
                 </div>
                 <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  {user?.email || "User"}
+                  {user?.email || t("dashboard.sidebar.user")}
                   <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-r-[5px] border-r-gray-900" />
                 </div>
               </div>

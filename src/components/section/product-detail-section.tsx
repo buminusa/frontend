@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getAuthToken, getUserRoleFromToken } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
+import { useLanguage } from "@/lib/langue/provider";
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
@@ -69,6 +70,8 @@ export default function ProductDetailSection() {
   const params = useParams();
   const slug = params.slug as string;
 
+  const { t } = useLanguage();
+
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -112,7 +115,7 @@ export default function ProductDetailSection() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.message || "Gagal memuat produk.");
+          throw new Error(result.message || t("komoditas.detail.errorLoad"));
         }
 
         const apiProduct: ApiProduct = result.data;
@@ -122,7 +125,7 @@ export default function ProductDetailSection() {
           name: apiProduct.nama,
           slug: apiProduct.slug,
           description: apiProduct.description ?? "",
-          category: apiProduct.category?.name_categories ?? "Tanpa kategori",
+          category: apiProduct.category?.name_categories ?? t("komoditas.detail.noCategory"),
 
           priceMin: Number(apiProduct.price_min),
           priceMax: Number(apiProduct.price_max),
@@ -146,7 +149,7 @@ export default function ProductDetailSection() {
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
           setError(
-            error instanceof Error ? error.message : "Gagal memuat produk.",
+            error instanceof Error ? error.message : t("komoditas.detail.errorLoad"),
           );
         }
       } finally {
@@ -159,7 +162,7 @@ export default function ProductDetailSection() {
     loadProduct();
 
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, t]);
 
   const handleBuy = async () => {
     const token = getAuthToken();
@@ -170,7 +173,7 @@ export default function ProductDetailSection() {
     }
 
     if (isBuyer === false) {
-      setPurchaseError("Hanya buyer yang dapat melakukan pembelian.");
+      setPurchaseError(t("komoditas.detail.buyerOnlyError"));
       return;
     }
 
@@ -179,13 +182,16 @@ export default function ProductDetailSection() {
     }
 
     if (!shippingAddress.trim()) {
-      setPurchaseError("Alamat pengiriman wajib diisi.");
+      setPurchaseError(t("komoditas.detail.shippingRequired"));
       return;
     }
 
     if (quantity < product.minOrder) {
       setPurchaseError(
-        `Minimal pembelian adalah ${product.minOrder} ${product.unit}`,
+        t("komoditas.detail.minOrderError", {
+          minOrder: product.minOrder,
+          unit: product.unit,
+        }),
       );
       return;
     }
@@ -202,14 +208,16 @@ export default function ProductDetailSection() {
       });
 
       setPurchaseMessage(
-        `Pesanan berhasil dibuat dengan nomor ${response.data?.order_number ?? "-"}. Order ini akan muncul di dashboard admin untuk diverifikasi.`,
+        t("komoditas.detail.orderSuccess", {
+          orderNumber: response.data?.order_number ?? "-",
+        }),
       );
       setQuantity(product.minOrder);
       setShippingAddress("");
       setNotes("");
     } catch (buyError) {
       setPurchaseError(
-        buyError instanceof Error ? buyError.message : "Gagal membuat pesanan.",
+        buyError instanceof Error ? buyError.message : t("komoditas.detail.orderError"),
       );
     } finally {
       setIsBuying(false);
@@ -220,7 +228,7 @@ export default function ProductDetailSection() {
     return (
       <section className="py-12">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-sm text-gray-500">Memuat produk...</p>
+          <p className="text-sm text-gray-500">{t("komoditas.detail.loading")}</p>
         </div>
       </section>
     );
@@ -240,7 +248,7 @@ export default function ProductDetailSection() {
     return (
       <section className="py-12">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-sm text-gray-500">Produk tidak ditemukan.</p>
+          <p className="text-sm text-gray-500">{t("komoditas.detail.notFound")}</p>
         </div>
       </section>
     );
@@ -256,7 +264,7 @@ export default function ProductDetailSection() {
           className="mb-8 flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />
-          Kembali
+          {t("komoditas.detail.back")}
         </button>
 
         <div className="grid gap-12 lg:grid-cols-2">
@@ -287,7 +295,9 @@ export default function ProductDetailSection() {
 
               {product.priceMax > product.priceMin && (
                 <p className="mt-1 text-gray-500">
-                  hingga Rp {product.priceMax.toLocaleString("id-ID")}
+                  {t("komoditas.detail.priceUpTo", {
+                    price: product.priceMax.toLocaleString("id-ID"),
+                  })}
                 </p>
               )}
             </div>
@@ -295,14 +305,14 @@ export default function ProductDetailSection() {
             <div className="rounded-xl border bg-white p-5">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500">Minimum Order</p>
+                  <p className="text-gray-500">{t("komoditas.detail.minOrder")}</p>
                   <p className="font-medium">
                     {product.minOrder} {product.unit}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-gray-500">Kode Produk</p>
+                  <p className="text-gray-500">{t("komoditas.detail.productCode")}</p>
                   <p className="font-medium">{product.hsCode}</p>
                 </div>
               </div>
@@ -310,12 +320,12 @@ export default function ProductDetailSection() {
 
             <div className="rounded-xl border bg-white p-5 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                Beli Produk
+                {t("komoditas.detail.buyProduct")}
               </h2>
 
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
-                  Jumlah
+                  {t("komoditas.detail.quantity")}
                   <input
                     type="number"
                     min={product.minOrder}
@@ -328,25 +338,25 @@ export default function ProductDetailSection() {
                 </label>
 
                 <label className="block text-sm font-medium text-gray-700">
-                  Alamat pengiriman
+                  {t("komoditas.detail.shippingAddress")}
                   <textarea
                     rows={3}
                     required
                     value={shippingAddress}
                     onChange={(event) => setShippingAddress(event.target.value)}
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                    placeholder="Masukkan alamat lengkap pengiriman"
+                    placeholder={t("komoditas.detail.shippingAddressPlaceholder")}
                   />
                 </label>
 
                 <label className="block text-sm font-medium text-gray-700">
-                  Catatan
+                  {t("komoditas.detail.notes")}
                   <textarea
                     rows={2}
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                    placeholder="Opsional"
+                    placeholder={t("komoditas.detail.notesPlaceholder")}
                   />
                 </label>
 
@@ -368,30 +378,29 @@ export default function ProductDetailSection() {
                   aria-disabled={!canOrder}
                   className="w-full rounded-lg bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                 >
-                  {isBuying ? "Memproses pesanan..." : "Order"}
+                  {isBuying ? t("komoditas.detail.processingOrder") : t("komoditas.detail.orderButton")}
                 </button>
 
                 {!canOrder ? (
                   <p className="text-xs text-gray-500">
-                    Hanya akun Buyer yang dapat melakukan order.{" "}
+                    {t("komoditas.detail.buyerOnlyNotice")}{" "}
                     <button
                       onClick={() => router.push("/login")}
                       className="font-medium text-green-600 underline"
                     >
-                      Login sebagai Buyer
+                      {t("komoditas.detail.loginAsBuyer")}
                     </button>
                   </p>
                 ) : null}
 
                 <p className="text-xs text-gray-500">
-                  Setelah pesanan dibuat, data akan muncul di dashboard admin
-                  untuk diverifikasi.
+                  {t("komoditas.detail.orderHint")}
                 </p>
               </div>
             </div>
 
             <div>
-              <h2 className="mb-2 text-lg font-semibold">Deskripsi Produk</h2>
+              <h2 className="mb-2 text-lg font-semibold">{t("komoditas.detail.descriptionTitle")}</h2>
 
               <p className="leading-7 text-gray-600">
                 {product.description || "-"}

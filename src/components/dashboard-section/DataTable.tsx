@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface Column<T> {
   key: string;
@@ -26,9 +27,10 @@ export function DataTable<T>({
   loading,
   error,
   onRetry,
-  emptyMessage = "Tidak ada data",
+  emptyMessage,
   keyExtractor,
 }: DataTableProps<T>) {
+  const { t } = useLanguage();
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -56,7 +58,7 @@ export function DataTable<T>({
           <AlertCircle size={28} className="text-red-500" />
         </div>
         <h3 className="text-base font-semibold text-gray-900 mb-1">
-          Gagal Memuat Data
+          {t("dashboard.common.failedToLoad")}
         </h3>
         <p className="text-sm text-gray-500 mb-4">{error}</p>
         {onRetry && (
@@ -65,7 +67,7 @@ export function DataTable<T>({
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <RefreshCw size={14} />
-            Coba Lagi
+            {t("dashboard.common.retry")}
           </button>
         )}
       </div>
@@ -79,9 +81,9 @@ export function DataTable<T>({
           <AlertCircle size={28} className="text-gray-400" />
         </div>
         <h3 className="text-base font-semibold text-gray-900 mb-1">
-          {emptyMessage}
+          {emptyMessage || t("dashboard.common.noData")}
         </h3>
-        <p className="text-sm text-gray-500">Data akan muncul setelah tersedia</p>
+        <p className="text-sm text-gray-500">{t("dashboard.common.noDataSubtext")}</p>
       </div>
     );
   }

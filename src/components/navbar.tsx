@@ -22,6 +22,8 @@ import {
   logoutUser,
 } from "@/lib/auth";
 import Avatar from "./avatar";
+import { LanguageSwitcher } from "@/lib/langue/language-switcher";
+import { useLanguage } from "@/lib/langue/provider";
 
 const categories = [
   "Rempah-rempah",
@@ -74,6 +76,7 @@ function SearchBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [prevUrlSearch, setPrevUrlSearch] = useState<string | null>(null);
@@ -128,7 +131,7 @@ function SearchBar() {
         value={search}
         onChange={handleSearchChange}
         onKeyDown={handleSearch}
-        placeholder="Cari komoditas..."
+        placeholder={t("common.searchPlaceholder")}
         className="h-10 w-full rounded-xl border border-gray-300 pl-10 pr-3 text-sm outline-none focus:border-green-600"
       />
     </div>
@@ -137,6 +140,7 @@ function SearchBar() {
 
 export default function Navbar() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -155,7 +159,7 @@ export default function Navbar() {
 
       const payload = decodeJwtPayload(token);
       const email = payload?.email ?? "";
-      const name = payload?.name ?? email.split("@")[0] ?? "Pengguna";
+      const name = payload?.name ?? email.split("@")[0] ?? t("nav.guestName");
       const roleName =
         getUserRoleFromToken(token) ??
         (typeof payload?.role === "string"
@@ -236,23 +240,27 @@ export default function Navbar() {
             </Link>
           
 
-          <div className="h-8 w-px bg-gray-300" />
+         <div className="hidden h-8 w-px bg-gray-300 md:block" />
 
-          <div className="hidden items-center md:flex">
+<div className="hidden md:block">
+  <LanguageSwitcher compact />
+</div>
+
+<div className="hidden items-center md:flex">
             {!user ? (
               <div className="flex items-center gap-3">
                 <Link
                   href="/login"
                   className="rounded-lg border border-green-600 px-6 py-2 font-semibold text-green-600 transition-colors hover:bg-green-50"
                 >
-                  Masuk
+                  {t("nav.login")}
                 </Link>
 
                 <Link
                   href="/register"
                   className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-green-700"
                 >
-                  Daftar
+                  {t("nav.register")}
                 </Link>
               </div>
             ) : (
@@ -303,7 +311,7 @@ export default function Navbar() {
                           className="flex items-center gap-3 px-5 py-3 text-gray-700 transition-colors hover:bg-gray-50"
                         >
                           <User size={18} />
-                          Profil Saya
+                          {t("nav.profile")}
                         </Link>
 
                         <button
@@ -312,7 +320,7 @@ export default function Navbar() {
                           className="flex w-full items-center gap-3 px-5 py-3 text-left text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                         >
                           <LogOut size={18} />
-                          {isLoggingOut ? "Keluar..." : "Logout"}
+                          {isLoggingOut ? t("nav.loggingOut") : t("nav.logout")}
                         </button>
                       </div>
                     </motion.div>
@@ -341,13 +349,7 @@ export default function Navbar() {
             className="absolute left-0 right-0 top-full z-50 border-b border-gray-100 bg-white shadow-lg md:hidden"
           >
             <div className="flex flex-col space-y-2 px-4 py-4">
-              <Link
-                href="/komoditas"
-                onClick={() => setIsOpen(false)}
-                className="rounded-xl px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-green-600"
-              >
-                Komoditas
-              </Link>
+              <LanguageSwitcher />
 
               <div className="my-1 h-px bg-gray-100" />
 
@@ -358,7 +360,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                     className="rounded-xl border border-green-600 px-4 py-2.5 text-center text-sm font-semibold text-green-600 hover:bg-green-50 active:bg-green-100"
                   >
-                    Masuk
+                    {t("nav.login")}
                   </Link>
 
                   <Link
@@ -366,7 +368,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                     className="rounded-xl bg-green-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm shadow-green-200 hover:bg-green-700 active:bg-green-800"
                   >
-                    Daftar
+                    {t("nav.register")}
                   </Link>
                 </div>
               ) : (
@@ -382,7 +384,7 @@ export default function Navbar() {
                     className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-green-600"
                   >
                     <User size={18} />
-                    Profil Saya
+                    {t("nav.profile")}
                   </Link>
 
                   <button
@@ -391,7 +393,7 @@ export default function Navbar() {
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-red-600 hover:bg-red-50"
                   >
                     <LogOut size={18} />
-                    {isLoggingOut ? "Keluar..." : "Logout"}
+                    {isLoggingOut ? t("nav.loggingOut") : t("nav.logout")}
                   </button>
                 </div>
               )}

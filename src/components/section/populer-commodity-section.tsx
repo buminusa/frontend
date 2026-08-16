@@ -8,6 +8,7 @@ import Link from "next/link"
 
 import { ArrowRight, LayoutGrid } from "lucide-react"
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth"
+import { useLanguage } from "@/lib/langue/provider"
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "")
 
@@ -31,6 +32,7 @@ type Product = {
 }
 
 export default function PopulerCommoditySection() {
+  const { t } = useLanguage()
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -58,7 +60,7 @@ export default function PopulerCommoditySection() {
         const result = await response.json()
 
         if (!response.ok) {
-          throw new Error(result.message || "Gagal memuat komoditas populer.")
+          throw new Error(result.message || t("komoditas.popular.errorLoad"))
         }
 
         setProducts(
@@ -67,13 +69,13 @@ export default function PopulerCommoditySection() {
     slug: product.slug ?? String(product.id),
     name: product.nama,
     image: product.images[0]?.image_url ?? "/hasil_bumi.png",
-    location: product.supplier?.address ?? "Indonesia",
-    category: product.category?.name_categories ?? "Lainnya",
+    location: product.supplier?.address ?? t("komoditas.popular.locationFallback"),
+    category: product.category?.name_categories ?? t("komoditas.popular.otherCategory"),
   }))
 )
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
-          setError(error instanceof Error ? error.message : "Gagal memuat komoditas populer.")
+          setError(error instanceof Error ? error.message : t("komoditas.popular.errorLoad"))
         }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false)
@@ -87,7 +89,7 @@ export default function PopulerCommoditySection() {
       controller.abort()
       window.removeEventListener(AUTH_EVENT_NAME, loadPopularProducts)
     }
-  }, [])
+  }, [t])
 
   return (
     <section className="py-14">
@@ -95,7 +97,7 @@ export default function PopulerCommoditySection() {
       <div className="mx-auto max-w-7xl px-4">
 
         <h2 className="mb-8 text-3xl font-bold">
-          Komoditas Populer
+          {t("komoditas.popular.title")}
         </h2>
 
         {/* Category */}
@@ -103,7 +105,7 @@ export default function PopulerCommoditySection() {
         <div className="mb-10 flex items-center gap-3">
 
   <CategoryChip
-    name="Semua"
+    name={t("komoditas.popular.all")}
     icon={LayoutGrid}
     active
     onClick={() => {}}
@@ -128,7 +130,7 @@ export default function PopulerCommoditySection() {
       hover:text-green-600
     "
   >
-    Kategori Lainnya
+    {t("komoditas.popular.otherCategories")}
     <ArrowRight size={18} />
   </Link>
 
@@ -138,12 +140,12 @@ export default function PopulerCommoditySection() {
 
         <div className="grid grid-cols-2 gap-5 mb-10 md:grid-cols-4 lg:grid-cols-6">
 
-          {isLoading && <p className="col-span-full text-sm text-gray-500">Memuat komoditas populer...</p>}
+          {isLoading && <p className="col-span-full text-sm text-gray-500">{t("komoditas.popular.loading")}</p>}
 
           {!isLoading && error && <p className="col-span-full text-sm text-red-600">{error}</p>}
 
           {!isLoading && !error && products.length === 0 && (
-            <p className="col-span-full text-sm text-gray-500">Belum ada komoditas populer.</p>
+            <p className="col-span-full text-sm text-gray-500">{t("komoditas.popular.empty")}</p>
           )}
 
           {products.map((product) => (
@@ -158,7 +160,7 @@ export default function PopulerCommoditySection() {
         <Link
     href={"/komoditas"}
     className="hidden md:flex items-center gap-2 font-medium text-gray-400 hover:gap-3 hover:text-green-600 transition-all">
-    Lihat Semua
+    {t("komoditas.popular.viewAll")}
     <ArrowRight size={18} />
   </Link>
 

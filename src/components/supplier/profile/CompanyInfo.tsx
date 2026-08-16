@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { Building2, MapPin, Phone, Globe, CreditCard } from "lucide-react";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface CompanyInfoProps {
   company: {
@@ -14,24 +17,52 @@ interface CompanyInfoProps {
 }
 
 export function CompanyInfo({ company }: CompanyInfoProps) {
+  const { t } = useLanguage();
+
   const infoItems = [
-    { icon: Building2, label: "Company Name", value: company.company_name },
-    { icon: CreditCard, label: "NPWP", value: company.npwp },
-    { icon: MapPin, label: "Address", value: company.address },
-    { icon: Globe, label: "Province", value: company.province },
-    { icon: Globe, label: "Country", value: company.country },
-    { icon: Phone, label: "Phone", value: company.phone },
+    {
+      icon: Building2,
+      labelKey: "supplier.profile.companyName",
+      value: company.company_name,
+    },
+    {
+      icon: CreditCard,
+      labelKey: "supplier.profile.npwpLabel",
+      value: company.npwp,
+    },
+    {
+      icon: MapPin,
+      labelKey: "supplier.profile.address",
+      value: company.address,
+    },
+    {
+      icon: Globe,
+      labelKey: "supplier.profile.province",
+      value: company.province,
+    },
+    {
+      icon: Globe,
+      labelKey: "supplier.profile.country",
+      value: company.country,
+    },
+    {
+      icon: Phone,
+      labelKey: "supplier.profile.phone",
+      value: company.phone,
+    },
   ];
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Company Information
+        {t("supplier.profile.companyInformation")}
       </h2>
       
       {company.logo_url && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-500 mb-2">Company Logo</p>
+          <p className="text-sm text-gray-500 mb-2">
+            {t("supplier.profile.companyLogoLabel")}
+          </p>
           <Image 
             src={company.logo_url} 
             alt={company.company_name}
@@ -48,7 +79,7 @@ export function CompanyInfo({ company }: CompanyInfoProps) {
           <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
             <item.icon className="w-5 h-5 text-blue-500 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">{item.label}</p>
+              <p className="text-xs text-gray-500 uppercase tracking-wider">{t(item.labelKey)}</p>
               <p className="text-gray-900 font-medium mt-0.5 break-words">{item.value}</p>
             </div>
           </div>

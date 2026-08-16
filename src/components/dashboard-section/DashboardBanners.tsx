@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/langue/provider";
 import {
   AlertCircle,
   AlertTriangle,
@@ -17,6 +18,7 @@ export function SessionExpiredBanner() {
   const [visible, setVisible] = useState(true);
   const [countdown, setCountdown] = useState(30);
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -44,11 +46,10 @@ export function SessionExpiredBanner() {
           <div className="flex items-start justify-between">
             <div>
               <h4 className="text-sm font-semibold text-red-900">
-                Sesi Login Telah Habis
+                {t("dashboard.common.sessionExpiredTitle")}
               </h4>
               <p className="text-sm text-red-700 mt-1">
-                Token autentikasi Anda sudah tidak valid. Silakan login ulang
-                untuk melanjutkan akses ke dashboard.
+                {t("dashboard.common.sessionExpiredDesc")}
               </p>
             </div>
             <button
@@ -63,14 +64,14 @@ export function SessionExpiredBanner() {
               className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/30"
               onClick={() => router.push("/login?session=expired")}
             >
-              Login Ulang
+              {t("dashboard.common.loginAgain")}
               <span className="flex items-center gap-1 px-2 py-0.5 bg-red-500 rounded-full text-xs">
                 <Clock size={10} />
                 {countdown}s
               </span>
             </button>
             <button className="text-sm text-red-600 hover:text-red-700 font-medium hover:underline">
-              Pelajari Lebih Lanjut
+              {t("dashboard.common.learnMore")}
             </button>
           </div>
         </div>
@@ -88,6 +89,7 @@ export function ErrorBanner({
 }) {
   const [visible, setVisible] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
+  const { t } = useLanguage();
 
   const handleRetry = async () => {
     setIsRetrying(true);
@@ -119,40 +121,39 @@ export function ErrorBanner({
             <div>
               <h4 className="text-sm font-semibold text-red-900">
                 {isConnectionError
-                  ? "Gagal Terhubung ke Server"
-                  : "Terjadi Kesalahan Sistem"}
+                  ? t("dashboard.common.connectionFailed")
+                  : t("dashboard.common.systemError")}
               </h4>
               <p className="text-sm text-red-700 mt-1">
                 {isConnectionError
-                  ? "Tidak dapat terhubung ke backend server. Pastikan backend sudah berjalan di http://localhost:8080"
+                  ? t("dashboard.common.connectionFailedDesc")
                   : message}
               </p>
               {!isConnectionError && (
                 <div className="mt-3 p-3 bg-red-100/50 rounded-lg border border-red-200">
                   <p className="text-xs text-red-700">
-                    Pastikan akun memiliki role yang sesuai untuk mengakses resource ini.
+                    {t("dashboard.common.roleCheckHint")}
                   </p>
                 </div>
               )}
               {isConnectionError && (
                 <div className="mt-3 p-3 bg-red-100/50 rounded-lg border border-red-200">
                   <p className="text-xs text-red-700 font-medium mb-2">
-                    Cara mengatasi:
+                    {t("dashboard.common.howToFix")}
                   </p>
                   <ol className="text-xs text-red-600 space-y-1 list-decimal list-inside">
-                    <li>Pastikan backend server sudah berjalan</li>
+                    <li>{t("dashboard.common.stepBackendRunning")}</li>
                     <li>
-                      Jalankan:{" "}
+                      {t("dashboard.common.runCommand")}{" "}
                       <code className="px-1 py-0.5 bg-red-200 rounded font-mono">
                         cd backend && go run main.go
                       </code>
                     </li>
                     <li>
-                      Periksa file{" "}
+                      {t("dashboard.common.checkEnvFile")}{" "}
                       <code className="px-1 py-0.5 bg-red-200 rounded font-mono">
                         .env.local
-                      </code>{" "}
-                      untuk URL API
+                      </code>
                     </li>
                   </ol>
                 </div>
@@ -175,13 +176,13 @@ export function ErrorBanner({
                 size={14}
                 className={isRetrying ? "animate-spin" : ""}
               />
-              {isRetrying ? "Mencoba..." : "Coba Lagi"}
+              {isRetrying ? t("dashboard.common.trying") : t("dashboard.common.retry")}
             </button>
             <button className="text-sm text-red-600 hover:text-red-700 font-medium hover:underline">
-              Hubungi Support
+              {t("dashboard.common.contactSupport")}
             </button>
             <button className="text-sm text-gray-600 hover:text-gray-700 font-medium hover:underline">
-              Lihat Dokumentasi
+              {t("dashboard.common.viewDocumentation")}
             </button>
           </div>
         </div>
@@ -197,6 +198,7 @@ export function PartialWarningsBanner({
 }) {
   const [visible, setVisible] = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const { t } = useLanguage();
 
   if (warnings.length === 0 || !visible) return null;
 
@@ -210,11 +212,10 @@ export function PartialWarningsBanner({
           <div className="flex items-start justify-between">
             <div>
               <h4 className="text-sm font-semibold text-yellow-900">
-                Peringatan: Data Tidak Lengkap
+                {t("dashboard.common.partialWarningsTitle")}
               </h4>
               <p className="text-sm text-yellow-700 mt-1">
-                Sebagian data gagal dimuat. Dashboard menampilkan data yang
-                berhasil diperoleh.
+                {t("dashboard.common.partialWarningsDesc")}
               </p>
             </div>
             <button
@@ -230,7 +231,7 @@ export function PartialWarningsBanner({
             className="flex items-center gap-1.5 mt-3 text-xs text-yellow-700 hover:text-yellow-800 font-medium"
           >
             <Info size={12} />
-            {expanded ? "Sembunyikan" : "Lihat"} Detail Peringatan
+            {expanded ? t("dashboard.common.hide") : t("dashboard.common.show")} {t("dashboard.common.warningDetails")}
             <svg
               width="12"
               height="12"

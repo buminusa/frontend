@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useLanguage } from "@/lib/langue/provider";
 import {
   Search,
   Bell,
@@ -21,6 +22,7 @@ import {
 
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
@@ -46,16 +48,16 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
           <button
             onClick={onMenuClick}
             className="p-2 rounded-lg hover:bg-gray-100 transition-all lg:hidden"
-            aria-label="Buka menu"
+            aria-label={t("dashboard.topbar.openMenu")}
           >
             <Menu size={20} className="text-gray-600" />
           </button>
 
           {/* Breadcrumb */}
           <div className="hidden md:flex items-center gap-2 text-sm">
-            <span className="text-gray-400">Beranda</span>
+            <span className="text-gray-400">{t("dashboard.topbar.home")}</span>
             <span className="text-gray-300">/</span>
-            <span className="font-medium text-gray-900">Dashboard</span>
+            <span className="font-medium text-gray-900">{t("dashboard.topbar.dashboard")}</span>
           </div>
 
           {/* Search */}
@@ -72,7 +74,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
             />
             <input
               type="text"
-              placeholder="Cari supplier, produk, kategori..."
+              placeholder={t("dashboard.topbar.searchPlaceholder")}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onFocus={() => setSearchFocused(true)}
@@ -147,7 +149,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
               <div className="absolute right-0 top-14 w-[400px] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">Notifikasi</h3>
+                    <h3 className="font-semibold text-gray-900">{t("dashboard.topbar.notifications")}</h3>
                     <button className="p-1 rounded-lg hover:bg-gray-100">
                       <Settings size={14} className="text-gray-400" />
                     </button>
@@ -155,7 +157,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
                 </div>
                 <div className="py-12 text-center">
                   <Bell size={32} className="mx-auto text-gray-300 mb-3" />
-                  <p className="text-sm text-gray-500">Belum ada notifikasi</p>
+                  <p className="text-sm text-gray-500">{t("dashboard.topbar.noNotifications")}</p>
                 </div>
               </div>
             )}
@@ -177,9 +179,9 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
               </div>
               <div className="hidden sm:block">
                 <div className="text-sm font-semibold text-gray-900">
-                  {user?.email || "Memuat..."}
+                  {user?.email || t("dashboard.common.loading")}
                 </div>
-                <div className="text-xs text-gray-500">{user?.role || "User"}</div>
+                <div className="text-xs text-gray-500">{user?.role || t("dashboard.topbar.user")}</div>
               </div>
               <ChevronDown
                 size={16}
@@ -197,15 +199,15 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
                       {user?.initials || "U"}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{user?.email || "User"}</p>
-                      <p className="text-xs text-gray-500">{user?.role || "User"}</p>
+                      <p className="font-semibold text-gray-900">{user?.email || t("dashboard.topbar.user")}</p>
+                      <p className="text-xs text-gray-500">{user?.role || t("dashboard.topbar.user")}</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-2">
                   {[
-                    { icon: User, label: "Profil Saya", desc: "Kelola informasi profil" },
-                    { icon: Settings, label: "Pengaturan", desc: "Preferensi akun" },
+                    { icon: User, label: t("dashboard.topbar.profile"), desc: t("dashboard.topbar.profileDesc") },
+                    { icon: Settings, label: t("dashboard.topbar.settings"), desc: t("dashboard.topbar.settingsDesc") },
                   ].map((item) => (
                     <button
                       key={item.label}
@@ -233,10 +235,10 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-red-600">
-                        Keluar
+                        {t("dashboard.topbar.logout")}
                       </div>
                       <div className="text-xs text-gray-500">
-                        Keluar dari akun
+                        {t("dashboard.topbar.logoutDesc")}
                       </div>
                     </div>
                   </button>

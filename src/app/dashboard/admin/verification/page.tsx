@@ -7,6 +7,7 @@ import { DashboardLayout } from "@/components/dashboard-section/DashboardLayout"
 import { companyProfileService } from "@/lib/api/services/company-profiles";
 import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
+import { useLanguage } from "@/lib/langue/provider";
 import type { CompanyProfile } from "@/lib/types/api";
 import { relativeTime } from "@/lib/format";
 import {
@@ -32,6 +33,7 @@ function isImageExtension(url: string): boolean {
 
 export default function VerificationPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [suppliers, setSuppliers] = useState<CompanyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export default function VerificationPage() {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, "Gagal memuat data verifikasi"));
+      setError(getErrorMessage(err, t("dashboard.verification.loadFailed")));
     } finally {
       setLoading(false);
     }
@@ -108,7 +110,7 @@ export default function VerificationPage() {
           router.push("/login?session=expired");
           return;
         }
-        setError(getErrorMessage(err, "Gagal memverifikasi"));
+        setError(getErrorMessage(err, t("dashboard.verification.verifyFailed")));
       } finally {
         setActionLoadingId(null);
       }
@@ -125,9 +127,9 @@ export default function VerificationPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Verifikasi Supplier</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.verification.title")}</h1>
               <p className="text-sm text-gray-500 mt-1">
-                Setujui atau tolak pendaftaran supplier baru
+                {t("dashboard.verification.description")}
               </p>
             </div>
             <button
@@ -138,7 +140,7 @@ export default function VerificationPage() {
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RefreshCw size={14} />
-              Refresh
+              {t("dashboard.common.refresh")}
             </button>
           </div>
 
@@ -171,7 +173,7 @@ export default function VerificationPage() {
                 }}
                 className="mt-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
               >
-                Coba Lagi
+                {t("dashboard.common.retry")}
               </button>
             </div>
           )}
@@ -183,10 +185,10 @@ export default function VerificationPage() {
                 <CheckCircle size={36} className="text-emerald-500" />
               </div>
               <h3 className="text-base font-semibold text-gray-900 mb-1">
-                Semua Sudah Diverifikasi
+                {t("dashboard.verification.allVerified")}
               </h3>
               <p className="text-sm text-gray-500">
-                Tidak ada supplier yang menunggu verifikasi
+                {t("dashboard.verification.allVerifiedDesc")}
               </p>
             </div>
           )}
@@ -248,7 +250,7 @@ export default function VerificationPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
-                        Pending
+                        {t("dashboard.status.pendingVerification")}
                       </span>
                       <ChevronDown
                         size={16}
@@ -264,7 +266,7 @@ export default function VerificationPage() {
                         {detailLoading ? (
                           <div className="py-8 text-center">
                             <Loader2 size={24} className="animate-spin text-blue-500 mx-auto mb-2" />
-                            <p className="text-xs text-gray-500">Memuat detail...</p>
+                            <p className="text-xs text-gray-500">{t("dashboard.verification.loadingDetail")}</p>
                           </div>
                         ) : detail ? (
                           <div className="space-y-4">
@@ -273,28 +275,28 @@ export default function VerificationPage() {
                               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <Mail size={14} className="text-gray-400" />
                                 <div>
-                                  <div className="text-[11px] text-gray-500">Email</div>
+                                  <div className="text-[11px] text-gray-500">{t("dashboard.verification.email")}</div>
                                   <div className="text-sm font-medium text-gray-900">{detail.user?.email || "-"}</div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <Phone size={14} className="text-gray-400" />
                                 <div>
-                                  <div className="text-[11px] text-gray-500">Telepon</div>
+                                  <div className="text-[11px] text-gray-500">{t("dashboard.verification.phone")}</div>
                                   <div className="text-sm font-medium text-gray-900">{detail.phone}</div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <MapPin size={14} className="text-gray-400" />
                                 <div>
-                                  <div className="text-[11px] text-gray-500">Provinsi</div>
+                                  <div className="text-[11px] text-gray-500">{t("dashboard.common.province")}</div>
                                   <div className="text-sm font-medium text-gray-900">{detail.province}</div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <Globe size={14} className="text-gray-400" />
                                 <div>
-                                  <div className="text-[11px] text-gray-500">Negara</div>
+                                  <div className="text-[11px] text-gray-500">{t("dashboard.common.country")}</div>
                                   <div className="text-sm font-medium text-gray-900">{detail.country}</div>
                                 </div>
                               </div>
@@ -302,19 +304,19 @@ export default function VerificationPage() {
 
                             {/* Address */}
                             <div className="p-3 bg-gray-50 rounded-lg">
-                              <div className="text-[11px] text-gray-500 mb-1">Alamat</div>
+                              <div className="text-[11px] text-gray-500 mb-1">{t("dashboard.verification.address")}</div>
                               <div className="text-sm font-medium text-gray-900">{detail.address}</div>
                             </div>
 
                             {/* Business Description */}
                             <div className="p-3 bg-gray-50 rounded-lg">
-                              <div className="text-[11px] text-gray-500 mb-1">Deskripsi Bisnis</div>
+                              <div className="text-[11px] text-gray-500 mb-1">{t("dashboard.verification.businessDescription")}</div>
                               <div className="text-sm text-gray-700">{detail.business_description}</div>
                             </div>
 
                             {/* NPWP Document */}
                             <div className="p-3 bg-gray-50 rounded-lg">
-                              <div className="text-[11px] text-gray-500 mb-2">Dokumen NPWP</div>
+                              <div className="text-[11px] text-gray-500 mb-2">{t("dashboard.verification.npwpDoc")}</div>
                               {detail.npwp ? (
                                 <div className="space-y-2">
                                   {isImageExtension(detail.npwp) ? (
@@ -329,7 +331,7 @@ export default function VerificationPage() {
                                   ) : (
                                     <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-gray-200">
                                       <FileText size={18} className="text-gray-400" />
-                                      <span className="text-sm text-gray-700">Dokumen NPWP</span>
+                                      <span className="text-sm text-gray-700">{t("dashboard.verification.npwpDoc")}</span>
                                     </div>
                                   )}
                                   <a
@@ -339,13 +341,13 @@ export default function VerificationPage() {
                                     className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                                   >
                                     <ExternalLink size={12} />
-                                    {isImageExtension(detail.npwp) ? "Buka Gambar di Tab Baru" : "Lihat Dokumen"}
+                                    {isImageExtension(detail.npwp) ? t("dashboard.verification.openImage") : t("dashboard.verification.viewDocument")}
                                   </a>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                   <FileText size={16} className="text-yellow-600" />
-                                  <span className="text-xs font-medium text-yellow-700">Belum Mengunggah Dokumen NPWP</span>
+                                  <span className="text-xs font-medium text-yellow-700">{t("dashboard.verification.noNpwp")}</span>
                                 </div>
                               )}
                             </div>
@@ -354,7 +356,7 @@ export default function VerificationPage() {
                             <div className="p-3 bg-gray-50 rounded-lg">
                               <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-1">
                                 <Calendar size={12} />
-                                Tanggal Pendaftaran
+                                {t("dashboard.verification.registrationDate")}
                               </div>
                               <div className="text-sm font-medium text-gray-900">
                                 {detail.createdAt ? new Date(detail.createdAt).toLocaleDateString("id-ID", {
@@ -387,12 +389,12 @@ export default function VerificationPage() {
                                 ) : isConfirmingReject ? (
                                   <>
                                     <CheckCircle size={16} />
-                                    Konfirmasi Tolak
+                                    {t("dashboard.verification.confirmReject")}
                                   </>
                                 ) : (
                                   <>
                                     <XCircle size={16} />
-                                    Tolak Verifikasi
+                                    {t("dashboard.verification.rejectVerification")}
                                   </>
                                 )}
                               </button>
@@ -414,12 +416,12 @@ export default function VerificationPage() {
                                 ) : isConfirmingApprove ? (
                                   <>
                                     <CheckCircle size={16} />
-                                    Konfirmasi Setujui
+                                    {t("dashboard.verification.confirmApprove")}
                                   </>
                                 ) : (
                                   <>
                                     <CheckCircle size={16} />
-                                    Setujui Verifikasi
+                                    {t("dashboard.verification.approveVerification")}
                                   </>
                                 )}
                               </button>
@@ -427,14 +429,14 @@ export default function VerificationPage() {
 
                             {(isConfirmingReject || isConfirmingApprove) && (
                               <p className="text-xs text-center text-gray-500 mt-1 animate-fadeIn">
-                                Klik sekali lagi untuk mengkonfirmasi
+                                {t("dashboard.verification.clickAgainToConfirm")}
                               </p>
                             )}
                           </div>
                         ) : (
                           <div className="py-8 text-center">
                             <XCircle size={24} className="mx-auto text-red-400 mb-2" />
-                            <p className="text-xs text-gray-500">Gagal memuat detail</p>
+                            <p className="text-xs text-gray-500">{t("dashboard.verification.failedLoadDetail")}</p>
                           </div>
                         )}
                       </div>

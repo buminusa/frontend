@@ -1,6 +1,8 @@
 // components/sections/profile/OrderHistory.tsx
+"use client";
 import Link from "next/link";
 import { Package, Calendar, DollarSign, ChevronRight } from "lucide-react";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface Order {
   id: number;
@@ -14,6 +16,8 @@ interface OrderHistoryProps {
 }
 
 export function OrderHistory({ orders }: OrderHistoryProps) {
+  const { t } = useLanguage();
+
   const getStatusColor = (status: string) => {
     const colors = {
       completed: "bg-green-100 text-green-800",
@@ -31,12 +35,12 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
 
   const getStatusLabel = (status: string) => {
     const labels = {
-      completed: "Completed",
-      pending: "Pending",
-      confirmed: "Confirmed",
-      processing: "Processing",
-      shipped: "Shipped",
-      cancelled: "Cancelled",
+      completed: "orders.statusCompleted",
+      pending: "orders.statusPending",
+      confirmed: "orders.statusConfirmed",
+      processing: "orders.statusProcessing",
+      shipped: "orders.statusShipped",
+      cancelled: "orders.statusCancelled",
     };
     return labels[status.toLowerCase() as keyof typeof labels] || status;
   };
@@ -45,11 +49,11 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Order History
+          {t("orders.title")}
         </h2>
         <div className="text-center py-8">
           <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No orders yet</p>
+          <p className="text-gray-500">{t("orders.empty")}</p>
         </div>
       </div>
     );
@@ -59,13 +63,13 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-900">
-          Order History
+          {t("orders.title")}
         </h2>
         <Link
           href="/keranjang"
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
-          View All
+          {t("orders.viewAll")}
         </Link>
       </div>
 
@@ -81,7 +85,7 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
                 <Package className="w-5 h-5 text-gray-600" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Order #{order.id}</p>
+                <p className="font-medium text-gray-900">{t("orders.number", { id: order.id })}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
                   <Calendar className="w-4 h-4" />
                   <span>
@@ -102,7 +106,7 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
               </div>
 
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                {getStatusLabel(order.status)}
+                {t(getStatusLabel(order.status))}
               </span>
 
               <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />

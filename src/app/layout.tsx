@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
 import { AuthRouteGuard } from "@/components/auth-route-guard";
+import { LanguageProvider } from "@/lib/langue/provider";
+import { getServerLang } from "@/lib/langue/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,18 +61,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lang = await getServerLang();
+
   return (
     <html
-      lang="id"
+      lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AuthRouteGuard>{children}</AuthRouteGuard>
+        <LanguageProvider initialLang={lang}>
+          <AuthRouteGuard>{children}</AuthRouteGuard>
+        </LanguageProvider>
       </body>
     </html>
   );

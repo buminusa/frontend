@@ -22,9 +22,11 @@ import {
   Calendar,
 } from "lucide-react";
 import { useAuthGuard } from "@/hooks/use-auth-guard"
+import { useLanguage } from "@/lib/langue/provider";
 
 export default function AdminDashboardPage() {
   useAuthGuard({ allowedRoles: ["Admin", "Super_Admin"] });
+  const { t } = useLanguage();
   const {
     loading,
     errorMsg,
@@ -48,12 +50,12 @@ export default function AdminDashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const getGreeting = () => {
+  const getGreetingKey = () => {
     const hour = currentTime.getHours();
-    if (hour < 11) return "Selamat Pagi";
-    if (hour < 15) return "Selamat Siang";
-    if (hour < 18) return "Selamat Sore";
-    return "Selamat Malam";
+    if (hour < 11) return "dashboard.common.greetingMorning";
+    if (hour < 15) return "dashboard.common.greetingAfternoon";
+    if (hour < 18) return "dashboard.common.greetingEvening";
+    return "dashboard.common.greetingNight";
   };
 
 
@@ -63,7 +65,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {getGreeting()}, Admin! 👋
+                {t(getGreetingKey())}, {t("dashboard.common.roleAdmin")}! 👋
               </h1>
               <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
                 <Calendar size={14} />
@@ -95,21 +97,21 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-3 gap-5 mb-6">
             <StatCard
               icon={Warehouse}
-              label="Total Supplier"
+              label={t("dashboard.stats.totalSupplier")}
               value={totalSupplier}
               loading={loading}
               color="blue"
             />
             <StatCard
               icon={Package}
-              label="Total Produk"
+              label={t("dashboard.stats.totalProducts")}
               value={totalProdukSemua}
               loading={loading}
               color="emerald"
             />
             <StatCard
               icon={Tags}
-              label="Total Kategori"
+              label={t("dashboard.stats.totalCategories")}
               value={totalKategori}
               loading={loading}
               color="violet"
@@ -144,14 +146,14 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-base font-semibold text-gray-900">
-                  Aktivitas Terkini
+                  {t("dashboard.common.recentActivity")}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">
-                  Log aktivitas sistem
+                  {t("dashboard.common.activityLogDesc")}
                 </p>
               </div>
               <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Lihat Semua
+                {t("dashboard.common.viewAll")}
               </button>
             </div>
           </div>

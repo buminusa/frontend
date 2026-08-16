@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import type { CompanyProfile } from "@/lib/types/dashboard";
 import { relativeTime } from "@/lib/format";
+import { useLanguage } from "@/lib/langue/provider";
 import {
   CheckCircle,
   XCircle,
@@ -32,6 +33,7 @@ export function PendingVerification({
   onVerify,
 }: PendingVerificationProps) {
   const [expandedItem, setExpandedItem] = useState<number | null>(null);
+  const { t } = useLanguage();
   const [confirmAction, setConfirmAction] = useState<{
     id: number;
     status: "Verified" | "Rejected";
@@ -62,16 +64,16 @@ export function PendingVerification({
       <div className="flex items-start justify-between mb-6">
         <div>
           <h3 className="text-base font-semibold text-gray-900">
-            Verifikasi Tertunda
+            {t("dashboard.stats.pendingVerificationTitle")}
           </h3>
           <p className="text-xs text-gray-500 mt-1">
-            Supplier baru menunggu persetujuan
+            {t("dashboard.stats.pendingVerificationDesc")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {items.length > 0 && (
             <span className="px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold border border-yellow-200">
-              {items.length} pending
+              {t("dashboard.stats.pendingCount", { count: items.length })}
             </span>
           )}
           <button
@@ -94,7 +96,7 @@ export function PendingVerification({
                 }`}
               >
                 <Filter size={14} />
-                Semua
+                {t("dashboard.common.all")}
               </button>
               <button
                 onClick={() => {
@@ -108,7 +110,7 @@ export function PendingVerification({
                 }`}
               >
                 <Clock size={14} />
-                Terbaru
+                {t("dashboard.stats.newest")}
               </button>
               <button
                 onClick={() => {
@@ -122,7 +124,7 @@ export function PendingVerification({
                 }`}
               >
                 <Calendar size={14} />
-                Terlama
+                {t("dashboard.stats.oldest")}
               </button>
             </div>
           )}
@@ -136,13 +138,13 @@ export function PendingVerification({
             <CheckCircle size={36} className="text-emerald-500" />
           </div>
           <h4 className="text-base font-semibold text-gray-900 mb-1">
-            Semua Sudah Diverifikasi
+            {t("dashboard.verification.allVerified")}
           </h4>
           <p className="text-sm text-gray-500">
-            Tidak ada supplier yang menunggu verifikasi
+            {t("dashboard.verification.allVerifiedDesc")}
           </p>
           <button className="mt-4 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-            Lihat Riwayat Verifikasi
+            {t("dashboard.stats.viewVerificationHistory")}
           </button>
         </div>
       )}
@@ -218,7 +220,7 @@ export function PendingVerification({
                       <div className="p-3 bg-white rounded-lg border border-gray-100">
                         <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                           <Building2 size={12} />
-                          Perusahaan
+                          {t("dashboard.stats.company")}
                         </div>
                         <div className="text-sm font-medium text-gray-900">
                           {v.company_name}
@@ -227,7 +229,7 @@ export function PendingVerification({
                       <div className="p-3 bg-white rounded-lg border border-gray-100">
                         <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                           <MapPin size={12} />
-                          Provinsi
+                          {t("dashboard.common.province")}
                         </div>
                         <div className="text-sm font-medium text-gray-900">
                           {v.province}
@@ -236,7 +238,7 @@ export function PendingVerification({
                       <div className="p-3 bg-white rounded-lg border border-gray-100">
                         <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                           <Globe size={12} />
-                          Negara
+                          {t("dashboard.common.country")}
                         </div>
                         <div className="text-sm font-medium text-gray-900">
                           {v.country}
@@ -248,7 +250,7 @@ export function PendingVerification({
                     <div className="p-3 bg-white rounded-lg border border-gray-100 mb-4">
                       <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                         <Calendar size={12} />
-                        Tanggal Pendaftaran
+                        {t("dashboard.stats.registrationDate")}
                       </div>
                       <div className="text-sm font-medium text-gray-900">
                         {v.createdAt ? new Date(v.createdAt).toLocaleDateString("id-ID", {
@@ -281,12 +283,12 @@ export function PendingVerification({
                         ) : isConfirmingReject ? (
                           <>
                             <CheckCircle size={16} />
-                            Konfirmasi Tolak
+                            {t("dashboard.verification.confirmReject")}
                           </>
                         ) : (
                           <>
                             <XCircle size={16} />
-                            Tolak Verifikasi
+                            {t("dashboard.verification.rejectVerification")}
                           </>
                         )}
                       </button>
@@ -308,12 +310,12 @@ export function PendingVerification({
                         ) : isConfirmingApprove ? (
                           <>
                             <CheckCircle size={16} />
-                            Konfirmasi Setujui
+                            {t("dashboard.verification.confirmApprove")}
                           </>
                         ) : (
                           <>
                             <CheckCircle size={16} />
-                            Setujui Verifikasi
+                            {t("dashboard.verification.approveVerification")}
                           </>
                         )}
                       </button>
@@ -321,7 +323,7 @@ export function PendingVerification({
 
                     {(isConfirmingReject || isConfirmingApprove) && (
                       <p className="text-xs text-center text-gray-500 mt-3 animate-fadeIn">
-                        Klik sekali lagi untuk mengkonfirmasi
+                        {t("dashboard.verification.clickAgainToConfirm")}
                       </p>
                     )}
                   </div>
@@ -336,7 +338,7 @@ export function PendingVerification({
       {items.length > 0 && (
         <div className="mt-6 pt-4 border-t border-gray-100">
           <button className="w-full py-3 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all flex items-center justify-center gap-2">
-            Lihat Semua Verifikasi
+            {t("dashboard.stats.viewAllVerifications")}
             <ChevronRight size={14} />
           </button>
         </div>

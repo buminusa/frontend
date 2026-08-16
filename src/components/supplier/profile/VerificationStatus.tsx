@@ -1,9 +1,12 @@
+"use client"
+
 import {
   AlertCircle,
   CheckCircle,
   Clock,
   XCircle,
 } from "lucide-react"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface VerificationStatusProps {
   status?: string
@@ -12,6 +15,8 @@ interface VerificationStatusProps {
 export function VerificationStatus({
   status,
 }: VerificationStatusProps) {
+  const { t } = useLanguage()
+
   const getStatusConfig = () => {
     switch (status) {
       case "Verified":
@@ -19,9 +24,8 @@ export function VerificationStatus({
           icon: CheckCircle,
           color: "text-green-600",
           bgColor: "border-green-200 bg-green-50",
-          title: "Verified Company",
-          description:
-            "Your company has been verified. You can now sell products on our platform.",
+          titleKey: "supplier.profile.verifiedTitle",
+          descriptionKey: "supplier.profile.verifiedDesc",
         }
 
       case "Pending":
@@ -29,9 +33,8 @@ export function VerificationStatus({
           icon: Clock,
           color: "text-yellow-600",
           bgColor: "border-yellow-200 bg-yellow-50",
-          title: "Verification Pending",
-          description:
-            "Your company verification is currently being reviewed.",
+          titleKey: "supplier.profile.pendingTitle",
+          descriptionKey: "supplier.profile.pendingDesc",
         }
 
       case "Rejected":
@@ -39,9 +42,8 @@ export function VerificationStatus({
           icon: XCircle,
           color: "text-red-600",
           bgColor: "border-red-200 bg-red-50",
-          title: "Verification Rejected",
-          description:
-            "Your verification was rejected. Please update your information.",
+          titleKey: "supplier.profile.rejectedTitle",
+          descriptionKey: "supplier.profile.rejectedDesc",
         }
 
       default:
@@ -49,9 +51,8 @@ export function VerificationStatus({
           icon: AlertCircle,
           color: "text-gray-600",
           bgColor: "border-gray-200 bg-gray-50",
-          title: "Not Verified",
-          description:
-            "Your company has not been verified yet.",
+          titleKey: "supplier.profile.notVerifiedTitle",
+          descriptionKey: "supplier.profile.notVerifiedDesc",
         }
     }
   }
@@ -66,11 +67,11 @@ export function VerificationStatus({
 
         <div>
           <h3 className="font-semibold text-gray-900">
-            {config.title}
+            {t(config.titleKey)}
           </h3>
 
           <p className="mt-1 text-sm text-gray-600">
-            {config.description}
+            {t(config.descriptionKey)}
           </p>
 
           {status === "Pending" && (
@@ -82,21 +83,21 @@ export function VerificationStatus({
               </div>
 
               <span className="text-sm text-yellow-700">
-                Processing...
+                {t("supplier.profile.processing")}
               </span>
             </div>
           )}
 
           {status === "Rejected" && (
             <button className="mt-3 text-sm font-medium text-blue-600 hover:text-blue-700">
-              Resubmit for Verification →
+              {t("supplier.profile.resubmit")}
             </button>
           )}
 
           {status === "Verified" && (
             <div className="mt-3">
               <span className="text-sm text-green-700">
-                ✓ All features are unlocked
+                {t("supplier.profile.allFeaturesUnlocked")}
               </span>
             </div>
           )}

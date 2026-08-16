@@ -1,11 +1,13 @@
 "use client";
 
+import { useLanguage } from "@/lib/langue/provider";
+
 export type DateRange = "7" | "30" | "all";
 
-const ranges: Array<{ value: DateRange; label: string }> = [
-  { value: "7", label: "7 Hari" },
-  { value: "30", label: "30 Hari" },
-  { value: "all", label: "Semua" },
+const ranges: Array<{ value: DateRange; labelKey: string }> = [
+  { value: "7", labelKey: "supplier.dashboard.range7" },
+  { value: "30", labelKey: "supplier.dashboard.range30" },
+  { value: "all", labelKey: "supplier.dashboard.rangeAll" },
 ];
 
 export function DateRangeFilter({
@@ -15,6 +17,7 @@ export function DateRangeFilter({
   value: DateRange;
   onChange: (v: DateRange) => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1">
       {ranges.map((range) => {
@@ -30,7 +33,7 @@ export function DateRangeFilter({
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
-            {range.label}
+            {t(range.labelKey)}
           </button>
         );
       })}

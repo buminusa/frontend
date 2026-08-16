@@ -4,12 +4,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/langue/provider";
 
 // Versi khusus hero: lebar maksimal 1920px dan telah dikompresi agar tidak
 // mengunduh foto asli berukuran 3.600–5.184px.
 const images = ["/hero-1.webp", "/hero-2.webp", "/hero-3.webp", "/hero-4.webp"];
 
 export default function HeroV2() {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -35,7 +37,7 @@ export default function HeroV2() {
       <Image
         key={images[currentIndex]}
         src={images[currentIndex]}
-        alt={`Latar hero ${currentIndex + 1}`}
+        alt={t("landing.hero.slideAlt", { n: currentIndex + 1 })}
         fill
         priority
         className="object-cover object-center"
@@ -48,15 +50,15 @@ export default function HeroV2() {
         <div className="flex w-full max-w-3xl flex-col items-center space-y-6 text-white">
           {/* Title */}
           <h1 className="text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Menghubungkan
+            {t("landing.hero.titleLine1")}
             <br />
-            <span className="text-green-600">Hasil Bumi Indonesia</span>
+            <span className="text-green-600">{t("landing.hero.titleLine2")}</span>
             <br />
-            ke Dunia
+            {t("landing.hero.titleLine3")}
           </h1>
 
           <p className="max-w-xl text-base text-white/80 md:text-lg">
-            Platform Agregator Komoditas Terpercaya.
+            {t("landing.hero.subtitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <Button
@@ -64,7 +66,7 @@ export default function HeroV2() {
               size="lg"
               className="h-14 rounded-full bg-green-600 px-8 text-base font-semibold text-black shadow-lg transition-all duration-300 hover:bg-green-500 hover:scale-105 hover:shadow-amber-400/30"
             >
-              <Link href="/register">Jelajahi Produk</Link>
+              <Link href="/register">{t("landing.hero.exploreProducts")}</Link>
             </Button>
 
             <Button
@@ -73,22 +75,22 @@ export default function HeroV2() {
               size="lg"
               className="h-14 rounded-full border-white/40 bg-white/10 px-8 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:border-white hover:text-white"
             >
-              <Link href="/#cara-kerja">Pelajari Lebih Lanjut</Link>
+              <Link href="/#cara-kerja">{t("landing.hero.learnMore")}</Link>
             </Button>
           </div>
           <div className="flex items-center justify-center gap-10 pt-8">
             {[
               {
                 value: "50+",
-                label: "JENIS KOMODITAS",
+                label: "landing.hero.statCommodities",
               },
               {
                 value: "1000+",
-                label: "PETANI MITRA",
+                label: "landing.hero.statFarmers",
               },
               {
                 value: "38",
-                label: "PROVINSI",
+                label: "landing.hero.statProvinces",
               },
             ].map((stat, idx) => (
               <React.Fragment key={idx}>
@@ -100,7 +102,7 @@ export default function HeroV2() {
                   </h3>
 
                   <p className="mt-1 text-xs tracking-wide text-white/70">
-                    {stat.label}
+                    {t(stat.label)}
                   </p>
                 </div>
               </React.Fragment>

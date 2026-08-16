@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { formatIdNumber } from "@/lib/format";
+import { useLanguage } from "@/lib/langue/provider";
 
 interface StatCardProps {
   icon: LucideIcon;
@@ -76,9 +77,10 @@ export function StatCard({
   loading,
   trend = null,
   color = "blue",
-  period = "Bulan Ini",
+  period,
 }: StatCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const { t } = useLanguage();
   const config = colorConfig[color];
   const isPositiveTrend = (trend ?? 0) >= 0;
 
@@ -137,13 +139,13 @@ export function StatCard({
       </div>
 
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-        <span className="text-xs text-gray-400">{period}</span>
+        <span className="text-xs text-gray-400">{period || t("dashboard.stats.thisMonth")}</span>
         <div
           className={`flex items-center gap-1 text-xs font-medium text-gray-400 group-hover:text-blue-600 transition-all ${
             isHovered ? "translate-x-0 opacity-100" : "translate-x-2 opacity-0"
           }`}
         >
-          Detail
+          {t("dashboard.stats.detail")}
           <ArrowUpRight size={12} />
         </div>
       </div>

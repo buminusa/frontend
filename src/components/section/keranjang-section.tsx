@@ -9,11 +9,21 @@ import Pagination from "../pagination";
 import OrderStatusBadge from "../order-status-badge";
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/langue/provider";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
 // TODO: confirm this matches the route mounted for getMyOrdersBuyer in your routes file.
 const ORDERS_ENDPOINT = `${API_BASE_URL}/api/v1/orders/buyer/my-orders`;
 const ORDERS_PER_PAGE = 10;
+
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  Pending: "orders.statusPending",
+  Confirmed: "orders.statusConfirmed",
+  Processing: "orders.statusProcessing",
+  Shipped: "orders.statusShipped",
+  Completed: "orders.statusCompleted",
+  Cancelled: "orders.statusCancelled",
+};
 
 type ApiOrder = {
   id: number;
@@ -51,6 +61,7 @@ export default function KeranjangSection() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -85,7 +96,7 @@ export default function KeranjangSection() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.message || "Gagal memuat pesanan.");
+          throw new Error(result.message || t("cart.loadError"));
         }
 
         const apiOrders = result.data as ApiOrder[];
@@ -99,7 +110,7 @@ export default function KeranjangSection() {
         });
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
-          setError(err instanceof Error ? err.message : "Gagal memuat pesanan.");
+          setError(err instanceof Error ? err.message : t("cart.loadError"));
         }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
@@ -136,14 +147,14 @@ export default function KeranjangSection() {
         className="flex items-center gap-2 rounded-lg border px-4 py-2 mb-4 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
       >
         <ArrowLeft className="h-4 w-4" />
-        Kembali
+        {t("common.back")}
       </button>
-        <h2 className="mb-8 text-3xl font-bold">Keranjang</h2>
+        <h2 className="mb-8 text-3xl font-bold">{t("cart.title")}</h2>
 
         {statuses.length > 0 && (
   <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
     <CategoryChip
-      name="Semua"
+      name={t("common.all")}
       icon={ListFilter}
       active={selectedStatus === null}
       onClick={() => {
@@ -154,7 +165,7 @@ export default function KeranjangSection() {
     {statuses.map((status) => (
       <CategoryChip
         key={status}
-        name={status}
+        name={t(STATUS_LABEL_KEYS[status] ?? status)}
         icon={Tag}
         active={selectedStatus === status}
         onClick={() => {
@@ -167,7 +178,7 @@ export default function KeranjangSection() {
 )}
 
         {isLoading && (
-          <p className="text-sm text-gray-500">Memuat pesanan...</p>
+          <p className="text-sm text-gray-500">{t("cart.loadingOrders")}</p>
         )}
 
         {!isLoading && error && (
@@ -177,15 +188,15 @@ export default function KeranjangSection() {
         {!isLoading && !error && orders.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 py-20 text-center">
             <PackageSearch size={40} className="mb-4 text-gray-300" />
-            <p className="font-semibold text-gray-700">Belum ada pesanan</p>
+            <p className="font-semibold text-gray-700">{t("cart.emptyTitle")}</p>
             <p className="mt-1 text-sm text-gray-500">
-              Pesanan yang kamu kirim ke supplier akan muncul di sini.
+              {t("cart.emptyDescription")}
             </p>
             <Link
               href="/komoditas"
               className="mt-6 rounded-full bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
             >
-              Jelajahi Komoditas
+              {t("cart.exploreCommodities")}
             </Link>
           </div>
         )}
@@ -244,11 +255,11 @@ export default function KeranjangSection() {
                 </div>
 
                 <div className="flex items-center justify-between border-t border-gray-100 px-5 py-4">
-                  <span className="text-sm text-gray-500">Total</span>
+                  <span className="text-sm text-gray-500">{t("cart.total")}</span>
                   <span className="text-lg font-bold text-green-600">
                     {Number(order.total_amount) > 0
                       ? formatCurrency(order.total_amount)
-                      : "Menunggu konfirmasi harga"}
+                      : t("cart.pendingPrice")}
                   </span>
                 </div>
               </div>

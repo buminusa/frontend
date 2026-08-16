@@ -14,6 +14,7 @@ import {
   getUserFromToken,
 } from "@/lib/auth"
 import { companyProfileService } from "@/lib/api/services/company-profiles"
+import { useLanguage } from "@/lib/langue/provider"
 
 type ApiCompanyProfile = {
   id: number
@@ -73,6 +74,8 @@ type CompanyProfile = {
 }
 
 export function CompanyProfileSection() {
+  const { t } = useLanguage()
+
   const [company, setCompany] = useState<CompanyProfile | null>(null)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -127,7 +130,7 @@ export function CompanyProfileSection() {
           setError(
             error instanceof Error
               ? error.message
-              : "Gagal memuat profil perusahaan."
+              : t("supplier.profile.loadFailed")
           )
         }
       } finally {
@@ -185,7 +188,7 @@ export function CompanyProfileSection() {
       setSaveError(
         error instanceof Error
           ? error.message
-          : "Gagal menyimpan profil perusahaan."
+          : t("supplier.profile.saveFailed")
       )
     } finally {
       setIsSaving(false)
@@ -213,7 +216,7 @@ export function CompanyProfileSection() {
       setSaveError(
         error instanceof Error
           ? error.message
-          : "Gagal mengunggah logo."
+          : t("supplier.profile.logoUploadFailed")
       )
     }
   }
@@ -221,7 +224,7 @@ export function CompanyProfileSection() {
   if (isLoading) {
     return (
       <p className="text-sm text-gray-500">
-        Memuat profil perusahaan...
+        {t("supplier.profile.loading")}
       </p>
     )
   }
@@ -237,7 +240,7 @@ export function CompanyProfileSection() {
   if (!company) {
     return (
       <p className="text-sm text-gray-500">
-        Profil perusahaan tidak ditemukan.
+        {t("supplier.profile.notFound")}
       </p>
     )
   }

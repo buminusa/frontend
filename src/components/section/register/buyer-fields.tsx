@@ -2,6 +2,7 @@
 
 import { User, MapPin, Phone, Globe } from "lucide-react"
 import AuthField from "../auth-field"
+import { useLanguage } from "@/lib/langue/provider"
 
 interface BuyerFieldsProps {
   formData: {
@@ -15,28 +16,30 @@ interface BuyerFieldsProps {
 }
 
 export default function BuyerFields({ formData, onChange }: BuyerFieldsProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="space-y-5">
       <AuthField
-        label="Nama Lengkap"
+        label={t("auth.field.fullName")}
         value={formData.full_name}
         onChange={(v) => onChange("full_name", v)}
-        placeholder="Nama lengkap sesuai identitas"
+        placeholder={t("auth.register.fullNamePlaceholder")}
         icon={User}
       />
 
       <AuthField
-        label="Alamat"
+        label={t("auth.field.address")}
         value={formData.address}
         onChange={(v) => onChange("address", v)}
-        placeholder="Alamat lengkap"
+        placeholder={t("auth.register.addressPlaceholder")}
         icon={MapPin}
         textarea
       />
 
       <div className="grid grid-cols-2 gap-4">
         <AuthField
-          label="Provinsi"
+          label={t("auth.field.province")}
           value={formData.province}
           onChange={(v) => onChange("province", v)}
           placeholder="Jawa Barat"
@@ -44,7 +47,7 @@ export default function BuyerFields({ formData, onChange }: BuyerFieldsProps) {
         />
 
         <AuthField
-          label="Negara"
+          label={t("auth.field.country")}
           value={formData.country}
           onChange={(v) => onChange("country", v)}
           placeholder="Indonesia"
@@ -53,7 +56,7 @@ export default function BuyerFields({ formData, onChange }: BuyerFieldsProps) {
       </div>
 
       <AuthField
-        label="Nomor Telepon"
+        label={t("auth.field.phone")}
         value={formData.phone}
         onChange={(v) => onChange("phone", v)}
         placeholder="08xxxxxxxxxx"

@@ -84,8 +84,8 @@ export default function HeroHomeV2() {
       <div className="absolute inset-0 z-20 flex items-center justify-center px-4">
         <div className="w-full max-w-4xl text-center text-white">
 
-          <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-green-400">
-            Bumi Nusa
+          <p className="mb-4 text-sm font-medium tracking-[0.2em] text-green-400">
+            BumiNusa.id
           </p>
 
           <h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">

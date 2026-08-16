@@ -10,6 +10,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/lib/langue/provider";
 import type { Product } from "@/lib/types/api";
 import { formatIdNumber } from "@/lib/format";
+import { getLocalizedCategoryName } from "@/lib/categories";
 import {
   Search,
   Trash2,
@@ -18,7 +19,7 @@ import {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +82,7 @@ export default function ProductsPage() {
         <div>
           <div className="font-medium text-gray-900">{item.nama}</div>
           <div className="text-xs text-gray-500 mt-0.5">
-            {item.category?.name_categories || t("dashboard.products.noCategory")}
+            {item.category ? getLocalizedCategoryName(item.category, lang) : t("dashboard.products.noCategory")}
           </div>
         </div>
       ),

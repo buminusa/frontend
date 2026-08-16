@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { fetchCategories } from "@/lib/api/server-categories";
 import { getServerT } from "@/lib/langue/server";
+import CategoryName from "@/components/category-name";
 
 export default async function KomoditasSection() {
   const categories = await fetchCategories(6);
@@ -59,7 +60,7 @@ export default async function KomoditasSection() {
 
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
                 <h3 className="text-white text-base sm:text-lg font-medium mb-2">
-                  {item.name_categories}
+                  <CategoryName category={item} />
                 </h3>
                 <span className="block h-0.5 w-8 bg-amber-400 transition-all duration-500 ease-out group-hover:w-16" />
               </div>

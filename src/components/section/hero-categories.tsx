@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { fetchCategories } from "@/lib/api/server-categories";
+import CategoryName from "@/components/category-name";
 
 export default async function HeroCategories() {
   const categories = await fetchCategories(12);
@@ -33,7 +34,7 @@ export default async function HeroCategories() {
             )}
 
             <span className="mt-4 text-center text-sm font-medium lg:text-base">
-              {category.name_categories}
+              <CategoryName category={category} />
             </span>
           </Link>
         );

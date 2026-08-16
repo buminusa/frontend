@@ -11,6 +11,7 @@ import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/lib/langue/provider";
 import type { Product, Category } from "@/lib/types/api";
 import { formatIdNumber } from "@/lib/format";
+import { getLocalizedCategoryName } from "@/lib/categories";
 import {
   Search,
   Trash2,
@@ -22,7 +23,7 @@ import {
 
 export default function SuperAdminProductsPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +137,7 @@ export default function SuperAdminProductsPage() {
         <div>
           <div className="font-medium text-gray-900">{item.nama}</div>
           <div className="text-xs text-gray-500 mt-0.5">
-            {item.category?.name_categories || t("dashboard.products.noCategory")}
+            {item.category ? getLocalizedCategoryName(item.category, lang) : t("dashboard.products.noCategory")}
           </div>
         </div>
       ),
@@ -263,7 +264,7 @@ export default function SuperAdminProductsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.category")}</label>
                   <select value={createForm.categoryId} onChange={(e) => setCreateForm((prev) => ({ ...prev, categoryId: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
                     <option value="">{t("dashboard.products.selectCategory")}</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name_categories}</option>)}
+                    {categories.map((c) => <option key={c.id} value={c.id}>{getLocalizedCategoryName(c, lang)}</option>)}
                   </select>
                 </div>
                 <div>

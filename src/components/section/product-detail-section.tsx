@@ -7,6 +7,7 @@ import { getAuthToken, getUserRoleFromToken } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 import { orderService } from "@/lib/api/services/orders";
 import { useLanguage } from "@/lib/langue/provider";
+import { getLocalizedCategoryName } from "@/lib/categories";
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"
@@ -26,6 +27,8 @@ type ApiProduct = {
   category: {
     id: number;
     name_categories: string;
+    name_categories_en?: string | null;
+    slug?: string | null;
   } | null;
 
   supplier: {
@@ -70,7 +73,7 @@ export default function ProductDetailSection() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
 
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -125,7 +128,7 @@ export default function ProductDetailSection() {
           name: apiProduct.nama,
           slug: apiProduct.slug,
           description: apiProduct.description ?? "",
-          category: apiProduct.category?.name_categories ?? t("komoditas.detail.noCategory"),
+          category: apiProduct.category ? getLocalizedCategoryName(apiProduct.category, lang) : t("komoditas.detail.noCategory"),
 
           priceMin: Number(apiProduct.price_min),
           priceMax: Number(apiProduct.price_max),

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { Product } from "@/lib/types/dashboard";
 import { useLanguage } from "@/lib/langue/provider";
+import { getLocalizedCategoryName } from "@/lib/categories";
 
 export function PopularProducts({
   products,
@@ -22,7 +23,7 @@ export function PopularProducts({
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [sortBy, setSortBy] = useState<"views" | "name">("views");
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
 
   const formatViews = (views: number) => {
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
@@ -179,7 +180,7 @@ export function PopularProducts({
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                  <span>{p.category?.name_categories ?? "Tanpa kategori"}</span>
+                  <span>{p.category ? getLocalizedCategoryName(p.category, lang) : t("dashboard.products.noCategory")}</span>
                   <span className="text-gray-300">•</span>
                   <span>{p.supplier?.company_name ?? "-"}</span>
                 </div>

@@ -9,6 +9,7 @@ import Link from "next/link"
 import { ArrowRight, LayoutGrid } from "lucide-react"
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth"
 import { useLanguage } from "@/lib/langue/provider"
+import { getLocalizedCategoryName } from "@/lib/categories"
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "")
 
@@ -17,7 +18,7 @@ type ApiProduct = {
   nama: string
   slug: string | null
   price_min: string | number
-  category: { id: number; name_categories: string } | null
+  category: { id: number; name_categories: string; name_categories_en?: string | null; slug?: string | null } | null
   supplier: { company_name: string; address?: string | null } | null
   images: { image_url: string }[]
 }
@@ -32,7 +33,7 @@ type Product = {
 }
 
 export default function PopulerCommoditySection() {
-  const { t } = useLanguage()
+  const { lang, t } = useLanguage()
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -70,7 +71,7 @@ export default function PopulerCommoditySection() {
     name: product.nama,
     image: product.images[0]?.image_url ?? "/hasil_bumi.png",
     location: product.supplier?.address ?? t("komoditas.popular.locationFallback"),
-    category: product.category?.name_categories ?? t("komoditas.popular.otherCategory"),
+    category: product.category ? getLocalizedCategoryName(product.category, lang) : t("komoditas.popular.otherCategory"),
   }))
 )
       } catch (error) {

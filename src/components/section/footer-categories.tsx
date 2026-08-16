@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { fetchCategories } from "@/lib/api/server-categories";
+import CategoryName from "@/components/category-name";
 
 export default async function FooterCategories() {
   const categories = await fetchCategories(6);
@@ -16,7 +17,7 @@ export default async function FooterCategories() {
             className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition-colors"
           >
             <ChevronRight className="w-3 h-3" />
-            {category.name_categories}
+            <CategoryName category={category} />
           </Link>
         </li>
       ))}

@@ -10,6 +10,7 @@ import { UnauthorizedError } from "@/lib/api/api";
 import { getErrorMessage } from "@/lib/api/errors";
 import { useLanguage } from "@/lib/langue/provider";
 import type { Category } from "@/lib/types/api";
+import { getLocalizedCategoryName } from "@/lib/categories";
 import {
   Search,
   Pencil,
@@ -26,7 +27,7 @@ const IMAGE_TYPES = ["image/jpeg", "image/png"];
 
 export default function CategoriesPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export default function CategoriesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formName, setFormName] = useState("");
+  const [formNameEn, setFormNameEn] = useState("");
   const [formImage, setFormImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
@@ -94,6 +96,7 @@ export default function CategoriesPage() {
     try {
       const formData = new FormData();
       formData.append("name_categories", formName);
+      formData.append("name_categories_en", formNameEn);
       if (formImage) formData.append("image", formImage);
 
       if (editingCategory) {
@@ -108,6 +111,7 @@ export default function CategoriesPage() {
       setShowModal(false);
       setEditingCategory(null);
       setFormName("");
+      setFormNameEn("");
       setFormImage(null);
       setImagePreview(null);
     } catch (err: unknown) {
@@ -138,6 +142,7 @@ export default function CategoriesPage() {
   const openEditModal = (category: Category) => {
     setEditingCategory(category);
     setFormName(category.name_categories);
+    setFormNameEn(category.name_categories_en ?? "");
     setFormImage(null);
     setImagePreview(category.image_url || null);
     setShowModal(true);
@@ -146,6 +151,7 @@ export default function CategoriesPage() {
   const openCreateModal = () => {
     setEditingCategory(null);
     setFormName("");
+    setFormNameEn("");
     setFormImage(null);
     setImagePreview(null);
     setShowModal(true);
@@ -182,7 +188,7 @@ export default function CategoriesPage() {
       key: "name_categories",
       label: t("dashboard.categories.name"),
       render: (item: Category) => (
-        <span className="font-medium text-gray-900">{item.name_categories}</span>
+        <span className="font-medium text-gray-900">{getLocalizedCategoryName(item, lang)}</span>
       ),
     },
     {
@@ -313,6 +319,18 @@ export default function CategoriesPage() {
                   placeholder={t("dashboard.categories.namePlaceholder")}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("dashboard.categories.englishName")}
+                </label>
+                <input
+                  type="text"
+                  value={formNameEn}
+                  onChange={(e) => setFormNameEn(e.target.value)}
+                  placeholder={t("dashboard.categories.englishNamePlaceholder")}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                 />
               </div>
               <div>

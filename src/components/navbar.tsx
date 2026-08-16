@@ -24,6 +24,7 @@ import {
 import Avatar from "./avatar";
 import { LanguageSwitcher } from "@/lib/langue/language-switcher";
 import { useLanguage } from "@/lib/langue/provider";
+import { getLocalizedCategoryName } from "@/lib/categories";
 
 const categories = [
   "Rempah-rempah",
@@ -140,7 +141,7 @@ function SearchBar() {
 
 export default function Navbar() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -425,13 +426,13 @@ export default function Navbar() {
                         : "hover:bg-gray-50"
                     }`}
                   >
-                    {category}
+                    {getLocalizedCategoryName({ name_categories: category }, lang)}
                   </button>
                 ))}
               </div>
 
               <div className="flex-1 p-8">
-                <h2 className="text-3xl font-bold">{activeCategory}</h2>
+                <h2 className="text-3xl font-bold">{getLocalizedCategoryName({ name_categories: activeCategory }, lang)}</h2>
                 <p className="mt-3 text-gray-500">
                   Berbagai komoditas rempah berkualitas dari seluruh Indonesia.
                 </p>

@@ -7,6 +7,7 @@ import { productService } from "@/lib/api/services/products";
 import { categoryService } from "@/lib/api/services/categories";
 import type { ApiResponse, Category, Product } from "@/lib/types/api";
 import { useLanguage } from "@/lib/langue/provider";
+import { getLocalizedCategoryName } from "@/lib/categories";
 
 type ProductRow = {
   id: number;
@@ -47,7 +48,7 @@ const emptyForm = (): ProductFormState => ({
 const MAX_IMAGES = 5;
 
 export default function SupplierProducts() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +72,7 @@ export default function SupplierProducts() {
           id: product.id,
           name: product.nama,
           category:
-            product.category?.name_categories ??
+            (product.category && getLocalizedCategoryName(product.category, lang)) ??
             t("supplier.products.noCategory"),
           price: Number(product.price_min ?? 0).toLocaleString("id-ID", {
             style: "currency",
@@ -117,7 +118,7 @@ export default function SupplierProducts() {
             id: product.id,
             name: product.nama,
             category:
-            product.category?.name_categories ??
+            (product.category && getLocalizedCategoryName(product.category, lang)) ??
             t("supplier.products.noCategory"),
             price: Number(product.price_min ?? 0).toLocaleString("id-ID", {
               style: "currency",
@@ -494,7 +495,7 @@ export default function SupplierProducts() {
                     <option value="">{t("supplier.products.noCategory")}</option>
                     {categories.map((category) => (
                       <option key={category.id} value={String(category.id)}>
-                        {category.name_categories}
+                        {getLocalizedCategoryName(category, lang)}
                       </option>
                     ))}
                   </select>

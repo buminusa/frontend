@@ -7,6 +7,7 @@ import Pagination from "../pagination";
 import ProductCard from "../product-card";
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth";
 import { useLanguage } from "@/lib/langue/provider";
+import { getLocalizedCategoryName } from "@/lib/categories";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
 const PRODUCTS_PER_PAGE = 18;
@@ -16,7 +17,7 @@ type ApiProduct = {
   nama: string;
   slug: string | null;
   price_min: string | number;
-  category: { id: number; name_categories: string } | null;
+  category: { id: number; name_categories: string; name_categories_en?: string | null; slug?: string | null } | null;
   supplier: { company_name: string; address?: string | null } | null;
   images: { image_url: string }[];
 };
@@ -32,7 +33,9 @@ type Product = {
 
 type Category = {
   id: number;
-  name: string;
+  name_categories: string;
+  name_categories_en?: string | null;
+  slug?: string | null;
 };
 
 export default function AllCommoditySection({
@@ -42,7 +45,7 @@ export default function AllCommoditySection({
   initialKeyword?: string;
   initialCategoryId?: number | null;
 }) {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -111,7 +114,7 @@ export default function AllCommoditySection({
             name: product.nama,
             image: product.images[0]?.image_url ?? "/hasil_bumi.png",
             location: product.supplier?.address ?? t("komoditas.list.locationFallback"),
-            category: product.category?.name_categories ?? t("komoditas.list.otherCategory"),
+            category: product.category ? getLocalizedCategoryName(product.category, lang) : t("komoditas.list.otherCategory"),
           }))
         )
         setTotalPages(result.meta?.totalPages ?? 1);
@@ -122,7 +125,9 @@ export default function AllCommoditySection({
             if (product.category) {
               nextCategories.set(product.category.id, {
                 id: product.category.id,
-                name: product.category.name_categories,
+                name_categories: product.category.name_categories,
+                name_categories_en: product.category.name_categories_en,
+                slug: product.category.slug,
               });
             }
           });
@@ -167,7 +172,7 @@ export default function AllCommoditySection({
           {categories.map((category) => (
             <CategoryChip
               key={category.id}
-              name={category.name}
+              name={getLocalizedCategoryName(category, lang)}
               icon={Tag}
               active={category.id === selectedCategoryId}
               onClick={() => selectCategory(category.id)}

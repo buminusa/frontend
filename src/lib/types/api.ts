@@ -47,6 +47,7 @@ export interface BuyerProfile {
 export interface Category {
   id: number;
   name_categories: string;
+  name_categories_en?: string | null;
   slug: string | null;
   image_url: string | null;
   createdAt: string;

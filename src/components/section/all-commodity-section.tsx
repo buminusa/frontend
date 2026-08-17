@@ -8,6 +8,7 @@ import ProductCard from "../product-card";
 import { AUTH_EVENT_NAME, getAuthToken } from "@/lib/auth";
 import { useLanguage } from "@/lib/langue/provider";
 import { getLocalizedCategoryName } from "@/lib/categories";
+import { categoryService } from "@/lib/api/services/categories";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, "");
 const PRODUCTS_PER_PAGE = 18;
@@ -40,31 +41,26 @@ type Category = {
 
 export default function AllCommoditySection({
   initialKeyword = "",
-  initialCategoryId = null,
+  initialCategorySlug = null,
 }: {
   initialKeyword?: string;
-  initialCategoryId?: number | null;
+  initialCategorySlug?: string | null;
 }) {
   const { lang, t } = useLanguage();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [slugResolved, setSlugResolved] = useState(initialCategorySlug == null);
 
   const keyword = initialKeyword
   const [prevFilter, setPrevFilter] = useState<{ keyword: string; selectedCategoryId: number | null }>(() => ({
     keyword,
-    selectedCategoryId,
+    selectedCategoryId: null,
   }));
-  const [lastCategoryId, setLastCategoryId] = useState(initialCategoryId);
-
-  if (lastCategoryId !== initialCategoryId) {
-    setLastCategoryId(initialCategoryId);
-    setSelectedCategoryId(initialCategoryId);
-  }
 
   // reset back to page 1 whenever the search term or category changes
   if (prevFilter.keyword !== keyword || prevFilter.selectedCategoryId !== selectedCategoryId) {
@@ -72,7 +68,40 @@ export default function AllCommoditySection({
     setCurrentPage(1);
   }
 
+  // resolve categorySlug -> id once on mount / when slug prop changes
   useEffect(() => {
+    let cancelled = false;
+    if (initialCategorySlug == null) {
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setSelectedCategoryId(null);
+          setSlugResolved(true);
+        }
+      });
+      return () => { cancelled = true };
+    }
+    queueMicrotask(() => {
+      if (!cancelled) setSlugResolved(false);
+    });
+    categoryService
+      .getBySlug(initialCategorySlug)
+      .then((res) => {
+        if (cancelled) return;
+        setSelectedCategoryId(res.data?.id ?? null);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("Failed to resolve category slug", err);
+        setSelectedCategoryId(null);
+      })
+      .finally(() => {
+        if (!cancelled) setSlugResolved(true);
+      });
+    return () => { cancelled = true };
+  }, [initialCategorySlug]);
+
+  useEffect(() => {
+    if (!slugResolved) return;
     const controller = new AbortController();
 
     async function loadProducts() {
@@ -150,7 +179,7 @@ export default function AllCommoditySection({
       controller.abort();
       window.removeEventListener(AUTH_EVENT_NAME, loadProducts);
     };
-  }, [currentPage, selectedCategoryId, keyword, t]);
+  }, [slugResolved, currentPage, selectedCategoryId, keyword, t, lang]);
 
   function selectCategory(categoryId: number | null) {
     setSelectedCategoryId(categoryId);

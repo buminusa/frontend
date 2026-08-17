@@ -3,9 +3,11 @@ import { Mail, Phone } from "lucide-react";
 import FooterMenu from "@/components/section/footer-menu";
 import FooterCategories from "@/components/section/footer-categories";
 import { getServerT } from "@/lib/langue/server";
+import { fetchCategories } from "@/lib/api/server-categories";
 
 export default async function Footer() {
   const t = await getServerT();
+  const categories = await fetchCategories();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -26,7 +28,7 @@ export default async function Footer() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4">{t("landing.footer.categories")}</h3>
-            <FooterCategories />
+            <FooterCategories categories={categories} />
           </div>
 
           <div>

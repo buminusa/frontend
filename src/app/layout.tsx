@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_KEYWORDS } from "@/lib/seo";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_SHORT_NAME,
+  OG_IMAGE,
+  SAME_AS,
+  TWITTER_HANDLE,
+} from "@/lib/seo";
 import { AuthRouteGuard } from "@/components/auth-route-guard";
 import { LanguageProvider } from "@/lib/langue/provider";
 import { getServerLang } from "@/lib/langue/server";
@@ -24,24 +33,45 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: SITE_NAME,
+    default: `${SITE_NAME} — Platform Jual Beli Rempah-rempah Terpercaya Indonesia`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   keywords: SITE_KEYWORDS,
   applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "E-commerce",
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: "/icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "id_ID",
     siteName: SITE_NAME,
     url: SITE_URL,
-    title: SITE_NAME,
+    title: `${SITE_NAME} — Platform Rempah-rempah Indonesia`,
     description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
+    title: `${SITE_NAME} — Platform Rempah-rempah Indonesia`,
     description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
+    creator: TWITTER_HANDLE,
+    site: TWITTER_HANDLE,
   },
   robots: {
     index: true,
@@ -51,13 +81,35 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
-  alternates: {
-    canonical: "/",
-  },
-  icons: {
-    icon: "/icon.png",
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  alternateName: SITE_SHORT_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}${OG_IMAGE}`,
+  description: SITE_DESCRIPTION,
+  sameAs: SAME_AS,
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  alternateName: SITE_SHORT_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  inLanguage: "id-ID",
+  publisher: { "@type": "Organization", name: SITE_NAME, logo: `${SITE_URL}${OG_IMAGE}` },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/komoditas?search={search_term_string}`,
+    "query-input": "required name=search_term_string",
   },
 };
 
@@ -74,6 +126,14 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <LanguageProvider initialLang={lang}>
           <AuthRouteGuard>{children}</AuthRouteGuard>
         </LanguageProvider>

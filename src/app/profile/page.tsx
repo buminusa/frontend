@@ -1,5 +1,10 @@
-// app/profile/page.tsx
+import type { Metadata } from "next";
 import { ProfileSection } from "@/components/section/profile/ProfileSection";
+
+export const metadata: Metadata = {
+  title: "Profil — BumiNusa.id",
+  robots: { index: false, follow: false, noarchive: true },
+};
 
 export default function ProfilePage() {
   return (

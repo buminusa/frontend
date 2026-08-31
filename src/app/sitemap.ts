@@ -9,14 +9,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: SITE_URL,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 1,
     },
     {
       url: `${SITE_URL}/komoditas`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/llms.txt`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.3,
     },
   ];
 
@@ -29,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((product) => ({
         url: `${SITE_URL}/komoditas/${product.slug}`,
         lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
-        changeFrequency: "weekly" as const,
+        changeFrequency: "daily" as const,
         priority: 0.8,
       }));
   } catch {

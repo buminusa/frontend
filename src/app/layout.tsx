@@ -7,8 +7,10 @@ import {
   SITE_KEYWORDS,
   SITE_SHORT_NAME,
   OG_IMAGE,
+  OG_IMAGE_FALLBACK,
   SAME_AS,
   TWITTER_HANDLE,
+  FAQ_ITEMS,
 } from "@/lib/seo";
 import { AuthRouteGuard } from "@/components/auth-route-guard";
 import { LanguageProvider } from "@/lib/langue/provider";
@@ -43,8 +45,10 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "E-commerce",
+  formatDetection: { telephone: false, email: false, address: false },
   alternates: {
     canonical: "/",
+    languages: { "id-ID": "/", "x-default": "/" },
   },
   icons: {
     icon: "/icon.png",
@@ -92,7 +96,12 @@ const organizationJsonLd = {
   name: SITE_NAME,
   alternateName: SITE_SHORT_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}${OG_IMAGE}`,
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_URL}${OG_IMAGE_FALLBACK}`,
+    width: 512,
+    height: 512,
+  },
   description: SITE_DESCRIPTION,
   sameAs: SAME_AS,
 };
@@ -104,13 +113,33 @@ const websiteJsonLd = {
   alternateName: SITE_SHORT_NAME,
   url: SITE_URL,
   description: SITE_DESCRIPTION,
-  inLanguage: "id-ID",
-  publisher: { "@type": "Organization", name: SITE_NAME, logo: `${SITE_URL}${OG_IMAGE}` },
+  inLanguage: ["id-ID"],
+  publisher: {
+    "@type": "Organization",
+    name: SITE_NAME,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}${OG_IMAGE_FALLBACK}`,
+      width: 512,
+      height: 512,
+    },
+  },
   potentialAction: {
     "@type": "SearchAction",
     target: `${SITE_URL}/komoditas?search={search_term_string}`,
     "query-input": "required name=search_term_string",
   },
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  inLanguage: "id-ID",
+  mainEntity: FAQ_ITEMS.map((f) => ({
+    "@type": "Question",
+    name: f.question,
+    acceptedAnswer: { "@type": "Answer", text: f.answer },
+  })),
 };
 
 export default async function RootLayout({
@@ -133,6 +162,10 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
         <LanguageProvider initialLang={lang}>
           <AuthRouteGuard>{children}</AuthRouteGuard>

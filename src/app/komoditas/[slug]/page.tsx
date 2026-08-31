@@ -19,19 +19,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       product.description ?? product.spectification ?? `Beli ${product.nama} berkualitas dengan harga terbaik di ${SITE_NAME}.`
     );
     const image = product.images?.[0]?.image_url;
+    const url = `/komoditas/${product.slug ?? slug}`;
+    const keywords = [product.nama, product.category?.name_categories, product.hs_code, "rempah", product.supplier?.company_name].filter(Boolean) as string[];
 
     return {
       title: `${product.nama} — Beli di ${SITE_NAME}`,
       description,
-      alternates: {
-        canonical: `/komoditas/${product.slug ?? slug}`,
-      },
+      keywords,
+      alternates: { canonical: url, languages: { "id-ID": url, "x-default": url } },
       openGraph: {
         type: "website",
         title: `${product.nama} — ${SITE_NAME}`,
         description,
-        url: `${SITE_URL}/komoditas/${product.slug ?? slug}`,
-        images: image ? [{ url: image, alt: product.nama }] : undefined,
+        url: `${SITE_URL}${url}`,
+        images: image
+          ? [{ url: image, width: 1200, height: 630, alt: product.nama }]
+          : [{ url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME }],
       },
       twitter: {
         card: "summary_large_image",
@@ -53,23 +56,45 @@ export default async function ProductDetailPage({ params }: Props) {
     const res = await productService.getBySlug(slug);
     const product = res.data;
     if (product) {
+      const isRange = product.price_min !== product.price_max;
+      const availability =
+        product.status === "Rejected" || product.status === "Pending"
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock";
       productJsonLd = {
         "@context": "https://schema.org",
         "@type": "Product",
         name: product.nama,
-        description:
-          product.description ?? product.spectification ?? undefined,
+        description: product.description ?? product.spectification ?? undefined,
         image: product.images?.map((img) => img.image_url) ?? undefined,
         url: `${SITE_URL}/komoditas/${product.slug ?? slug}`,
         sku: product.hs_code ?? undefined,
-        brand: { "@type": "Brand", name: SITE_NAME },
-        offers: {
-          "@type": "AggregateOffer",
-          priceCurrency: "IDR",
-          lowPrice: product.price_min,
-          highPrice: product.price_max,
-          availability: "https://schema.org/InStock",
-        },
+        category: product.category?.name_categories ?? undefined,
+        brand: { "@type": "Brand", name: product.supplier?.company_name ?? SITE_NAME },
+        ...(product.supplier
+          ? { manufacturer: { "@type": "Organization", name: product.supplier.company_name } }
+          : {}),
+        offers: isRange
+          ? {
+              "@type": "AggregateOffer",
+              priceCurrency: "IDR",
+              lowPrice: product.price_min,
+              highPrice: product.price_max,
+              offerCount: 1,
+              availability,
+              url: `${SITE_URL}/komoditas/${product.slug ?? slug}`,
+              seller: { "@type": "Organization", name: product.supplier?.company_name ?? SITE_NAME },
+              itemCondition: "https://schema.org/NewCondition",
+            }
+          : {
+              "@type": "Offer",
+              priceCurrency: "IDR",
+              price: product.price_min,
+              availability,
+              url: `${SITE_URL}/komoditas/${product.slug ?? slug}`,
+              seller: { "@type": "Organization", name: product.supplier?.company_name ?? SITE_NAME },
+              itemCondition: "https://schema.org/NewCondition",
+            },
       };
     }
   } catch {

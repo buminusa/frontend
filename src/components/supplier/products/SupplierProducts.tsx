@@ -243,8 +243,8 @@ export default function SupplierProducts() {
 
       Array.from(form.images ?? [])
         .slice(0, MAX_IMAGES)
-        .forEach((file, index) => {
-          formData.append(`images[${index}]`, file);
+        .forEach((file) => {
+          formData.append("images", file);
         });
 
       if (editingId) {

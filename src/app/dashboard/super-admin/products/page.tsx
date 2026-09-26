@@ -14,12 +14,39 @@ import { formatIdNumber } from "@/lib/format";
 import { getLocalizedCategoryName } from "@/lib/categories";
 import {
   Search,
+  Pencil,
   Trash2,
   Loader2,
   RefreshCw,
   Plus,
   X,
 } from "lucide-react";
+
+type ProductFormState = {
+  nama: string;
+  categoryId: string;
+  min_order: string;
+  price_min: string;
+  price_max: string;
+  unit: string;
+  description: string;
+  spectification: string;
+  hs_code: string;
+};
+
+const emptyProductForm = (): ProductFormState => ({
+  nama: "",
+  categoryId: "",
+  min_order: "",
+  price_min: "",
+  price_max: "",
+  unit: "",
+  description: "",
+  spectification: "",
+  hs_code: "",
+});
+
+const MAX_PRODUCT_IMAGES = 5;
 
 export default function SuperAdminProductsPage() {
   const router = useRouter();
@@ -29,11 +56,13 @@ export default function SuperAdminProductsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [createForm, setCreateForm] = useState({ nama: "", categoryId: "", min_order: "", price_min: "", price_max: "", unit: "", description: "", hs_code: "" });
+  const [productForm, setProductForm] = useState<ProductFormState>(emptyProductForm);
   const [images, setImages] = useState<File[]>([]);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -49,7 +78,7 @@ export default function SuperAdminProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, t]);
 
   useEffect(() => {
     const init = async () => {
@@ -74,31 +103,108 @@ export default function SuperAdminProductsPage() {
     void init();
   }, [loadCategories]);
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
+  const openCreateModal = () => {
+    setEditingId(null);
+    setProductForm(emptyProductForm());
+    setImages([]);
+    setFormError(null);
+    setShowProductModal(true);
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingId(product.id);
+    setProductForm({
+      nama: product.nama,
+      categoryId: product.categoryId ? String(product.categoryId) : "",
+      min_order: String(product.min_order),
+      price_min: String(product.price_min),
+      price_max: String(product.price_max),
+      unit: product.unit ?? "",
+      description: product.description ?? "",
+      spectification: product.spectification ?? "",
+      hs_code: product.hs_code ?? "",
+    });
+    setImages([]);
+    setFormError(null);
+    setShowProductModal(true);
+  };
+
+  const closeProductModal = () => {
+    setShowProductModal(false);
+    setEditingId(null);
+    setProductForm(emptyProductForm());
+    setImages([]);
+    setFormError(null);
+  };
+
+  const handleSubmitProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const minOrder = Number(productForm.min_order);
+    const priceMin = Number(productForm.price_min);
+    const priceMax = Number(productForm.price_max);
+
+    if (!Number.isInteger(minOrder) || minOrder < 100) {
+      setFormError(t("dashboard.products.minOrderError"));
+      return;
+    }
+
+    if (!Number.isFinite(priceMin) || !Number.isFinite(priceMax) || priceMin > priceMax) {
+      setFormError(t("dashboard.products.priceRangeError"));
+      return;
+    }
+
+    const editingProduct = editingId === null
+      ? null
+      : products.find((product) => product.id === editingId) ?? null;
+    const existingImageCount = editingProduct?.images?.length ?? 0;
+    const remainingImageSlots = MAX_PRODUCT_IMAGES - existingImageCount;
+
+    if (images.length > remainingImageSlots) {
+      setFormError(t("dashboard.products.maxImagesError", { max: MAX_PRODUCT_IMAGES }));
+      return;
+    }
+
     setFormLoading(true);
+    setFormError(null);
+
     try {
       const formData = new FormData();
-      formData.append("nama", createForm.nama);
-      formData.append("min_order", createForm.min_order);
-      formData.append("price_min", createForm.price_min);
-      formData.append("price_max", createForm.price_max);
-      formData.append("unit", createForm.unit);
-      if (createForm.categoryId) formData.append("categoryId", createForm.categoryId);
-      if (createForm.description) formData.append("description", createForm.description);
-      if (createForm.hs_code) formData.append("hs_code", createForm.hs_code);
+      formData.append("nama", productForm.nama);
+      formData.append("categoryId", productForm.categoryId);
+      formData.append("min_order", productForm.min_order);
+      formData.append("price_min", productForm.price_min);
+      formData.append("price_max", productForm.price_max);
+      formData.append("unit", productForm.unit);
+      formData.append("description", productForm.description);
+      formData.append("spectification", productForm.spectification);
+      formData.append("hs_code", productForm.hs_code);
       images.forEach((image) => formData.append("images", image));
-      const res = await productService.create(formData);
-      setProducts((prev) => [res.data, ...prev]);
-      setShowCreateModal(false);
-      setCreateForm({ nama: "", categoryId: "", min_order: "", price_min: "", price_max: "", unit: "", description: "", hs_code: "" });
-      setImages([]);
+
+      if (editingId !== null) {
+        const res = await productService.update(editingId, formData);
+        setProducts((prev) =>
+          prev.map((product) =>
+            product.id === editingId ? { ...product, ...res.data } : product
+          )
+        );
+      } else {
+        const res = await productService.create(formData);
+        setProducts((prev) => [res.data, ...prev]);
+      }
+
+      closeProductModal();
     } catch (err: unknown) {
       if (err instanceof UnauthorizedError) {
         router.push("/login?session=expired");
         return;
       }
-      setError(getErrorMessage(err, t("dashboard.products.addFailed")));
+      setFormError(getErrorMessage(
+        err,
+        editingId === null
+          ? t("dashboard.products.addFailed")
+          : t("dashboard.products.updateFailed")
+      ));
     } finally {
       setFormLoading(false);
     }
@@ -128,6 +234,10 @@ export default function SuperAdminProductsPage() {
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
+  const editingProduct = editingId === null
+    ? null
+    : products.find((product) => product.id === editingId) ?? null;
+  const remainingImageSlots = MAX_PRODUCT_IMAGES - (editingProduct?.images?.length ?? 0);
 
   const columns = [
     {
@@ -177,10 +287,22 @@ export default function SuperAdminProductsPage() {
       render: (item: Product) => (
         <div className="flex items-center gap-1">
           <button
+            type="button"
+            onClick={() => openEditModal(item)}
+            disabled={actionLoadingId === item.id}
+            className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors disabled:opacity-50"
+            title={t("dashboard.common.edit")}
+            aria-label={t("dashboard.common.edit")}
+          >
+            <Pencil size={14} />
+          </button>
+          <button
+            type="button"
             onClick={() => handleDelete(item.id)}
             disabled={actionLoadingId === item.id}
             className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
             title={t("dashboard.common.delete")}
+            aria-label={t("dashboard.common.delete")}
           >
             <Trash2 size={14} />
           </button>
@@ -209,7 +331,7 @@ export default function SuperAdminProductsPage() {
                 {t("dashboard.common.refresh")}
               </button>
               <button
-                onClick={() => setShowCreateModal(true)}
+                onClick={openCreateModal}
                 className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
               >
                 <Plus size={14} />
@@ -245,61 +367,195 @@ export default function SuperAdminProductsPage() {
           />
         </main>
 
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      {showProductModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">{t("dashboard.products.add")}</h3>
-              <button onClick={() => setShowCreateModal(false)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingId !== null
+                  ? t("dashboard.products.edit")
+                  : t("dashboard.products.add")}
+              </h3>
+              <button
+                type="button"
+                onClick={closeProductModal}
+                disabled={formLoading}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+                aria-label={t("dashboard.common.close")}
+              >
                 <X size={16} className="text-gray-500" />
               </button>
             </div>
-            <form onSubmit={handleCreateProduct} className="p-6 space-y-4">
+            <form onSubmit={handleSubmitProduct} className="p-6 space-y-4">
+              {formError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+                  {formError}
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.nameLabel")}</label>
-                  <input type="text" required value={createForm.nama} onChange={(e) => setCreateForm((prev) => ({ ...prev, nama: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("dashboard.products.nameLabel")}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={productForm.nama}
+                    onChange={(e) => setProductForm((prev) => ({ ...prev, nama: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.category")}</label>
-                  <select value={createForm.categoryId} onChange={(e) => setCreateForm((prev) => ({ ...prev, categoryId: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("dashboard.products.category")}
+                  </label>
+                  <select
+                    value={productForm.categoryId}
+                    onChange={(e) => setProductForm((prev) => ({ ...prev, categoryId: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  >
                     <option value="">{t("dashboard.products.selectCategory")}</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{getLocalizedCategoryName(c, lang)}</option>)}
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {getLocalizedCategoryName(category, lang)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.minOrder")}</label>
-                  <input type="number" required min="1" value={createForm.min_order} onChange={(e) => setCreateForm((prev) => ({ ...prev, min_order: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("dashboard.products.minOrder")}
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="100"
+                    step="1"
+                    value={productForm.min_order}
+                    onChange={(e) => setProductForm((prev) => ({ ...prev, min_order: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.unit")}</label>
-                  <input type="text" required value={createForm.unit} onChange={(e) => setCreateForm((prev) => ({ ...prev, unit: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("dashboard.products.unit")}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={productForm.unit}
+                    onChange={(e) => setProductForm((prev) => ({ ...prev, unit: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.priceMin")}</label>
-                  <input type="number" required min="0" value={createForm.price_min} onChange={(e) => setCreateForm((prev) => ({ ...prev, price_min: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("dashboard.products.priceMin")}
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="any"
+                    value={productForm.price_min}
+                    onChange={(e) => setProductForm((prev) => ({ ...prev, price_min: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.priceMax")}</label>
-                  <input type="number" required min="0" value={createForm.price_max} onChange={(e) => setCreateForm((prev) => ({ ...prev, price_max: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("dashboard.products.priceMax")}
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="any"
+                    value={productForm.price_max}
+                    onChange={(e) => setProductForm((prev) => ({ ...prev, price_max: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.descriptionLabel")}</label>
-                <textarea value={createForm.description} onChange={(e) => setCreateForm((prev) => ({ ...prev, description: e.target.value }))} rows={3} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("dashboard.products.descriptionLabel")}
+                </label>
+                <textarea
+                  value={productForm.description}
+                  onChange={(e) => setProductForm((prev) => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.hsCode")}</label>
-                <input type="text" value={createForm.hs_code} onChange={(e) => setCreateForm((prev) => ({ ...prev, hs_code: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("dashboard.products.specification")}
+                </label>
+                <textarea
+                  value={productForm.spectification}
+                  onChange={(e) => setProductForm((prev) => ({ ...prev, spectification: e.target.value }))}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t("dashboard.products.images")}</label>
-                <input type="file" accept="image/png,image/jpeg" multiple onChange={(e) => setImages(Array.from(e.target.files ?? []).slice(0, 5))} className="block w-full text-sm text-gray-500" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("dashboard.products.hsCode")}
+                </label>
+                <input
+                  type="text"
+                  value={productForm.hs_code}
+                  onChange={(e) => setProductForm((prev) => ({ ...prev, hs_code: e.target.value }))}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("dashboard.products.images")}
+                </label>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  multiple
+                  disabled={remainingImageSlots === 0 || formLoading}
+                  onChange={(e) => {
+                    const selectedImages = Array.from(e.target.files ?? []);
+                    setImages(selectedImages.slice(0, remainingImageSlots));
+                    setFormError(
+                      selectedImages.length > remainingImageSlots
+                        ? t("dashboard.products.maxImagesError", { max: MAX_PRODUCT_IMAGES })
+                        : null
+                    );
+                  }}
+                  className="block w-full text-sm text-gray-500 disabled:opacity-50"
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  {t("dashboard.products.imageLimit", { max: MAX_PRODUCT_IMAGES })}
+                </p>
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">{t("dashboard.common.cancel")}</button>
-                <button type="submit" disabled={formLoading} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50">
-                  {formLoading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                <button
+                  type="button"
+                  onClick={closeProductModal}
+                  disabled={formLoading}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  {t("dashboard.common.cancel")}
+                </button>
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {formLoading ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : editingId !== null ? (
+                    <Pencil size={14} />
+                  ) : (
+                    <Plus size={14} />
+                  )}
                   {t("dashboard.common.save")}
                 </button>
               </div>
